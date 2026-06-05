@@ -1,0 +1,34 @@
+<script setup lang="ts">
+interface Props {
+  reason: "no_data_in_range" | "no_search_result";
+  scope?: string;
+}
+
+const props = defineProps<Props>();
+
+const message = computed(() => {
+  if (props.reason === "no_search_result") return "ไม่พบผลการค้นหา";
+  return props.scope ? `ไม่พบข้อมูลในช่วง ${props.scope} ที่เลือก` : "ไม่พบข้อมูล";
+});
+</script>
+
+<template>
+  <div class="empty card" role="status">
+    <span class="empty-icon" aria-hidden="true">🔍</span>
+    <p class="empty-msg">{{ message }}</p>
+  </div>
+</template>
+
+<style scoped>
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap-sm);
+  text-align: center;
+  padding: var(--gap-lg);
+}
+
+.empty-icon { font-size: 32px; }
+.empty-msg { font-size: var(--text-sm); color: var(--text-secondary); }
+</style>

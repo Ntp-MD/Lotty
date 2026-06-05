@@ -1,0 +1,119 @@
+/* ============================================================
+   LottoLens — variables.css
+   Single source of truth. ห้ามใส่ hardcode ใน file อื่น
+   ============================================================ */
+
+:root {
+  /* ----------------------------------------------------------
+     Color — SaaS Dashboard Light
+  ---------------------------------------------------------- */
+  --bg-base: #f0f2f5;
+  --bg-surface: #ffffff;
+  --bg-raised: #f8f9fb;
+  --bg-sidebar: #1e1f2e;
+
+  --accent: #6366f1;
+  --accent-light: #eef2ff;
+  --accent-hover: #4f46e5;
+  --accent-gold: #f59e0b;
+  --accent-gold-light: #fffbeb;
+  --accent-red: #ef4444;
+  --accent-red-light: #fef2f2;
+  --accent-green: #22c55e;
+  --accent-green-light: #f0fdf4;
+  --accent-dim: #94a3b8;
+
+  --sidebar-text: #a8b0c8;
+  --sidebar-active: #ffffff;
+  --sidebar-active-bg: rgba(255, 255, 255, 0.1);
+
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+
+  --border: #e8eaf0;
+  --border-strong: #d1d5db;
+  --glow-accent: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  --glow-gold: rgba(245, 158, 11, 0.15);
+
+  /* ----------------------------------------------------------
+     Typography — Fonts
+  ---------------------------------------------------------- */
+  --font-display: "Teko", sans-serif;
+  --font-body: "Sarabun", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  /* ----------------------------------------------------------
+     Typography — Size Scale
+  ---------------------------------------------------------- */
+  --text-xs: clamp(11px, 1.2vw, 12px);
+  --text-sm: clamp(13px, 1.4vw, 14px);
+  --text-md: clamp(15px, 1.6vw, 16px);
+  --text-lg: clamp(18px, 2vw, 20px);
+  --text-xl: clamp(28px, 3.5vw, 40px);
+
+  /* ----------------------------------------------------------
+     Typography — Weight
+  ---------------------------------------------------------- */
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-bold: 700;
+
+  /* ----------------------------------------------------------
+     Typography — Line Height
+  ---------------------------------------------------------- */
+  --leading-tight: 1.2;
+  --leading-normal: 1.5;
+  --leading-loose: 1.75;
+
+  /* ----------------------------------------------------------
+     Spacing Scale
+  ---------------------------------------------------------- */
+  --gap-xs: 5px;
+  --gap-sm: 10px;
+  --gap-md: 15px;
+  --gap-lg: 30px;
+  --gap-xlg: 50px;
+
+  /* ----------------------------------------------------------
+     Border
+  ---------------------------------------------------------- */
+  --border-width: 1px;
+  --border-style: solid;
+  --border-color: var(--border);
+  --border-color-strong: var(--accent-dim);
+
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* ----------------------------------------------------------
+     Shadow / Glow
+  ---------------------------------------------------------- */
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 2px 6px rgba(0, 0, 0, 0.04);
+  --shadow-raised: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.1);
+  --shadow-accent: 0 4px 14px rgba(99, 102, 241, 0.25);
+  --glow-hot: 0 0 0 2px var(--accent-gold-light);
+
+  /* ----------------------------------------------------------
+     Transition
+  ---------------------------------------------------------- */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+
+  /* ----------------------------------------------------------
+     Layout
+  ---------------------------------------------------------- */
+  --nav-height-mobile: 56px;
+  --nav-width-desktop: 64px;
+  --nav-width-expanded: 220px;
+  --topbar-height: 56px;
+  --content-max-width: 1400px;
+
+  --bp-mobile: 600px;
+  --bp-desktop: 960px;
+}

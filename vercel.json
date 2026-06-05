@@ -1,0 +1,12 @@
+{
+  "buildCommand": "nuxt build",
+  "devCommand": "nuxt dev",
+  "installCommand": "npm install",
+  "framework": null,
+  "crons": [
+    {
+      "path": "/api/cron/fetch-latest",
+      "schedule": "30 8 1,16 * *"
+    }
+  ]
+}
