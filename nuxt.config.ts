@@ -45,6 +45,7 @@ export default defineNuxtConfig({
     "/api/stats/**": { cache: { maxAge: 3600 } },
     "/api/advisor": { cache: { maxAge: 3600 } },
     "/api/cron/**": { cache: false },
+    "/api/health": { cache: false },
   },
 
   runtimeConfig: {

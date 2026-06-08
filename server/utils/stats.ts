@@ -55,9 +55,10 @@ export function buildDateFilter(scope: string, month?: number, day?: string): st
 
 export function nextDrawDate(): string {
   const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
-  const day = now.getDate();
+  const thaiTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Bangkok" }));
+  const year = thaiTime.getFullYear();
+  const month = thaiTime.getMonth();
+  const day = thaiTime.getDate();
   if (day < 1) return new Date(year, month, 1).toISOString().slice(0, 10);
   if (day < 16) return new Date(year, month, 16).toISOString().slice(0, 10);
   return new Date(year, month + 1, 1).toISOString().slice(0, 10);
