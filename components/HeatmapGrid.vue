@@ -81,8 +81,9 @@ function onKeydown(e: KeyboardEvent, idx: number) {
 .heatmap-cell {
   position: relative;
   flex: 1;
-  min-width: 44px;
-  min-height: 44px;
+  aspect-ratio: 1;
+  min-width: clamp(36px, 8vw, 52px);
+  min-height: clamp(36px, 8vw, 52px);
   display: flex;
   align-items: center;
   justify-content: center;

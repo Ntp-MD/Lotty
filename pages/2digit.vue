@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { StatsResponse, RankingItem } from "~/types";
 
-useHead({ title: "2 ตัว — LottoLens" });
+useHead({ title: "2 ตัว — Lotty" });
 
 const { filter, queryParams } = useFilter();
 const selected = ref<string | null>(null);
@@ -107,7 +107,13 @@ const unitsByDigit = computed(() => {
   flex-wrap: wrap;
 }
 .breakdown-row > * {
-  flex: 1;
-  min-width: 160px;
+  flex: 1 1 100%;
+  min-width: 0;
+}
+
+@media (min-width: 480px) {
+  .breakdown-row > * {
+    flex: 1 1 calc(50% - var(--gap-md));
+  }
 }
 </style>

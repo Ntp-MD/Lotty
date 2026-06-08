@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { AdvisorResponse, StatsResponse } from "~/types";
 
-useHead({ title: "เลขแนะนำ — LottoLens" });
+useHead({ title: "เลขแนะนำ — Lotty" });
 
 const { filter, scopeLabel } = useFilter();
 
@@ -16,28 +16,34 @@ const { data, pending, error, refresh } = await useAsyncData(
 const advisor = computed(() => data.value?.data);
 
 const quickPick = ref<{ last2: string; last3b: string; last3f: string } | null>(null);
+const quickPickLoading = ref(false);
 
 async function generateQuickPick() {
-  const stats2 = await $fetch<StatsResponse>("/api/stats/2digit", { query: { scope: filter.scope, type: "last2" } });
-  const stats3b = await $fetch<StatsResponse>("/api/stats/3digit", { query: { scope: filter.scope, type: "last3b" } });
-  const stats3f = await $fetch<StatsResponse>("/api/stats/3digit", { query: { scope: filter.scope, type: "last3f" } });
+  quickPickLoading.value = true;
+  try {
+    const stats2 = await $fetch<StatsResponse>("/api/stats/2digit", { query: { scope: filter.scope, type: "last2" } });
+    const stats3b = await $fetch<StatsResponse>("/api/stats/3digit", { query: { scope: filter.scope, type: "last3b" } });
+    const stats3f = await $fetch<StatsResponse>("/api/stats/3digit", { query: { scope: filter.scope, type: "last3f" } });
 
-  function weightedRandom(ranking: typeof stats2.data.ranking) {
-    const weights = ranking.map((r) => r.gap + 1);
-    const total = weights.reduce((a, b) => a + b, 0);
-    let rnd = Math.random() * total;
-    for (let i = 0; i < ranking.length; i++) {
-      rnd -= weights[i];
-      if (rnd <= 0) return ranking[i].number;
+    function weightedRandom(ranking: typeof stats2.data.ranking) {
+      const weights = ranking.map((r) => r.gap + 1);
+      const total = weights.reduce((a, b) => a + b, 0);
+      let rnd = Math.random() * total;
+      for (let i = 0; i < ranking.length; i++) {
+        rnd -= weights[i];
+        if (rnd <= 0) return ranking[i].number;
+      }
+      return ranking[0]?.number ?? "?";
     }
-    return ranking[0]?.number ?? "?";
-  }
 
-  quickPick.value = {
-    last2: weightedRandom(stats2.data.ranking),
-    last3b: weightedRandom(stats3b.data.ranking),
-    last3f: weightedRandom(stats3f.data.ranking),
-  };
+    quickPick.value = {
+      last2: weightedRandom(stats2.data.ranking),
+      last3b: weightedRandom(stats3b.data.ranking),
+      last3f: weightedRandom(stats3f.data.ranking),
+    };
+  } finally {
+    quickPickLoading.value = false;
+  }
 }
 
 const lookupQuery = ref("");
@@ -73,14 +79,16 @@ async function doLookup() {
         :scope="scopeLabel"
       />
 
-      <section class="card" style="margin-top: var(--gap-md)">
+      <section class="card card-elevated" style="margin-top: var(--gap-lg)">
         <h2 class="section-title">🎲 Quick Pick</h2>
         <p style="font-size: var(--text-sm); color: var(--text-secondary); margin-bottom: var(--gap-sm)">
           สุ่มเลขตามสถิติ — เลขที่ค้างนานได้น้ำหนักมากกว่า
         </p>
         <div class="quickpick-actions">
-          <button class="btn btn-gold" @click="generateQuickPick">สุ่มเลขตามสถิติ</button>
-          <button class="btn btn-ghost" @click="quickPick = null" v-if="quickPick">รีเซ็ต</button>
+          <button class="btn btn-gold" @click="generateQuickPick" :disabled="quickPickLoading">
+            {{ quickPickLoading ? "กำลังสุ่ม..." : "สุ่มเลขตามสถิติ" }}
+          </button>
+          <button class="btn btn-ghost" @click="quickPick = null" v-if="quickPick && !quickPickLoading">รีเซ็ต</button>
         </div>
         <div v-if="quickPick" class="quickpick-result">
           <div class="quickpick-row">
@@ -98,7 +106,7 @@ async function doLookup() {
         </div>
       </section>
 
-      <section class="card" style="margin-top: var(--gap-md)">
+      <section class="card card-elevated" style="margin-top: var(--gap-lg)">
         <h2 class="section-title">🔍 ค้นหาสถิติเลข</h2>
         <div class="lookup-row">
           <input
@@ -110,7 +118,9 @@ async function doLookup() {
             aria-label="ค้นหาสถิติเลข"
             @keydown.enter="doLookup"
           />
-          <button class="btn btn-gold" @click="doLookup" :disabled="lookupPending">ค้นหา</button>
+          <button class="btn btn-gold" @click="doLookup" :disabled="lookupPending">
+            {{ lookupPending ? "กำลังค้นหา..." : "ค้นหา" }}
+          </button>
         </div>
         <div v-if="lookupResult" class="lookup-result card" style="margin-top: var(--gap-sm)">
           <div
@@ -182,7 +192,9 @@ async function doLookup() {
   padding: var(--gap-xs) var(--gap-sm);
   font-family: var(--font-mono);
   font-size: var(--text-md);
-  width: 140px;
+  width: 100%;
+  max-width: 200px;
+  flex: 1;
 }
 
 .lookup-number {

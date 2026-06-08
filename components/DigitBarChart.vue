@@ -85,7 +85,7 @@ const maxCount = computed(() => Math.max(...digits.value.map((d) => d.count), 1)
   display: flex;
   gap: 4px;
   align-items: flex-end;
-  height: 80px;
+  height: clamp(60px, 15vw, 100px);
 }
 
 .digit-bar-item {
@@ -125,12 +125,12 @@ const maxCount = computed(() => Math.max(...digits.value.map((d) => d.count), 1)
 
 .digit-bar-label {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: clamp(10px, 2.5vw, 11px);
   color: var(--text-secondary);
 }
 
 .digit-bar-count {
-  font-size: 9px;
+  font-size: clamp(9px, 2vw, 10px);
   color: var(--accent-dim);
 }
 </style>

@@ -79,7 +79,7 @@ function formatDate(iso: string) {
   border: 1px dashed var(--border-color-strong);
   border-top: 2px solid var(--accent-gold);
   border-radius: var(--radius-md);
-  padding: var(--gap-md);
+  padding: clamp(var(--gap-sm), 4vw, var(--gap-md));
   display: flex;
   flex-direction: column;
   gap: var(--gap-sm);
@@ -125,7 +125,7 @@ function formatDate(iso: string) {
 .ticket-row-label {
   font-size: var(--text-sm);
   color: var(--text-secondary);
-  min-width: 70px;
+  min-width: clamp(60px, 15%, 80px);
 }
 
 .ticket-number {

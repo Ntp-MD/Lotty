@@ -1,5 +1,5 @@
 """
-LottoLens — convert_lotto_to_csv.py
+Lotty — convert_lotto_to_csv.py
 แปลงข้อมูลจาก vicha-w/thai-lotto-archive เป็น CSV ตรงกับ schema ของ draws table
 
 วิธีใช้:

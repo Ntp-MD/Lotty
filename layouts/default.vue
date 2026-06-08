@@ -4,11 +4,11 @@ import { useRoute } from "vue-router";
 const route = useRoute();
 
 const navItems = [
-  { path: "/", label: "แนะนำ", icon: "✦" },
-  { path: "/2digit", label: "2 ตัว", icon: "②" },
-  { path: "/3digit", label: "3 ตัว", icon: "③" },
-  { path: "/digits", label: "6 หลัก", icon: "⑥" },
-  { path: "/archive", label: "ย้อนหลัง", icon: "☰" },
+  { path: "/", label: "แนะนำ", icon: "★" },
+  { path: "/2digit", label: "2 ตัว", icon: "2" },
+  { path: "/3digit", label: "3 ตัว", icon: "3" },
+  { path: "/digits", label: "6 หลัก", icon: "6" },
+  { path: "/archive", label: "ย้อนหลัง", icon: "≡" },
 ];
 
 const pageTitles: Record<string, { title: string; sub: string }> = {
@@ -19,14 +19,14 @@ const pageTitles: Record<string, { title: string; sub: string }> = {
   "/archive": { title: "ผลย้อนหลัง", sub: "ผลการออกรางวัลทุกงวด" },
 };
 
-const currentPage = computed(() => pageTitles[route.path] ?? { title: "LottoLens", sub: "" });
+const currentPage = computed(() => pageTitles[route.path] ?? { title: "Lotty", sub: "" });
 </script>
 
 <template>
   <div class="layout">
     <nav class="sidebar" aria-label="Main navigation">
-      <div class="sidebar-logo" aria-label="LottoLens">
-        <span class="sidebar-logo-icon">◈</span>
+      <div class="sidebar-logo" aria-label="Lotty">
+        <span class="sidebar-logo-icon">L</span>
       </div>
       <ul class="sidebar-list">
         <li v-for="item in navItems" :key="item.path">
@@ -51,7 +51,7 @@ const currentPage = computed(() => pageTitles[route.path] ?? { title: "LottoLens
           <p class="topbar-page-sub">{{ currentPage.sub }}</p>
         </div>
         <div class="topbar-right">
-          <span class="topbar-badge">ข้อมูลจริง ไม่ใช่เดา</span>
+          <span class="topbar-badge">LIVE DATA</span>
         </div>
       </header>
 
@@ -103,13 +103,13 @@ const currentPage = computed(() => pageTitles[route.path] ?? { title: "LottoLens
 /* ---- Topbar ---- */
 .topbar {
   flex-shrink: 0;
-  height: var(--topbar-height);
+  min-height: var(--topbar-height);
   background: var(--bg-surface);
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 var(--gap-lg);
+  padding: var(--gap-xs) clamp(var(--gap-sm), 4vw, var(--gap-lg));
   gap: var(--gap-md);
 }
 
@@ -151,8 +151,8 @@ const currentPage = computed(() => pageTitles[route.path] ?? { title: "LottoLens
 .layout-main {
   flex: 1;
   overflow-y: auto;
-  padding: var(--gap-md);
-  padding-bottom: calc(var(--nav-height-mobile) + var(--gap-lg));
+  padding: clamp(12px, 3vw, var(--gap-md));
+  padding-bottom: calc(60px + var(--gap-lg));
   scroll-behavior: smooth;
 }
 
@@ -162,13 +162,14 @@ const currentPage = computed(() => pageTitles[route.path] ?? { title: "LottoLens
   bottom: 0;
   left: 0;
   right: 0;
-  height: var(--nav-height-mobile);
+  min-height: 60px;
   background: var(--bg-surface);
   border-top: 1px solid var(--border);
   box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.06);
   display: flex;
   align-items: stretch;
   z-index: 100;
+  padding: 4px 0;
 }
 
 .nav-mobile-item {
@@ -186,16 +187,18 @@ const currentPage = computed(() => pageTitles[route.path] ?? { title: "LottoLens
   color: var(--accent);
 }
 .nav-mobile-icon {
-  font-size: 18px;
+  font-size: 20px;
   line-height: 1;
+  font-weight: var(--weight-bold);
 }
 .nav-mobile-label {
   font-family: var(--font-body);
-  font-size: 10px;
+  font-size: 11px;
+  font-weight: var(--weight-medium);
 }
 
 /* ---- Desktop ---- */
-@media (min-width: 960px) {
+@media (min-width: 1024px) {
   .sidebar {
     display: flex;
     flex-direction: column;
@@ -204,6 +207,7 @@ const currentPage = computed(() => pageTitles[route.path] ?? { title: "LottoLens
     width: var(--nav-width-desktop);
     height: 100dvh;
     background: var(--bg-sidebar);
+    border-right: 1px solid var(--border);
     padding: var(--gap-md) 0;
     gap: var(--gap-md);
   }
@@ -246,24 +250,28 @@ const currentPage = computed(() => pageTitles[route.path] ?? { title: "LottoLens
     color: var(--sidebar-text);
     transition:
       background var(--transition-fast),
-      color var(--transition-fast);
+      color var(--transition-fast),
+      transform var(--transition-fast);
     margin: 0 auto;
   }
 
   .sidebar-link:hover {
     background: var(--sidebar-active-bg);
     color: var(--sidebar-active);
+    transform: translateX(2px);
   }
 
   .sidebar-link-active {
-    background: var(--accent);
-    color: #fff;
-    box-shadow: var(--shadow-accent);
+    background: var(--accent-light);
+    color: var(--accent);
+    border: 2px solid var(--accent);
+    font-weight: var(--weight-bold);
   }
 
   .sidebar-icon {
-    font-size: 18px;
+    font-size: 20px;
     line-height: 1;
+    font-weight: var(--weight-bold);
   }
 
   .sidebar-tooltip {
@@ -292,8 +300,8 @@ const currentPage = computed(() => pageTitles[route.path] ?? { title: "LottoLens
   }
 
   .layout-main {
-    padding: var(--gap-lg);
-    padding-bottom: var(--gap-lg);
+    padding: clamp(var(--gap-md), 4vw, var(--gap-lg));
+    padding-bottom: clamp(var(--gap-md), 4vw, var(--gap-lg));
   }
 }
 </style>

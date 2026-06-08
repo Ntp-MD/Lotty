@@ -1,47 +1,50 @@
 /* ============================================================
-   LottoLens — variables.css
+   Lotty — variables.css
    Single source of truth. ห้ามใส่ hardcode ใน file อื่น
    ============================================================ */
 
 :root {
   /* ----------------------------------------------------------
-     Color — SaaS Dashboard Light
+     Color — Light Blue & White Theme
   ---------------------------------------------------------- */
-  --bg-base: #f0f2f5;
+  --bg-base: #f0f4f8;
   --bg-surface: #ffffff;
-  --bg-raised: #f8f9fb;
-  --bg-sidebar: #1e1f2e;
+  --bg-raised: #f8fafc;
+  --bg-sidebar: #ffffff;
+  --bg-hover: #e8f0f7;
 
-  --accent: #6366f1;
-  --accent-light: #eef2ff;
-  --accent-hover: #4f46e5;
+  --accent: #3b82f6;
+  --accent-light: #dbeafe;
+  --accent-hover: #2563eb;
   --accent-gold: #f59e0b;
-  --accent-gold-light: #fffbeb;
+  --accent-gold-light: #fef3c7;
   --accent-red: #ef4444;
-  --accent-red-light: #fef2f2;
-  --accent-green: #22c55e;
-  --accent-green-light: #f0fdf4;
+  --accent-red-light: #fee2e2;
+  --accent-green: #10b981;
+  --accent-green-light: #d1fae5;
+  --accent-blue: #3b82f6;
+  --accent-blue-light: #dbeafe;
   --accent-dim: #94a3b8;
 
-  --sidebar-text: #a8b0c8;
-  --sidebar-active: #ffffff;
-  --sidebar-active-bg: rgba(255, 255, 255, 0.1);
+  --sidebar-text: #64748b;
+  --sidebar-active: #1e293b;
+  --sidebar-active-bg: #dbeafe;
 
-  --text-primary: #0f172a;
-  --text-secondary: #64748b;
+  --text-primary: #1e293b;
+  --text-secondary: #475569;
   --text-muted: #94a3b8;
 
-  --border: #e8eaf0;
-  --border-strong: #d1d5db;
-  --glow-accent: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  --border: #cbd5e1;
+  --border-strong: #94a3b8;
+  --glow-accent: 0 0 0 3px rgba(59, 130, 246, 0.15);
   --glow-gold: rgba(245, 158, 11, 0.15);
 
   /* ----------------------------------------------------------
      Typography — Fonts
   ---------------------------------------------------------- */
-  --font-display: "Teko", sans-serif;
-  --font-body: "Sarabun", sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
+  --font-display: "Inter", "Sarabun", sans-serif;
+  --font-body: "Inter", "Sarabun", sans-serif;
+  --font-mono: "JetBrains Mono", "Courier New", monospace;
 
   /* ----------------------------------------------------------
      Typography — Size Scale
@@ -85,18 +88,18 @@
 
   --radius-xs: 4px;
   --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 20px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
   --radius-full: 9999px;
 
   /* ----------------------------------------------------------
      Shadow / Glow
   ---------------------------------------------------------- */
-  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 2px 6px rgba(0, 0, 0, 0.04);
-  --shadow-raised: 0 4px 16px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.1);
-  --shadow-accent: 0 4px 14px rgba(99, 102, 241, 0.25);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.05), 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-raised: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-accent: 0 0 20px rgba(59, 130, 246, 0.2);
   --glow-hot: 0 0 0 2px var(--accent-gold-light);
 
   /* ----------------------------------------------------------

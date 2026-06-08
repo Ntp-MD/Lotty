@@ -44,9 +44,10 @@ defineProps<Props>();
 <style scoped>
 .podium-card {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--gap-sm);
-  padding: var(--gap-sm) var(--gap-md);
+  padding: clamp(var(--gap-sm), 3vw, var(--gap-md));
 }
 
 .podium-card-hot {
@@ -60,7 +61,7 @@ defineProps<Props>();
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 28px;
+  min-width: clamp(24px, 5vw, 32px);
   gap: 2px;
 }
 
@@ -77,7 +78,7 @@ defineProps<Props>();
   font-weight: var(--weight-bold);
   color: var(--text-primary);
   letter-spacing: 2px;
-  min-width: 52px;
+  min-width: clamp(48px, 12vw, 60px);
 }
 
 .podium-meta {

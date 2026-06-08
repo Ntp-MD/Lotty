@@ -13,15 +13,15 @@ export default defineNuxtConfig({
     },
   },
 
-  css: ["~/assets/css/variables.css", "~/assets/css/reset.css", "~/assets/css/main.css"],
+  css: ["~/assets/style/main.css"],
 
   app: {
     head: {
-      title: "LottoLens — เลนส์หวย",
+      title: "Lotty",
       meta: [
         { charset: "utf-8" },
         { name: "viewport", content: "width=device-width, initial-scale=1" },
-        { name: "description", content: "ดูสถิติสลากกินแบ่งรัฐบาลไทย ไม่ใช่เดา" },
+        { name: "description", content: "Advanced lottery analytics platform with real-time data insights" },
       ],
       link: [
         {
@@ -35,7 +35,7 @@ export default defineNuxtConfig({
         },
         {
           rel: "stylesheet",
-          href: "https://fonts.googleapis.com/css2?family=Teko:wght@400;600;700&family=Sarabun:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap",
+          href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sarabun:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap",
         },
       ],
     },

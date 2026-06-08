@@ -93,19 +93,35 @@ const days: { value: DrawDay; label: string }[] = [
 <style scoped>
 .filter-bar {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+  flex-direction: column;
   gap: var(--gap-md);
   background: var(--bg-surface);
   border-bottom: 1px solid var(--border);
-  padding: var(--gap-sm) var(--gap-md);
+  padding: clamp(var(--gap-sm), 3vw, var(--gap-md));
   margin-bottom: var(--gap-md);
+}
+
+@media (min-width: 768px) {
+  .filter-bar {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+  }
 }
 
 .filter-group {
   display: flex;
-  align-items: center;
-  gap: var(--gap-sm);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--gap-xs);
+}
+
+@media (min-width: 768px) {
+  .filter-group {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--gap-sm);
+  }
 }
 
 .filter-label {
@@ -124,7 +140,9 @@ const days: { value: DrawDay; label: string }[] = [
 }
 
 .chip {
-  padding: 3px 10px;
+  min-height: 40px;
+  padding: 8px 20px;
+  min-width: 80px;
   border-radius: var(--radius-full);
   font-size: var(--text-xs);
   font-family: var(--font-body);
@@ -133,6 +151,9 @@ const days: { value: DrawDay; label: string }[] = [
   background: var(--bg-surface);
   cursor: pointer;
   transition: all var(--transition-fast);
+  display: grid;
+  align-items: center;
+  text-align: center;
 }
 
 .chip:hover {
@@ -160,8 +181,8 @@ const days: { value: DrawDay; label: string }[] = [
   border-radius: var(--radius-sm);
   color: var(--text-primary);
   font-size: var(--text-xs);
-  padding: 3px var(--gap-sm);
-  height: 28px;
+  padding: 8px var(--gap-sm);
+  min-height: 40px;
   cursor: pointer;
   transition: border-color var(--transition-fast);
 }

@@ -2,7 +2,7 @@
   "buildCommand": "nuxt build",
   "devCommand": "nuxt dev",
   "installCommand": "npm install",
-  "framework": null,
+  "framework": "nuxtjs",
   "crons": [
     {
       "path": "/api/cron/fetch-latest",

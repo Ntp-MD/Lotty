@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { StatsResponse, RankingItem } from "~/types";
 
-useHead({ title: "3 ตัว — LottoLens" });
+useHead({ title: "3 ตัว — Lotty" });
 
 const { filter, queryParams } = useFilter();
 const searchQuery = ref("");
@@ -120,8 +120,14 @@ function posFreq(pos: 0 | 1 | 2) {
   margin-top: var(--gap-sm);
 }
 .breakdown-row > * {
-  flex: 1;
-  min-width: 140px;
+  flex: 1 1 100%;
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .breakdown-row > * {
+    flex: 1 1 calc(33.333% - var(--gap-md));
+  }
 }
 .search-wrap {
   margin: var(--gap-sm) 0;
@@ -134,7 +140,8 @@ function posFreq(pos: 0 | 1 | 2) {
   padding: var(--gap-xs) var(--gap-sm);
   font-family: var(--font-mono);
   font-size: var(--text-md);
-  width: 160px;
+  width: 100%;
+  max-width: 200px;
 }
 .freq-table {
   border-spacing: 0;

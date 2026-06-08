@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { DigitsResponse, DigitPosition } from "~/types";
 
-useHead({ title: "6 หลัก — LottoLens" });
+useHead({ title: "6 หลัก — Lotty" });
 
 const { filter } = useFilter();
 
@@ -98,12 +98,12 @@ const comboFreq = computed(() => {
   margin-top: var(--gap-md);
 }
 
-@media (min-width: 600px) {
+@media (min-width: 768px) {
   .digits-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
-@media (min-width: 960px) {
+@media (min-width: 1024px) {
   .digits-grid {
     grid-template-columns: repeat(6, 1fr);
   }
@@ -135,8 +135,9 @@ const comboFreq = computed(() => {
 }
 
 .combo-digit-btn {
-  width: 32px;
-  height: 32px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px;
   border-radius: var(--radius-sm);
   background: var(--bg-raised);
   border: 1px solid var(--border);

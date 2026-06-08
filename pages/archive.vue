@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { DrawRecord } from "~/types";
 
-useHead({ title: "ผลย้อนหลัง — LottoLens" });
+useHead({ title: "ผลย้อนหลัง — Lotty" });
 
 const page = ref(1);
 const perPage = 20;
@@ -125,8 +125,8 @@ const years = computed(() => {
   border-radius: var(--radius-sm);
   color: var(--text-primary);
   font-size: var(--text-sm);
-  padding: 4px var(--gap-sm);
-  height: 34px;
+  padding: 8px var(--gap-sm);
+  min-height: 44px;
 }
 
 .archive-list {
@@ -171,10 +171,16 @@ const years = computed(() => {
 }
 .archive-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: 1fr;
   gap: var(--gap-sm);
   margin-top: var(--gap-sm);
   font-size: var(--text-sm);
+}
+
+@media (min-width: 480px) {
+  .archive-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 .archive-grid > div {
   display: flex;
