@@ -162,7 +162,7 @@ const comboFreq = computed(() => {
   gap: var(--gap-md);
   margin-top: var(--gap-md);
   padding-top: var(--gap-md);
-  border-top: 1px dashed var(--border-color-strong);
+  border-top: 1px solid var(--border-color-strong);
 }
 
 .combo-result-label {

@@ -19,9 +19,6 @@ defineProps<Props>();
   >
     <div class="podium-rank">
       <span class="podium-rank-num">{{ rank }}</span>
-      <span class="podium-rank-icon" aria-hidden="true">
-        {{ item.label === "ออกบ่อย" ? "🔥" : item.label === "ไม่เคยออก" ? "🧊" : "" }}
-      </span>
     </div>
     <div class="podium-number num-display">{{ item.number }}</div>
     <div class="podium-meta">

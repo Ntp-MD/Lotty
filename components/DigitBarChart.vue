@@ -30,8 +30,8 @@ const maxCount = computed(() => Math.max(...digits.value.map((d) => d.count), 1)
       <span class="digit-chart-pos-num num-mono">{{ position }}</span>
     </div>
     <div class="digit-chart-info">
-      <span class="badge-hot">ฮอต: {{ hot_digit }}</span>
-      <span class="badge-cold">เย็น: {{ cold_digit }}</span>
+      <span class="badge-hot">ออกบ่อย: {{ hot_digit }}</span>
+      <span class="badge-cold">ออกน้อย: {{ cold_digit }}</span>
     </div>
     <div class="digit-bars" role="list">
       <div v-for="item in digits" :key="item.digit" class="digit-bar-item" role="listitem" :aria-label="`เลข ${item.digit} ออก ${item.count} ครั้ง`">
@@ -59,6 +59,12 @@ const maxCount = computed(() => Math.max(...digits.value.map((d) => d.count), 1)
   gap: var(--gap-sm);
 }
 
+@media (min-width: 768px) {
+  .digit-chart {
+    height: 100%;
+  }
+}
+
 .digit-chart-header {
   display: flex;
   align-items: baseline;
@@ -72,7 +78,7 @@ const maxCount = computed(() => Math.max(...digits.value.map((d) => d.count), 1)
 }
 
 .digit-chart-pos-num {
-  color: var(--accent-gold);
+  color: var(--accent);
 }
 
 .digit-chart-info {
@@ -85,7 +91,8 @@ const maxCount = computed(() => Math.max(...digits.value.map((d) => d.count), 1)
   display: flex;
   gap: 4px;
   align-items: flex-end;
-  height: clamp(60px, 15vw, 100px);
+  flex: 1;
+  min-height: 60px;
 }
 
 .digit-bar-item {
@@ -100,7 +107,8 @@ const maxCount = computed(() => Math.max(...digits.value.map((d) => d.count), 1)
 .digit-bar-track {
   flex: 1;
   width: 100%;
-  background: var(--bg-raised);
+  background: var(--bg-base);
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm) var(--radius-sm) 0 0;
   display: flex;
   align-items: flex-end;
@@ -111,12 +119,10 @@ const maxCount = computed(() => Math.max(...digits.value.map((d) => d.count), 1)
   width: 100%;
   background: var(--accent-dim);
   border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-  transition: height var(--transition-normal);
 }
 
 .digit-bar-fill-hot {
-  background: var(--accent-gold);
-  box-shadow: 0 0 6px var(--glow-gold);
+  background: var(--accent);
 }
 
 .digit-bar-fill-cold {

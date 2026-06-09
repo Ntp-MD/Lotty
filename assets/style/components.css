@@ -1,0 +1,136 @@
+/* Component Styles - Button + Form + Status + Widget */
+
+/* Button */
+.btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--gap-xs);
+	padding: 0 var(--gap-md);
+	min-height: 44px;
+	border-radius: var(--radius-md);
+	font-family: var(--font-body);
+	font-size: var(--text-sm);
+	font-weight: var(--weight-medium);
+	cursor: pointer;
+	white-space: nowrap;
+	border: none;
+}
+
+.btn:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.btn-primary {
+	background: var(--accent);
+	color: #ffffff;
+}
+
+.btn-primary:hover {
+	background: var(--accent-hover);
+}
+
+.btn-gold {
+	background: var(--accent-gold);
+	color: #ffffff;
+}
+
+.btn-gold:hover {
+	opacity: 0.9;
+}
+
+.btn-ghost {
+	background: transparent;
+	border: 1px solid var(--border);
+	color: var(--text-secondary);
+}
+
+.btn-ghost:hover {
+	background: var(--bg-hover);
+	border-color: var(--border-strong);
+	color: var(--text-primary);
+}
+
+.btn-sm {
+	min-height: 32px;
+	padding: 0 var(--gap-sm);
+	font-size: var(--text-xs);
+}
+
+/* Focus ring */
+.focus-ring:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+}
+
+/* Badge */
+.badge-hot {
+	background: var(--accent-gold-light);
+	color: var(--accent-gold);
+}
+
+.badge-cold {
+	background: var(--accent-green-light);
+	color: var(--accent-green);
+}
+
+
+/* Card */
+.card {
+	background: var(--bg-surface);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-md);
+	padding: var(--gap-md);
+}
+
+
+/* Number display */
+.num-display {
+	font-family: var(--font-display);
+	font-size: var(--text-xl);
+	font-weight: var(--weight-bold);
+	line-height: 1;
+	letter-spacing: 2px;
+}
+
+.num-mono {
+	font-family: var(--font-mono);
+	font-size: var(--text-sm);
+}
+
+/* Skeleton */
+.skeleton {
+	background: linear-gradient(90deg, var(--bg-raised) 25%, var(--border) 50%, var(--bg-raised) 75%);
+	background-size: 200% 100%;
+	animation: skeleton-shimmer 1.5s ease infinite;
+	border-radius: var(--radius-sm);
+}
+
+@keyframes skeleton-shimmer {
+	0% {
+		background-position: 200% 0;
+	}
+
+	100% {
+		background-position: -200% 0;
+	}
+}
+
+/* Disclaimer */
+.disclaimer {
+	font-size: var(--text-xs);
+	color: var(--text-muted);
+	line-height: var(--leading-loose);
+	padding: var(--gap-sm) var(--gap-md);
+	background: var(--bg-base);
+	border-left: 3px solid var(--accent);
+	border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+/* Divider */
+.divider-dashed {
+	border: none;
+	border-top: 1px solid var(--border);
+	margin: var(--gap-md) 0;
+}

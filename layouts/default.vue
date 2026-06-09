@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { useRoute } from "vue-router";
-
 const route = useRoute();
 
 const navItems = [
@@ -51,7 +49,9 @@ const currentPage = computed(() => pageTitles[route.path] ?? { title: "Lotty", s
           <p class="topbar-page-sub">{{ currentPage.sub }}</p>
         </div>
         <div class="topbar-right">
-          <span class="topbar-badge">LIVE DATA</span>
+          <span class="topbar-badge">
+            <span class="topbar-badge-text">Lotty</span>
+          </span>
         </div>
       </header>
 
@@ -70,7 +70,7 @@ const currentPage = computed(() => pageTitles[route.path] ?? { title: "Lotty", s
         :aria-label="item.label"
         :aria-current="route.path === item.path ? 'page' : undefined"
       >
-        <span class="nav-mobile-icon" aria-hidden="true">{{ item.icon }}</span>
+        <span class="nav-mobile-icon" aria-hidden="true">{{ item.label }}</span>
         <span class="nav-mobile-label">{{ item.label }}</span>
       </NuxtLink>
     </nav>
@@ -139,12 +139,31 @@ const currentPage = computed(() => pageTitles[route.path] ?? { title: "Lotty", s
 }
 
 .topbar-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   font-size: var(--text-xs);
   font-weight: var(--weight-medium);
   color: var(--accent);
   background: var(--accent-light);
-  padding: 3px var(--gap-sm);
+  padding: 4px var(--gap-sm);
   border-radius: var(--radius-full);
+  border: 1px solid var(--accent);
+}
+
+.topbar-badge-icon {
+  font-size: var(--text-sm);
+  line-height: 1;
+}
+
+.topbar-badge-text {
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .topbar-badge-text {
+    display: none;
+  }
 }
 
 /* ---- Main content ---- */
@@ -187,13 +206,13 @@ const currentPage = computed(() => pageTitles[route.path] ?? { title: "Lotty", s
   color: var(--accent);
 }
 .nav-mobile-icon {
-  font-size: 20px;
+  font-size: var(--text-lg);
   line-height: 1;
   font-weight: var(--weight-bold);
 }
 .nav-mobile-label {
   font-family: var(--font-body);
-  font-size: 11px;
+  font-size: var(--text-xs);
   font-weight: var(--weight-medium);
 }
 
@@ -225,7 +244,7 @@ const currentPage = computed(() => pageTitles[route.path] ?? { title: "Lotty", s
   }
 
   .sidebar-logo-icon {
-    font-size: 20px;
+    font-size: var(--text-lg);
     color: #fff;
     line-height: 1;
   }
@@ -269,7 +288,7 @@ const currentPage = computed(() => pageTitles[route.path] ?? { title: "Lotty", s
   }
 
   .sidebar-icon {
-    font-size: 20px;
+    font-size: var(--text-lg);
     line-height: 1;
     font-weight: var(--weight-bold);
   }

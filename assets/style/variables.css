@@ -4,119 +4,119 @@
    ============================================================ */
 
 :root {
-  /* ----------------------------------------------------------
+	/* ----------------------------------------------------------
      Color — Light Blue & White Theme
   ---------------------------------------------------------- */
-  --bg-base: #f0f4f8;
-  --bg-surface: #ffffff;
-  --bg-raised: #f8fafc;
-  --bg-sidebar: #ffffff;
-  --bg-hover: #e8f0f7;
+	--bg-base: #f0f4f8;
+	--bg-surface: #ffffff;
+	--bg-raised: #f8fafc;
+	--bg-sidebar: #ffffff;
+	--bg-hover: #e8f0f7;
 
-  --accent: #3b82f6;
-  --accent-light: #dbeafe;
-  --accent-hover: #2563eb;
-  --accent-gold: #f59e0b;
-  --accent-gold-light: #fef3c7;
-  --accent-red: #ef4444;
-  --accent-red-light: #fee2e2;
-  --accent-green: #10b981;
-  --accent-green-light: #d1fae5;
-  --accent-blue: #3b82f6;
-  --accent-blue-light: #dbeafe;
-  --accent-dim: #94a3b8;
+	--accent: #3b82f6;
+	--accent-light: #dbeafe;
+	--accent-hover: #2563eb;
+	--accent-gold: #f59e0b;
+	--accent-gold-light: #fef3c7;
+	--accent-red: #ef4444;
+	--accent-red-light: #fee2e2;
+	--accent-green: #10b981;
+	--accent-green-light: #d1fae5;
+	--accent-blue: #3b82f6;
+	--accent-blue-light: #dbeafe;
+	--accent-dim: #94a3b8;
 
-  --sidebar-text: #64748b;
-  --sidebar-active: #1e293b;
-  --sidebar-active-bg: #dbeafe;
+	--sidebar-text: #64748b;
+	--sidebar-active: #1e293b;
+	--sidebar-active-bg: #dbeafe;
 
-  --text-primary: #1e293b;
-  --text-secondary: #475569;
-  --text-muted: #94a3b8;
+	--text-primary: #1e293b;
+	--text-secondary: #475569;
+	--text-muted: #94a3b8;
 
-  --border: #cbd5e1;
-  --border-strong: #94a3b8;
-  --glow-accent: 0 0 0 3px rgba(59, 130, 246, 0.15);
-  --glow-gold: rgba(245, 158, 11, 0.15);
+	--border: #cbd5e1;
+	--border-strong: #94a3b8;
+	--glow-accent: 0 0 0 3px rgba(59, 130, 246, 0.15);
+	--glow-gold: rgba(245, 158, 11, 0.15);
 
-  /* ----------------------------------------------------------
+	/* ----------------------------------------------------------
      Typography — Fonts
   ---------------------------------------------------------- */
-  --font-display: "Inter", "Sarabun", sans-serif;
-  --font-body: "Inter", "Sarabun", sans-serif;
-  --font-mono: "JetBrains Mono", "Courier New", monospace;
+	--font-display: "LINE Seed Sans TH", sans-serif;
+	--font-body: "LINE Seed Sans TH", sans-serif;
+	--font-mono: "JetBrains Mono", "Courier New", monospace;
 
-  /* ----------------------------------------------------------
+	/* ----------------------------------------------------------
      Typography — Size Scale
   ---------------------------------------------------------- */
-  --text-xs: clamp(11px, 1.2vw, 12px);
-  --text-sm: clamp(13px, 1.4vw, 14px);
-  --text-md: clamp(15px, 1.6vw, 16px);
-  --text-lg: clamp(18px, 2vw, 20px);
-  --text-xl: clamp(28px, 3.5vw, 40px);
+	--text-xs: clamp(11px, 1.2vw, 12px);
+	--text-sm: clamp(13px, 1.4vw, 14px);
+	--text-md: clamp(15px, 1.6vw, 16px);
+	--text-lg: clamp(18px, 2vw, 20px);
+	--text-xl: clamp(28px, 3.5vw, 40px);
 
-  /* ----------------------------------------------------------
+	/* ----------------------------------------------------------
      Typography — Weight
   ---------------------------------------------------------- */
-  --weight-regular: 400;
-  --weight-medium: 500;
-  --weight-bold: 700;
+	--weight-regular: 400;
+	--weight-medium: 500;
+	--weight-bold: 700;
 
-  /* ----------------------------------------------------------
+	/* ----------------------------------------------------------
      Typography — Line Height
   ---------------------------------------------------------- */
-  --leading-tight: 1.2;
-  --leading-normal: 1.5;
-  --leading-loose: 1.75;
+	--leading-tight: 1.2;
+	--leading-normal: 1.5;
+	--leading-loose: 1.75;
 
-  /* ----------------------------------------------------------
+	/* ----------------------------------------------------------
      Spacing Scale
   ---------------------------------------------------------- */
-  --gap-xs: 5px;
-  --gap-sm: 10px;
-  --gap-md: 15px;
-  --gap-lg: 30px;
-  --gap-xlg: 50px;
+	--gap-xs: 5px;
+	--gap-sm: 10px;
+	--gap-md: 15px;
+	--gap-lg: 30px;
+	--gap-xlg: 50px;
 
-  /* ----------------------------------------------------------
+	/* ----------------------------------------------------------
      Border
   ---------------------------------------------------------- */
-  --border-width: 1px;
-  --border-style: solid;
-  --border-color: var(--border);
-  --border-color-strong: var(--accent-dim);
+	--border-width: 1px;
+	--border-style: solid;
+	--border-color: var(--border);
+	--border-color-strong: var(--accent-dim);
 
-  --radius-xs: 4px;
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-  --radius-full: 9999px;
+	--radius-xs: 4px;
+	--radius-sm: 6px;
+	--radius-md: 8px;
+	--radius-lg: 12px;
+	--radius-xl: 16px;
+	--radius-full: 9999px;
 
-  /* ----------------------------------------------------------
+	/* ----------------------------------------------------------
      Shadow / Glow
   ---------------------------------------------------------- */
-  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.05), 0 2px 8px rgba(0, 0, 0, 0.04);
-  --shadow-raised: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
-  --shadow-accent: 0 0 20px rgba(59, 130, 246, 0.2);
-  --glow-hot: 0 0 0 2px var(--accent-gold-light);
+	--shadow-card: 0 1px 3px rgba(0, 0, 0, 0.05), 0 2px 8px rgba(0, 0, 0, 0.04);
+	--shadow-raised: 0 4px 12px rgba(0, 0, 0, 0.08);
+	--shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+	--shadow-accent: 0 0 20px rgba(59, 130, 246, 0.2);
+	--glow-hot: 0 0 0 2px var(--accent-gold-light);
 
-  /* ----------------------------------------------------------
+	/* ----------------------------------------------------------
      Transition
   ---------------------------------------------------------- */
-  --transition-fast: 150ms ease;
-  --transition-normal: 250ms ease;
+	--transition-fast: 150ms ease;
+	--transition-normal: 250ms ease;
 
-  /* ----------------------------------------------------------
+	/* ----------------------------------------------------------
      Layout
   ---------------------------------------------------------- */
-  --nav-height-mobile: 56px;
-  --nav-width-desktop: 64px;
-  --nav-width-expanded: 220px;
-  --topbar-height: 56px;
-  --content-max-width: 1400px;
+	--nav-height-mobile: 56px;
+	--nav-width-desktop: 64px;
+	--nav-width-expanded: 220px;
+	--topbar-height: 56px;
+	--content-max-width: 1400px;
 
-  --bp-mobile: 600px;
-  --bp-desktop: 960px;
+	--bp-mobile: 600px;
+	--bp-desktop: 960px;
 }

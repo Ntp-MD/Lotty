@@ -50,7 +50,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ### Cron Jobs
 Configured in `vercel.json`:
 - **Path:** `/api/cron/fetch-latest`
-- **Schedule:** `30 8 1,16 * *` (8:30 AM UTC on 1st and 16th)
+- **Schedule:** `30 7 1,16 * *` (7:30 AM UTC on 1st and 16th)
 - **Method:** GET
 - **Auth:** Bearer token via `CRON_SECRET`
 

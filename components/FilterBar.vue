@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import type { Scope, PrizeType, DrawDay } from "~/types";
+import type { Scope, DrawDay } from "~/types";
 
-const { filter, setScope, setPrizeType, setMonth, setDay } = useFilter();
+const { filter, setScope, setMonth, setDay } = useFilter();
+const showAdvanced = ref(false);
 
 const scopes: { value: Scope; label: string }[] = [
   { value: "1y", label: "1 ปี" },
@@ -9,14 +10,6 @@ const scopes: { value: Scope; label: string }[] = [
   { value: "5y", label: "5 ปี" },
   { value: "10y", label: "10 ปี" },
   { value: "all", label: "ทั้งหมด" },
-];
-
-const prizeTypes: { value: PrizeType; label: string }[] = [
-  { value: "last2", label: "2 ตัวล่าง" },
-  { value: "first2", label: "2 ตัวบน" },
-  { value: "last3b", label: "3 ตัวล่าง" },
-  { value: "last3f", label: "3 ตัวหน้า" },
-  { value: "first", label: "รางวัลที่ 1" },
 ];
 
 const months = [{ value: null, label: "ทั้งปี" }, ...Array.from({ length: 12 }, (_, i) => ({ value: i + 1, label: `เดือน ${i + 1}` }))];
@@ -46,25 +39,13 @@ const days: { value: DrawDay; label: string }[] = [
       </div>
     </div>
 
-    <div class="filter-group">
-      <span class="filter-label">ประเภทรางวัล</span>
-      <div class="filter-chips" role="group" aria-label="เลือกประเภทรางวัล">
-        <button
-          v-for="p in prizeTypes"
-          :key="p.value"
-          class="chip focus-ring"
-          :class="{ 'chip-active': filter.prizeType === p.value }"
-          @click="setPrizeType(p.value)"
-          :aria-pressed="filter.prizeType === p.value"
-        >
-          {{ p.label }}
-        </button>
-      </div>
-    </div>
+    <button class="btn-toggle-advanced" @click="showAdvanced = !showAdvanced" type="button">
+      <span>{{ showAdvanced ? '-' : '+' }} ตัวเลือกเพิ่มเติม</span>
+    </button>
 
-    <div class="filter-row">
+    <div v-show="showAdvanced" class="filter-row filter-advanced">
       <div class="filter-group">
-        <label class="filter-label" for="filter-month">เดือน</label>
+        <label class="filter-label" for="filter-month" title="กรองตามเดือนที่ออกรางวัล">เดือน</label>
         <select
           id="filter-month"
           class="filter-select focus-ring"
@@ -76,7 +57,7 @@ const days: { value: DrawDay; label: string }[] = [
       </div>
 
       <div class="filter-group">
-        <label class="filter-label" for="filter-day">วันที่ออก</label>
+        <label class="filter-label" for="filter-day" title="กรองตามวันที่ออกรางวัล (1 หรือ 16)">วันที่ออก</label>
         <select
           id="filter-day"
           class="filter-select focus-ring"
@@ -190,5 +171,37 @@ const days: { value: DrawDay; label: string }[] = [
 .filter-select:focus {
   outline: none;
   border-color: var(--accent);
+}
+
+.btn-toggle-advanced {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  padding: var(--gap-xs) 0;
+  cursor: pointer;
+  transition: color var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-toggle-advanced:hover {
+  color: var(--accent);
+}
+
+.filter-advanced {
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>

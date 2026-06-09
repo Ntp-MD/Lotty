@@ -29,6 +29,6 @@ const message = computed(() => {
   padding: var(--gap-lg);
 }
 
-.empty-icon { font-size: 32px; }
+.empty-icon { font-size: var(--text-xl); }
 .empty-msg { font-size: var(--text-sm); color: var(--text-secondary); }
 </style>

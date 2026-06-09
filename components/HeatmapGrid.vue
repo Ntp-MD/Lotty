@@ -81,37 +81,34 @@ function onKeydown(e: KeyboardEvent, idx: number) {
 .heatmap-cell {
   position: relative;
   flex: 1;
-  min-height: clamp(44px, 10vw, 64px);
+  min-height: clamp(32px, 6vw, 40px);
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--accent-gold) calc(var(--cell-opacity) * 100%), var(--bg-raised));
-  border: 1px solid transparent;
-  transition:
-    border-color var(--transition-fast),
-    box-shadow var(--transition-fast);
+  background: color-mix(in srgb, var(--accent) calc(var(--cell-opacity) * 100%), var(--bg-base));
+  border: 1px solid var(--border);
   cursor: pointer;
   overflow: visible;
 }
 
 .heatmap-cell:hover,
 .heatmap-cell:focus-visible {
-  border-color: var(--accent-gold);
+  border-color: var(--accent);
   z-index: 10;
 }
 
 .heatmap-cell-hot {
-  box-shadow: var(--glow-hot);
+  background: var(--accent-light);
 }
 
 .heatmap-cell-cold {
-  background: color-mix(in srgb, var(--accent-green) 20%, var(--bg-raised));
+  background: var(--bg-base);
 }
 
 .heatmap-cell-selected {
-  border-color: var(--accent-gold);
-  box-shadow: var(--glow-hot);
+  border-color: var(--accent);
+  background: var(--accent-light);
 }
 
 .heatmap-num {

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatDate } from "~/composables/useDate";
 import type { DrawRecord } from "~/types";
 
 useHead({ title: "ผลย้อนหลัง — Lotty" });
@@ -29,14 +30,6 @@ const { data, pending, error } = await useAsyncData(
   },
   { watch: [page, filterYear, filterMonth] },
 );
-
-function formatDate(iso: string) {
-  try {
-    return new Date(iso).toLocaleDateString("th-TH", { day: "numeric", month: "long", year: "numeric" });
-  } catch {
-    return iso;
-  }
-}
 
 const years = computed(() => {
   const current = new Date().getFullYear();
@@ -81,7 +74,7 @@ const years = computed(() => {
         <button class="archive-header focus-ring" :aria-expanded="expanded === draw.id" @click="expanded = expanded === draw.id ? null : draw.id">
           <span class="archive-date">{{ formatDate(draw.draw_date) }}</span>
           <span class="archive-first num-display">{{ draw.first }}</span>
-          <span class="archive-chevron" aria-hidden="true">{{ expanded === draw.id ? "▲" : "▼" }}</span>
+          <span class="archive-chevron" aria-hidden="true">{{ expanded === draw.id ? "-" : "+" }}</span>
         </button>
 
         <div v-if="expanded === draw.id" class="archive-detail">

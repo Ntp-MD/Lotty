@@ -25,7 +25,7 @@ defineProps<Props>();
   padding: var(--gap-lg);
 }
 
-.error-icon { font-size: 32px; }
+.error-icon { font-size: var(--text-xl); }
 
 .error-msg {
   font-size: var(--text-sm);

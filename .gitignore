@@ -5,3 +5,6 @@ node_modules
 thai-lotto-archive
 draws_import.sql
 *.log
+
+.vercel
+.env*
