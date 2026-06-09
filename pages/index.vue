@@ -79,7 +79,7 @@ function copyQuickPick() {
 </script>
 
 <template>
-  <div>
+  <div class="page-content">
     <FilterBar />
     <h1 class="section-title">เลขแนะนำ</h1>
 
@@ -96,7 +96,7 @@ function copyQuickPick() {
     </template>
 
     <section v-if="latestDraw?.data" class="latest-draw-section">
-      <h2 class="section-title" style="font-size: var(--text-md); margin-bottom: var(--gap-sm)">ผลสลากล่าสุด</h2>
+      <h2 class="section-title" style="font-size: var(--text-lg)">ผลสลากล่าสุด</h2>
       <div class="latest-draw-card">
         <div class="latest-draw-date">{{ formatDate(latestDraw.data.draw_date) }}</div>
         <div class="latest-draw-numbers">
@@ -121,15 +121,15 @@ function copyQuickPick() {
     </section>
 
     <template v-if="!pending && !error && advisor">
-      <section class="card card-elevated">
-        <h2 class="section-title">🎲 Quick Pick</h2>
-        <p style="font-size: var(--text-sm); color: var(--text-secondary); margin-bottom: var(--gap-sm)">
+      <section class="card">
+        <h2 class="section-title">Quick Pick</h2>
+        <p style="font-size: var(--text-sm); color: var(--text-secondary)">
           สุ่มเลขตามสถิติ — เลขที่ค้างนานได้น้ำหนักมากกว่า
         </p>
         <div class="quickpick-actions">
           <button class="btn btn-gold" @click="generateQuickPick" :disabled="quickPickLoading">
-            <span v-if="quickPickLoading">⏳ กำลังคำนวณ...</span>
-            <span v-else>🎲 สุ่มเลขตามสถิติ</span>
+            <span v-if="quickPickLoading">กำลังคำนวณ...</span>
+            <span v-else>สุ่มเลขตามสถิติ</span>
           </button>
           <button class="btn btn-ghost" @click="quickPick = null" v-if="quickPick && !quickPickLoading">รีเซ็ต</button>
         </div>
@@ -148,14 +148,14 @@ function copyQuickPick() {
               <span class="num-display quickpick-num">{{ quickPick.last3f }}</span>
             </div>
           </div>
-          <button class="btn btn-sm btn-ghost" @click="copyQuickPick" style="margin-top: var(--gap-sm)">
-            📋 คัดลอกเลข
+          <button class="btn btn-sm btn-ghost" @click="copyQuickPick">
+            คัดลอกเลข
           </button>
         </div>
       </section>
 
-      <section class="card card-elevated" style="margin-top: var(--gap-md)">
-        <h2 class="section-title">🔍 ค้นหาสถิติเลข</h2>
+      <section class="card">
+        <h2 class="section-title">ค้นหาสถิติเลข</h2>
         <div class="lookup-row">
           <input
             v-model="lookupQuery"
@@ -173,7 +173,7 @@ function copyQuickPick() {
             {{ lookupPending ? "กำลังค้นหา..." : "ค้นหา" }}
           </button>
         </div>
-        <div v-if="lookupResult" class="lookup-result card" style="margin-top: var(--gap-sm)">
+        <div v-if="lookupResult" class="lookup-result card">
           <div
             class="num-display lookup-number"
             :class="{ 'badge-hot': lookupResult.label === 'ออกบ่อย', 'badge-cold': lookupResult.label === 'ไม่เคยออก' }"
@@ -199,15 +199,20 @@ function copyQuickPick() {
         <EmptyState v-else-if="lookupQuery && !lookupPending" reason="no_search_result" />
       </section>
     </template>
-
-    <DisclaimerBanner />
   </div>
 </template>
 
 <style scoped>
+.page-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
 .latest-draw-section {
-  margin-top: var(--gap-md);
-  margin-bottom: var(--gap-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
 }
 
 .latest-draw-card {
@@ -220,7 +225,6 @@ function copyQuickPick() {
 .latest-draw-date {
   font-size: var(--text-xs);
   color: var(--text-secondary);
-  margin-bottom: var(--gap-xs);
   font-weight: var(--weight-medium);
 }
 
@@ -251,7 +255,6 @@ function copyQuickPick() {
 .latest-draw-label {
   font-size: var(--text-xs);
   color: var(--text-secondary);
-  margin-bottom: 2px;
 }
 
 .latest-draw-number {
@@ -266,7 +269,6 @@ function copyQuickPick() {
   gap: var(--gap-sm);
 }
 .quickpick-result {
-  margin-top: var(--gap-md);
   display: flex;
   flex-direction: column;
   gap: var(--gap-sm);
@@ -326,7 +328,6 @@ function copyQuickPick() {
 
 .lookup-number {
   font-size: var(--text-xl);
-  margin-bottom: var(--gap-sm);
 }
 .lookup-grid {
   display: grid;

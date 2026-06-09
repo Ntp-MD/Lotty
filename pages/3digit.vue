@@ -83,9 +83,9 @@ const pos2ColdDigit = computed(() => Object.entries(posFreq2.value).sort((a, b) 
 </script>
 
 <template>
-  <div class="page-container">
+  <div class="page-container page-content">
     <FilterBar />
-    <h1 class="section-title" style="margin-top: var(--gap-md)">สถิติ 3 ตัว</h1>
+    <h1 class="section-title">สถิติ 3 ตัว</h1>
 
     <LoadingSkeleton v-if="pending" variant="podium" :rows="10" />
     <ErrorCard v-else-if="error" message="โหลดข้อมูลไม่สำเร็จ" :on-retry="refresh" />
@@ -164,14 +164,12 @@ const pos2ColdDigit = computed(() => Object.entries(posFreq2.value).sort((a, b) 
           v-if="hasMore"
           @click="loadMore"
           class="btn btn-ghost btn-sm"
-          style="margin-top: var(--gap-md); width: 100%"
+          style="width: 100%"
         >
           โหลดเพิ่ม (แสดง {{ displayedItems.length }} / {{ sorted.length }})
         </button>
       </section>
     </template>
-
-    <DisclaimerBanner />
   </div>
 </template>
 
@@ -181,14 +179,20 @@ const pos2ColdDigit = computed(() => Object.entries(posFreq2.value).sort((a, b) 
   display: flex;
   flex-direction: column;
 }
+.page-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
 .section-block {
-  margin-top: var(--gap-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
 }
 .podium-list {
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--gap-sm);
-  margin-top: var(--gap-sm);
 }
 
 @media (min-width: 768px) {
@@ -261,7 +265,7 @@ const pos2ColdDigit = computed(() => Object.entries(posFreq2.value).sort((a, b) 
   }
 }
 .row-hot td:first-child {
-  color: var(--accent-gold);
+  color: var(--accent-danger);
 }
 .row-cold td:first-child {
   color: var(--accent-green);

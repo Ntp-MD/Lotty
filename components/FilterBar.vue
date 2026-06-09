@@ -79,7 +79,6 @@ const days: { value: DrawDay; label: string }[] = [
   background: var(--bg-surface);
   border-bottom: 1px solid var(--border);
   padding: clamp(var(--gap-sm), 3vw, var(--gap-md));
-  margin-bottom: var(--gap-md);
 }
 
 @media (min-width: 768px) {

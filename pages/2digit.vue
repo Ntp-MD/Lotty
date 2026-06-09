@@ -44,10 +44,10 @@ const unitsColdDigit = computed(() => Object.entries(unitsByDigit.value).sort((a
 </script>
 
 <template>
-  <div class="page-container">
+  <div class="page-container page-content">
     <FilterBar />
 
-    <h1 class="section-title" style="margin-top: var(--gap-md)">สถิติ 2 ตัว</h1>
+    <h1 class="section-title">สถิติ 2 ตัว</h1>
 
     <LoadingSkeleton v-if="pending" variant="heatmap" />
     <ErrorCard v-else-if="error" message="โหลดข้อมูลไม่สำเร็จ" :on-retry="refresh" />
@@ -84,8 +84,6 @@ const unitsColdDigit = computed(() => Object.entries(unitsByDigit.value).sort((a
         <HeatmapGrid :data="ranking" :selected="selected" @select="selected = $event" />
       </section>
     </template>
-
-    <DisclaimerBanner />
   </div>
 </template>
 
@@ -95,14 +93,20 @@ const unitsColdDigit = computed(() => Object.entries(unitsByDigit.value).sort((a
   display: flex;
   flex-direction: column;
 }
+.page-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
 .section-block {
-  margin-top: var(--gap-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
 }
 .podium-list {
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--gap-sm);
-  margin-top: var(--gap-sm);
 }
 
 @media (min-width: 768px) {

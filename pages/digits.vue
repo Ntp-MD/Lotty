@@ -40,9 +40,9 @@ const comboFreq = computed(() => {
 </script>
 
 <template>
-  <div>
+  <div class="page-content">
     <FilterBar />
-    <h1 class="section-title" style="margin-top: var(--gap-md)">รางวัลที่ 1 — แยก 6 หลัก</h1>
+    <h1 class="section-title">รางวัลที่ 1 — แยก 6 หลัก</h1>
 
     <LoadingSkeleton v-if="pending" variant="chart" />
     <ErrorCard v-else-if="error" message="โหลดข้อมูลไม่สำเร็จ" :on-retry="refresh" />
@@ -59,7 +59,7 @@ const comboFreq = computed(() => {
         />
       </section>
 
-      <section class="combo-finder card" style="margin-top: var(--gap-lg)">
+      <section class="combo-finder card">
         <h2 class="section-title">Combo Finder</h2>
         <p class="combo-hint">กด lock หลักที่ต้องการ แล้วดู pattern frequency</p>
         <div class="combo-locks">
@@ -86,16 +86,20 @@ const comboFreq = computed(() => {
         </div>
       </section>
     </template>
-    <DisclaimerBanner />
   </div>
 </template>
 
 <style scoped>
+.page-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
 .digits-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: var(--gap-sm);
-  margin-top: var(--gap-md);
 }
 
 @media (min-width: 768px) {
@@ -160,7 +164,6 @@ const comboFreq = computed(() => {
   display: flex;
   align-items: center;
   gap: var(--gap-md);
-  margin-top: var(--gap-md);
   padding-top: var(--gap-md);
   border-top: 1px solid var(--border-color-strong);
 }

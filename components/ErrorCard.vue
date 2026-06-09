@@ -9,7 +9,6 @@ defineProps<Props>();
 
 <template>
   <div class="error-card card" role="alert">
-    <span class="error-icon" aria-hidden="true">⚠️</span>
     <p class="error-msg">{{ message }}</p>
     <button v-if="onRetry" class="btn btn-ghost" @click="onRetry">ลองใหม่</button>
   </div>
@@ -23,12 +22,12 @@ defineProps<Props>();
   gap: var(--gap-sm);
   text-align: center;
   padding: var(--gap-lg);
+  border-color: var(--accent-danger);
+  background: var(--accent-danger);
 }
-
-.error-icon { font-size: var(--text-xl); }
 
 .error-msg {
   font-size: var(--text-sm);
-  color: var(--text-secondary);
+  color: #ffffff;
 }
 </style>

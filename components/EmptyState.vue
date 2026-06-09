@@ -14,7 +14,6 @@ const message = computed(() => {
 
 <template>
   <div class="empty card" role="status">
-    <span class="empty-icon" aria-hidden="true">🔍</span>
     <p class="empty-msg">{{ message }}</p>
   </div>
 </template>
@@ -29,6 +28,5 @@ const message = computed(() => {
   padding: var(--gap-lg);
 }
 
-.empty-icon { font-size: var(--text-xl); }
 .empty-msg { font-size: var(--text-sm); color: var(--text-secondary); }
 </style>

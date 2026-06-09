@@ -64,7 +64,6 @@ const DISCLAIMER =
     <hr class="divider-dashed" />
 
     <div class="ticket-rationale">
-      <span class="ticket-rationale-icon" aria-hidden="true">💡</span>
       <p>{{ rationale }}</p>
     </div>
 
@@ -146,8 +145,8 @@ const DISCLAIMER =
 }
 
 .gap-hot {
-  color: var(--accent-red);
-  background: rgba(232, 64, 64, 0.1);
+  color: #ffffff;
+  background: var(--accent-danger);
 }
 
 .gap-warm {

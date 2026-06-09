@@ -22,15 +22,6 @@
 	cursor: not-allowed;
 }
 
-.btn-primary {
-	background: var(--accent);
-	color: #ffffff;
-}
-
-.btn-primary:hover {
-	background: var(--accent-hover);
-}
-
 .btn-gold {
 	background: var(--accent-gold);
 	color: #ffffff;
@@ -66,12 +57,12 @@
 
 /* Badge */
 .badge-hot {
-	background: var(--accent-gold-light);
+	background: rgba(245, 158, 11, 0.15);
 	color: var(--accent-gold);
 }
 
 .badge-cold {
-	background: var(--accent-green-light);
+	background: rgba(16, 185, 129, 0.15);
 	color: var(--accent-green);
 }
 
@@ -88,7 +79,7 @@
 /* Number display */
 .num-display {
 	font-family: var(--font-display);
-	font-size: var(--text-xl);
+	font-size: var(--text-lg);
 	font-weight: var(--weight-bold);
 	line-height: 1;
 	letter-spacing: 2px;
@@ -115,17 +106,6 @@
 	100% {
 		background-position: -200% 0;
 	}
-}
-
-/* Disclaimer */
-.disclaimer {
-	font-size: var(--text-xs);
-	color: var(--text-muted);
-	line-height: var(--leading-loose);
-	padding: var(--gap-sm) var(--gap-md);
-	background: var(--bg-base);
-	border-left: 3px solid var(--accent);
-	border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
 }
 
 /* Divider */

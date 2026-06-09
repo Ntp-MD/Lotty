@@ -38,7 +38,7 @@ const years = computed(() => {
 </script>
 
 <template>
-  <div>
+  <div class="page-content">
     <h1 class="section-title">ผลสลากย้อนหลัง</h1>
 
     <div class="archive-filters">
@@ -106,10 +106,15 @@ const years = computed(() => {
 </template>
 
 <style scoped>
+.page-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
 .archive-filters {
   display: flex;
   gap: var(--gap-sm);
-  margin: var(--gap-md) 0;
 }
 
 .filter-select {
@@ -166,7 +171,6 @@ const years = computed(() => {
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--gap-sm);
-  margin-top: var(--gap-sm);
   font-size: var(--text-sm);
 }
 
@@ -190,7 +194,6 @@ const years = computed(() => {
   align-items: center;
   justify-content: center;
   gap: var(--gap-md);
-  margin-top: var(--gap-lg);
 }
 .pagination-page {
   font-size: var(--text-sm);

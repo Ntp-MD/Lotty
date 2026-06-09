@@ -2,11 +2,11 @@
 const route = useRoute();
 
 const navItems = [
-  { path: "/", label: "แนะนำ", icon: "★" },
+  { path: "/", label: "แนะนำ", icon: "" },
   { path: "/2digit", label: "2 ตัว", icon: "2" },
   { path: "/3digit", label: "3 ตัว", icon: "3" },
   { path: "/digits", label: "6 หลัก", icon: "6" },
-  { path: "/archive", label: "ย้อนหลัง", icon: "≡" },
+  { path: "/archive", label: "ย้อนหลัง", icon: "" },
 ];
 
 const pageTitles: Record<string, { title: string; sub: string }> = {
@@ -240,7 +240,6 @@ const currentPage = computed(() => pageTitles[route.path] ?? { title: "Lotty", s
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    margin-bottom: var(--gap-sm);
   }
 
   .sidebar-logo-icon {
