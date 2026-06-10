@@ -90,72 +90,61 @@ const sortedDigits = computed(() => {
 </script>
 
 <template>
-  <div class="layout-wrapper">
-    <div class="layout-container">
-
-      <!-- ── Sidebar ── -->
-      <aside class="layout-menu" aria-label="Main navigation">
-        <!-- Brand -->
-        <div class="menu-brand">
-          <NuxtLink to="/" class="menu-brand-link">
-            <span class="menu-brand-logo">L</span>
-            <span class="menu-brand-text">Lotty</span>
-          </NuxtLink>
-        </div>
-
-        <div class="menu-divider"></div>
-
-        <!-- Nav -->
-        <ul class="menu-inner" role="list">
-          <li class="menu-section-label">สถิติลอตเตอรี</li>
-          <li v-for="item in navItems" :key="item.path" class="menu-item">
-            <NuxtLink
-              :to="item.path"
-              class="menu-link focus-ring"
-              :class="{ 'menu-link-active': route.path === item.path }"
-              :aria-current="route.path === item.path ? 'page' : undefined"
-            >
-              <span class="menu-icon" aria-hidden="true">{{ item.icon }}</span>
-              <span class="menu-label">{{ item.label }}</span>
-            </NuxtLink>
-          </li>
-        </ul>
-      </aside>
-      <!-- /Sidebar -->
-
-      <!-- ── Layout Page ── -->
-      <div class="layout-page">
-
-        <!-- Topbar -->
-        <nav class="layout-navbar" aria-label="Top navigation">
-          <!-- mobile hamburger -->
-          <button class="navbar-menu-toggle" aria-label="Toggle menu">☰</button>
-
-          <div class="navbar-left">
-            <h1 class="navbar-page-title">{{ currentPage.title }}</h1>
-            <p class="navbar-page-sub">{{ currentPage.sub }}</p>
-          </div>
-
-          <div class="navbar-right">
-            <span class="navbar-badge">Lotty</span>
-          </div>
-        </nav>
-        <!-- /Topbar -->
-
-        <!-- Content -->
-        <div class="content-wrapper">
-          <div class="content-body">
-            <slot />
-          </div>
-        </div>
-        <!-- /Content -->
-
+  <div class="layout">
+    <nav class="sidebar" aria-label="Main navigation">
+      <div class="sidebar-logo" aria-label="Lotty">
+        <span class="sidebar-logo-icon">L</span>
       </div>
-      <!-- /Layout Page -->
+      <ul class="sidebar-list">
+        <li v-for="item in navItems" :key="item.path">
+          <NuxtLink
+            :to="item.path"
+            class="sidebar-link focus-ring"
+            :class="{ 'sidebar-link-active': route.path === item.path }"
+            :aria-current="route.path === item.path ? 'page' : undefined"
+            :title="item.label"
+          >
+            <span class="sidebar-icon" aria-hidden="true">{{ item.icon }}</span>
+            <span class="sidebar-tooltip">{{ item.label }}</span>
+          </NuxtLink>
+        </li>
+      </ul>
 
+      <div v-if="sortedDigits.length" class="sidebar-chart">
+        <div class="sidebar-chart-title">เลขที่ออกบ่อย (All Time)</div>
+        <div class="sidebar-chart-bars">
+          <div v-for="item in sortedDigits" :key="item.digit" class="sidebar-chart-row">
+            <span class="sidebar-chart-label">{{ item.digit }}</span>
+            <div class="sidebar-chart-track">
+              <div
+                class="sidebar-chart-fill"
+                :style="{ width: `${item.barWidth}%` }"
+              ></div>
+            </div>
+            <span class="sidebar-chart-count">{{ item.count }}</span>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="layout-body">
+      <header class="topbar">
+        <div class="topbar-title">
+          <h1 class="topbar-page-title">{{ currentPage.title }}</h1>
+          <p class="topbar-page-sub">{{ currentPage.sub }}</p>
+        </div>
+        <div class="topbar-right">
+          <span class="topbar-badge">
+            <span class="topbar-badge-text">Lotty</span>
+          </span>
+        </div>
+      </header>
+
+      <main class="layout-main">
+        <slot />
+      </main>
     </div>
 
-    <!-- Mobile bottom nav -->
     <nav class="nav-mobile" aria-label="Mobile navigation">
       <NuxtLink
         v-for="item in navItems"
@@ -166,7 +155,7 @@ const sortedDigits = computed(() => {
         :aria-label="item.label"
         :aria-current="route.path === item.path ? 'page' : undefined"
       >
-        <span class="nav-mobile-icon" aria-hidden="true">{{ item.icon }}</span>
+        <span class="nav-mobile-icon" aria-hidden="true">{{ item.label }}</span>
         <span class="nav-mobile-label">{{ item.label }}</span>
       </NuxtLink>
     </nav>
@@ -174,121 +163,116 @@ const sortedDigits = computed(() => {
 </template>
 
 <style scoped>
-/* ── Root ── */
-.layout-wrapper {
+/* ---- Root ---- */
+.layout {
   display: flex;
-  flex-direction: column;
-  min-height: 100dvh;
+  height: 100dvh;
+  overflow: hidden;
   background: var(--bg-base);
 }
 
-/* ── Inner container (sidebar + page) ── */
-.layout-container {
-  display: flex;
-  flex: 1;
-  min-height: 100dvh;
-}
-
-/* ── Sidebar hidden on mobile ── */
-.layout-menu {
+/* ---- Sidebar hidden on mobile ---- */
+.sidebar {
   display: none;
 }
 
-/* ── Layout Page ── */
-.layout-page {
+/* ---- Body (topbar + content) ---- */
+.layout-body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-width: 0;
   overflow: hidden;
-  min-height: 100dvh;
+  min-width: 0;
 }
 
-/* ── Topbar ── */
-.layout-navbar {
-  position: sticky;
-  top: 0;
-  z-index: 10;
+/* ---- Topbar ---- */
+.topbar {
+  flex-shrink: 0;
   min-height: var(--topbar-height);
   background: var(--bg-surface);
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  padding: var(--gap-xs) clamp(var(--gap-sm), 4vw, var(--gap-lg));
   gap: var(--gap-md);
-  padding: 0 clamp(var(--gap-sm), 4vw, var(--gap-lg));
 }
 
-.navbar-menu-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-sm);
-  color: var(--text-secondary);
-  font-size: var(--text-lg);
-}
-
-.navbar-left {
-  flex: 1;
+.topbar-title {
   display: flex;
   flex-direction: column;
   gap: 1px;
 }
 
-.navbar-page-title {
+.topbar-page-title {
+  font-family: var(--font-display);
   font-size: var(--text-lg);
   font-weight: var(--weight-bold);
   color: var(--text-primary);
   line-height: 1;
 }
 
-.navbar-page-sub {
+.topbar-page-sub {
   font-size: var(--text-xs);
   color: var(--text-muted);
 }
 
-.navbar-right {
+.topbar-right {
   display: flex;
   align-items: center;
   gap: var(--gap-sm);
 }
 
-.navbar-badge {
+.topbar-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   font-size: var(--text-xs);
   font-weight: var(--weight-medium);
   color: var(--accent);
   background: var(--accent-light);
   padding: 4px var(--gap-sm);
   border-radius: var(--radius-full);
+  border: 1px solid var(--accent);
 }
 
-/* ── Content ── */
-.content-wrapper {
+.topbar-badge-icon {
+  font-size: var(--text-sm);
+  line-height: 1;
+}
+
+.topbar-badge-text {
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .topbar-badge-text {
+    display: none;
+  }
+}
+
+/* ---- Main content ---- */
+.layout-main {
   flex: 1;
   overflow-y: auto;
+  padding: clamp(12px, 3vw, var(--gap-md));
+  padding-bottom: calc(60px + var(--gap-lg));
+  scroll-behavior: smooth;
 }
 
-.content-body {
-  width: 100%;
-  padding: clamp(var(--gap-md), 3vw, var(--gap-lg));
-  padding-bottom: calc(var(--nav-height-mobile) + var(--gap-lg));
-  max-width: var(--content-max-width);
-}
-
-/* ── Mobile Bottom Nav ── */
+/* ---- Mobile bottom nav ---- */
 .nav-mobile {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 100;
-  min-height: var(--nav-height-mobile);
+  min-height: 60px;
   background: var(--bg-surface);
   border-top: 1px solid var(--border);
-  box-shadow: 0 -2px 8px rgba(34, 48, 62, 0.08);
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.06);
   display: flex;
   align-items: stretch;
+  z-index: 100;
   padding: 4px 0;
 }
 
@@ -306,25 +290,20 @@ const sortedDigits = computed(() => {
 .nav-mobile-item-active {
   color: var(--accent);
 }
-
 .nav-mobile-icon {
-  font-size: var(--text-md);
-  font-weight: var(--weight-bold);
+  font-size: var(--text-lg);
   line-height: 1;
+  font-weight: var(--weight-bold);
 }
-
 .nav-mobile-label {
+  font-family: var(--font-body);
   font-size: var(--text-xs);
   font-weight: var(--weight-medium);
 }
 
-/* ── Desktop ── */
-@media (min-width: 960px) {
-  .layout-wrapper {
-    flex-direction: row;
-  }
-
-  .layout-menu {
+/* ---- Desktop ---- */
+@media (min-width: 1024px) {
+  .sidebar {
     display: flex;
     flex-direction: column;
     align-items: stretch;
@@ -332,125 +311,140 @@ const sortedDigits = computed(() => {
     width: auto;
     min-width: 200px;
     height: 100dvh;
-    position: sticky;
-    top: 0;
     background: var(--bg-sidebar);
     border-right: 1px solid var(--border);
-    overflow-y: auto;
-    padding-bottom: var(--gap-lg);
+    padding: var(--gap-md);
+    gap: var(--gap-md);
   }
 
-  /* Brand */
-  .menu-brand {
-    padding: var(--gap-md) var(--gap-md);
-    min-height: var(--topbar-height);
-    display: flex;
-    align-items: center;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .menu-brand-link {
-    display: flex;
-    align-items: center;
-    gap: var(--gap-sm);
-    text-decoration: none;
-  }
-
-  .menu-brand-logo {
-    width: 34px;
-    height: 34px;
+  .sidebar-logo {
+    width: 40px;
+    height: 40px;
     background: var(--accent);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-md);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #ffffff;
-    font-size: var(--text-md);
-    font-weight: var(--weight-bold);
     flex-shrink: 0;
   }
 
-  .menu-brand-text {
+  .sidebar-logo-icon {
     font-size: var(--text-lg);
-    font-weight: var(--weight-bold);
-    color: var(--text-primary);
-    letter-spacing: -0.3px;
+    color: #fff;
+    line-height: 1;
   }
 
-  .menu-divider {
-    height: 1px;
-    background: var(--border);
-    margin: 0;
-  }
-
-  /* Nav list */
-  .menu-inner {
+  .sidebar-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
     list-style: none;
-    padding: var(--gap-sm) 0;
-    flex: 1;
   }
 
-  .menu-section-label {
-    padding: var(--gap-sm) var(--gap-md) 4px;
-    font-size: var(--text-xs);
-    font-weight: var(--weight-medium);
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-  }
-
-  .menu-item {
-    padding: 2px var(--gap-sm);
-  }
-
-  .menu-link {
+  .sidebar-link {
+    position: relative;
     display: flex;
     align-items: center;
-    gap: var(--gap-sm);
-    padding: 10px var(--gap-sm);
-    border-radius: var(--radius-sm);
+    justify-content: flex-start;
+    padding: var(--gap-sm) var(--gap-md);
+    height: 44px;
+    border-radius: var(--radius-md);
     color: var(--sidebar-text);
-    font-size: var(--text-sm);
-    font-weight: var(--weight-medium);
-    transition: background var(--transition-fast), color var(--transition-fast);
-    text-decoration: none;
+    transition:
+      background var(--transition-fast),
+      color var(--transition-fast),
+      transform var(--transition-fast);
   }
 
-  .menu-link:hover {
-    background: var(--bg-hover);
-    color: var(--text-primary);
-  }
-
-  .menu-link-active {
+  .sidebar-link:hover {
     background: var(--sidebar-active-bg);
     color: var(--sidebar-active);
+    transform: translateX(2px);
+  }
+
+  .sidebar-link-active {
+    background: var(--accent-light);
+    color: var(--accent);
+    border: 2px solid var(--accent);
     font-weight: var(--weight-bold);
   }
 
-  .menu-icon {
-    font-size: var(--text-md);
-    font-weight: var(--weight-bold);
+  .sidebar-icon {
+    font-size: var(--text-lg);
     line-height: 1;
-    width: 22px;
+    font-weight: var(--weight-bold);
+  }
+
+  .sidebar-tooltip {
+    display: none;
+  }
+
+  .sidebar-chart {
+    margin-top: var(--gap-md);
+    padding-top: var(--gap-md);
+    border-top: 1px solid var(--border);
+  }
+
+  .sidebar-chart-title {
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    color: var(--text-secondary);
+    margin-bottom: var(--gap-sm);
+  }
+
+  .sidebar-chart-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .sidebar-chart-row {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-xs);
+  }
+
+  .sidebar-chart-label {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-bold);
+    color: var(--text-primary);
+    width: 16px;
     text-align: center;
     flex-shrink: 0;
   }
 
-  .menu-label {
+  .sidebar-chart-track {
     flex: 1;
+    height: 8px;
+    background: var(--bg-base);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
   }
 
-  .navbar-menu-toggle {
-    display: none;
+  .sidebar-chart-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: var(--radius-sm);
+    transition: width 0.3s ease;
+  }
+
+  .sidebar-chart-count {
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+    width: 24px;
+    text-align: right;
+    flex-shrink: 0;
   }
 
   .nav-mobile {
     display: none;
   }
 
-  .content-body {
-    padding: clamp(var(--gap-md), 3vw, var(--gap-lg));
-    padding-bottom: clamp(var(--gap-md), 3vw, var(--gap-lg));
+  .layout-main {
+    padding: clamp(var(--gap-md), 4vw, var(--gap-lg));
+    padding-bottom: clamp(var(--gap-md), 4vw, var(--gap-lg));
   }
 }
 </style>
