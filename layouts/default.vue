@@ -4,16 +4,18 @@ import type { StatsResponse } from "~/types";
 const route = useRoute();
 
 const navItems = [
-  { path: "/", label: "แนะนำ", icon: "หน้าหลัก" },
-  { path: "/2digit", label: "2 ตัว", icon: "เลข 2 หลัก" },
-  { path: "/3digit", label: "3 ตัว", icon: "เลข 3 หลัก" },
-  { path: "/archive", label: "ย้อนหลัง", icon: "" },
+  { path: "/", label: "แนะนำ" },
+  { path: "/2digit", label: "เลข 2 ตัว" },
+  { path: "/3digit", label: "เลข 3 ตัว" },
+  { path: "/stat-bar", label: "สถิติกราฟ" },
+  { path: "/archive", label: "ผลย้อนหลัง" },
 ];
 
 const pageTitles: Record<string, { title: string; sub: string }> = {
   "/": { title: "เลขแนะนำ", sub: "เลขค้างนาน + Quick Pick" },
   "/2digit": { title: "2 ตัว", sub: "สถิติเลขท้าย 2 ตัว" },
   "/3digit": { title: "3 ตัว", sub: "สถิติเลข 3 ตัวบน/หน้า/ล่าง" },
+  "/stat-bar": { title: "Stat Bar", sub: "กราฟแยกหลัก 2/3/6 ตัว" },
   "/archive": { title: "ผลย้อนหลัง", sub: "ผลการออกรางวัลทุกงวด" },
 };
 
@@ -104,8 +106,7 @@ const sortedDigits = computed(() => {
             :aria-current="route.path === item.path ? 'page' : undefined"
             :title="item.label"
           >
-            <span class="sidebar-icon" aria-hidden="true">{{ item.icon }}</span>
-            <span class="sidebar-tooltip">{{ item.label }}</span>
+            <span class="sidebar-label">{{ item.label }}</span>
           </NuxtLink>
         </li>
       </ul>
@@ -155,7 +156,6 @@ const sortedDigits = computed(() => {
         :aria-label="item.label"
         :aria-current="route.path === item.path ? 'page' : undefined"
       >
-        <span class="nav-mobile-icon" aria-hidden="true">{{ item.label }}</span>
         <span class="nav-mobile-label">{{ item.label }}</span>
       </NuxtLink>
     </nav>
@@ -206,14 +206,14 @@ const sortedDigits = computed(() => {
 
 .topbar-page-title {
   font-family: var(--font-display);
-  font-size: var(--text-lg);
+  font-size: var(--text-xl);
   font-weight: var(--weight-bold);
   color: var(--text-primary);
   line-height: 1;
 }
 
 .topbar-page-sub {
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
   color: var(--text-muted);
 }
 
@@ -289,15 +289,12 @@ const sortedDigits = computed(() => {
 
 .nav-mobile-item-active {
   color: var(--accent);
-}
-.nav-mobile-icon {
-  font-size: var(--text-lg);
-  line-height: 1;
   font-weight: var(--weight-bold);
 }
+
 .nav-mobile-label {
   font-family: var(--font-body);
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
   font-weight: var(--weight-medium);
 }
 
@@ -370,14 +367,10 @@ const sortedDigits = computed(() => {
     font-weight: var(--weight-bold);
   }
 
-  .sidebar-icon {
-    font-size: var(--text-lg);
-    line-height: 1;
-    font-weight: var(--weight-bold);
-  }
-
-  .sidebar-tooltip {
-    display: none;
+  .sidebar-label {
+    font-size: var(--text-md);
+    font-weight: var(--weight-medium);
+    color: var(--text-primary);
   }
 
   .sidebar-chart {

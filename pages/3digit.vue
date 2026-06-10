@@ -83,48 +83,52 @@ const pos2ColdDigit = computed(() => Object.entries(posFreq2.value).sort((a, b) 
 </script>
 
 <template>
-  <div class="page-container page-content">
+  <div class="page-content">
     <FilterBar />
-    <h1 class="section-title">สถิติ 3 ตัว</h1>
 
     <LoadingSkeleton v-if="pending" variant="podium" :rows="10" />
     <ErrorCard v-else-if="error" message="โหลดข้อมูลไม่สำเร็จ" :on-retry="refresh" />
     <EmptyState v-else-if="!ranking.length" reason="no_data_in_range" :scope="filter.scope" />
     <template v-else>
-      <section class="section-block page-grid page-grid-2">
-        <div>
-          <h2 class="section-title">ออกบ่อย 10 อันดับ</h2>
-          <div class="podium-list">
-            <PodiumCard v-for="(item, i) in top10" :key="item.number" :item="item" :rank="i + 1" />
+      <div class="card-group">
+        <div class="card-content">
+          <h1 class="section-title">ออกบ่อย 10 อันดับ</h1>
+          <div class="card">
+            <div class="podium-list">
+              <PodiumCard v-for="(item, i) in top10" :key="item.number" :item="item" :rank="i + 1" />
+            </div>
           </div>
         </div>
-        <div class="breakdown-container">
-          <h2 class="section-title">Breakdown แยกหลัก</h2>
-          <div class="breakdown-row">
-            <DigitBarChart
-              :position="1"
-              :freq="posFreq0"
-              :hot_digit="pos0HotDigit"
-              :cold_digit="pos0ColdDigit"
-            />
-            <DigitBarChart
-              :position="2"
-              :freq="posFreq1"
-              :hot_digit="pos1HotDigit"
-              :cold_digit="pos1ColdDigit"
-            />
-            <DigitBarChart
-              :position="3"
-              :freq="posFreq2"
-              :hot_digit="pos2HotDigit"
-              :cold_digit="pos2ColdDigit"
-            />
-          </div>
-        </div>
-      </section>
 
-      <section class="section-block">
-        <h2 class="section-title">ตารางความถี่</h2>
+        <div class="card-content">
+          <h1 class="section-title">Breakdown แยกหลัก</h1>
+          <div class="card">
+            <div class="breakdown-row">
+              <DigitBarChart
+                :position="1"
+                :freq="posFreq0"
+                :hot_digit="pos0HotDigit"
+                :cold_digit="pos0ColdDigit"
+              />
+              <DigitBarChart
+                :position="2"
+                :freq="posFreq1"
+                :hot_digit="pos1HotDigit"
+                :cold_digit="pos1ColdDigit"
+              />
+              <DigitBarChart
+                :position="3"
+                :freq="posFreq2"
+                :hot_digit="pos2HotDigit"
+                :cold_digit="pos2ColdDigit"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h1 class="section-title">ตารางความถี่</h1>
+      <div class="card">
         <div class="search-wrap">
           <input
             v-model="searchQuery"
@@ -168,17 +172,12 @@ const pos2ColdDigit = computed(() => Object.entries(posFreq2.value).sort((a, b) 
         >
           โหลดเพิ่ม (แสดง {{ displayedItems.length }} / {{ sorted.length }})
         </button>
-      </section>
+      </div>
     </template>
   </div>
 </template>
 
 <style scoped>
-.page-container {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
 .page-content {
   display: flex;
   flex-direction: column;
@@ -186,15 +185,12 @@ const pos2ColdDigit = computed(() => Object.entries(posFreq2.value).sort((a, b) 
   height: 100%;
   min-height: 0;
 }
-.section-block {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-md);
-}
+
 .podium-list {
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--gap-sm);
+  flex: 1;
 }
 
 @media (min-width: 768px) {
@@ -202,17 +198,14 @@ const pos2ColdDigit = computed(() => Object.entries(posFreq2.value).sort((a, b) 
     grid-template-columns: repeat(2, 1fr);
   }
 }
-.breakdown-container {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
+
 .breakdown-row {
   display: flex;
   gap: var(--gap-md);
   flex-wrap: wrap;
   flex: 1;
 }
+
 .breakdown-row > * {
   flex: 1 1 100%;
   min-width: 0;
@@ -223,9 +216,11 @@ const pos2ColdDigit = computed(() => Object.entries(posFreq2.value).sort((a, b) 
     flex: 1 1 calc(33.333% - var(--gap-md));
   }
 }
+
 .search-wrap {
   margin: var(--gap-sm) 0;
 }
+
 .search-input {
   background: var(--bg-raised);
   border: 1px solid var(--border);
@@ -237,14 +232,17 @@ const pos2ColdDigit = computed(() => Object.entries(posFreq2.value).sort((a, b) 
   width: 100%;
   max-width: 200px;
 }
+
 .table-container {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
+
 .freq-table {
   border-spacing: 0;
   width: 100%;
 }
+
 .freq-table th {
   font-size: var(--text-xs);
   color: var(--text-secondary);
@@ -253,6 +251,7 @@ const pos2ColdDigit = computed(() => Object.entries(posFreq2.value).sort((a, b) 
   border-bottom: 1px solid var(--border);
   white-space: nowrap;
 }
+
 .freq-table td {
   font-size: var(--text-sm);
   padding: 6px 8px;
@@ -266,9 +265,11 @@ const pos2ColdDigit = computed(() => Object.entries(posFreq2.value).sort((a, b) 
     padding: var(--gap-xs) var(--gap-sm);
   }
 }
+
 .row-hot td:first-child {
   color: var(--accent-danger);
 }
+
 .row-cold td:first-child {
   color: var(--accent-green);
 }

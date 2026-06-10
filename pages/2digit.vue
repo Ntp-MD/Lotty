@@ -52,30 +52,19 @@ const unitsColdDigit = computed(() => Object.entries(unitsByDigit.value).sort((a
     <EmptyState v-else-if="!ranking.length" reason="no_data_in_range" :scope="filter.scope" />
     <template v-else>
 
-      <div class="stats-grid">
-
-        <!-- Top 10 -->
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <h2 class="card-title">ออกบ่อย 10 อันดับ</h2>
-            </div>
-          </div>
-          <div class="card-body">
+      <div class="card-group">
+        <div class="card-content">
+          <h1 class="section-title">ออกบ่อย 10 อันดับ</h1>
+          <div class="card">
             <div class="podium-list">
               <PodiumCard v-for="(item, i) in top10" :key="item.number" :item="item" :rank="i + 1" />
             </div>
           </div>
         </div>
 
-        <!-- Breakdown -->
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <h2 class="card-title">Breakdown แยกหลัก</h2>
-            </div>
-          </div>
-          <div class="card-body">
+        <div class="card-content">
+          <h1 class="section-title">Breakdown แยกหลัก</h1>
+          <div class="card">
             <div class="breakdown-row">
               <DigitBarChart
                 :position="1"
@@ -92,19 +81,11 @@ const unitsColdDigit = computed(() => Object.entries(unitsByDigit.value).sort((a
             </div>
           </div>
         </div>
-
       </div>
 
-      <!-- Heatmap -->
+      <h1 class="section-title">Heatmap ความถี่</h1>
       <div class="card">
-        <div class="card-header">
-          <div>
-            <h2 class="card-title">Heatmap ความถี่</h2>
-          </div>
-        </div>
-        <div class="card-body">
-          <HeatmapGrid :data="ranking" :selected="selected" @select="selected = $event" />
-        </div>
+        <HeatmapGrid :data="ranking" :selected="selected" @select="selected = $event" />
       </div>
 
     </template>
@@ -120,27 +101,17 @@ const unitsColdDigit = computed(() => Object.entries(unitsByDigit.value).sort((a
   min-height: 0;
 }
 
-.stats-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--gap-md);
-}
-
-@media (min-width: 960px) {
-  .stats-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
 .podium-list {
   display: flex;
   flex-direction: column;
+  flex: 1;
 }
 
 .breakdown-row {
   display: flex;
   gap: var(--gap-md);
   flex-wrap: wrap;
+  flex: 1;
 }
 
 .breakdown-row > * {

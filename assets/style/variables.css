@@ -38,22 +38,23 @@
   ---------------------------------------------------------- */
 	--font-display: "LINE Seed Sans TH", sans-serif;
 	--font-body: "LINE Seed Sans TH", sans-serif;
-	--font-mono: "JetBrains Mono", "Courier New", monospace;
+	--font-mono: "LINE Seed Sans TH", sans-serif;
 
 	/* ----------------------------------------------------------
      Typography — Size Scale
   ---------------------------------------------------------- */
-	--text-xs: clamp(11px, 1.2vw, 12px);
-	--text-sm: clamp(13px, 1.4vw, 14px);
-	--text-md: clamp(15px, 1.6vw, 16px);
-	--text-lg: clamp(18px, 2vw, 20px);
-	--text-xl: clamp(28px, 3.5vw, 40px);
+	--text-xs: clamp(12px, 1vw, 14px);
+	--text-sm: clamp(14px, 1.2vw, 16px);
+	--text-md: clamp(16px, 1.4vw, 18px);
+	--text-lg: clamp(20px, 1.8vw, 24px);
+	--text-xl: clamp(24px, 2vw, 30px);
 
 	/* ----------------------------------------------------------
      Typography — Weight
   ---------------------------------------------------------- */
 	--weight-regular: 400;
 	--weight-medium: 500;
+	--weight-semibold: 600;
 	--weight-bold: 700;
 
 	/* ----------------------------------------------------------
@@ -66,10 +67,11 @@
 	/* ----------------------------------------------------------
      Spacing Scale
   ---------------------------------------------------------- */
-	--gap-xs: 5px;
-	--gap-sm: 10px;
-	--gap-md: 15px;
-	--gap-lg: 30px;
+	--gap-xs: 6px;
+	--gap-sm: 12px;
+	--gap-md: 18px;
+	--gap-lg: 24px;
+	--gap-xl: 36px;
 
 	/* ----------------------------------------------------------
      Border
@@ -88,7 +90,10 @@
 	/* ----------------------------------------------------------
      Shadow / Glow
   ---------------------------------------------------------- */
-	--shadow-raised: 0 4px 12px rgba(0, 0, 0, 0.08);
+	--shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+	--shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08);
+	--shadow-raised: 0 4px 12px rgba(0, 0, 0, 0.1);
+	--shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
 
 	/* ----------------------------------------------------------
      Transition
@@ -99,12 +104,8 @@
 	/* ----------------------------------------------------------
      Layout
   ---------------------------------------------------------- */
-	--nav-height-mobile: 56px;
-	--nav-width-desktop: 64px;
-	--nav-width-expanded: 220px;
-	--topbar-height: 56px;
+	--nav-height-mobile: 60px;
+	--sidebar-width: 200px;
+	--topbar-height: 64px;
 	--content-max-width: 1400px;
-
-	--bp-mobile: 600px;
-	--bp-desktop: 960px;
 }

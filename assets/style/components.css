@@ -15,10 +15,10 @@
 }
 
 .card-title {
-	font-size: var(--text-md);
-	font-weight: var(--weight-bold);
+	font-size: var(--text-lg);
+	font-weight: var(--weight-semibold);
 	color: var(--text-primary);
-	line-height: 1;
+	line-height: 1.2;
 	margin: 0;
 }
 
@@ -190,14 +190,6 @@
 	font-weight: var(--weight-medium);
 }
 
-/* ── Section title ── */
-.section-title {
-	font-size: var(--text-xs);
-	font-weight: var(--weight-medium);
-	color: var(--text-muted);
-	text-transform: uppercase;
-	letter-spacing: 0.8px;
-}
 
 /* ── Number display ── */
 .num-display {

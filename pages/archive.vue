@@ -41,29 +41,31 @@ const years = computed(() => {
   <div class="page-content">
     <h1 class="section-title">ผลสลากย้อนหลัง</h1>
 
-    <div class="archive-filters">
-      <select
-        class="filter-select focus-ring"
-        :value="filterYear"
-        @change="
-          filterYear = ($event.target as HTMLSelectElement).value ? Number(($event.target as HTMLSelectElement).value) : null;
-          page = 1;
-        "
-      >
-        <option value="">ทุกปี</option>
-        <option v-for="y in years" :key="y" :value="y">{{ y + 543 }}</option>
-      </select>
-      <select
-        class="filter-select focus-ring"
-        :value="filterMonth"
-        @change="
-          filterMonth = ($event.target as HTMLSelectElement).value ? Number(($event.target as HTMLSelectElement).value) : null;
-          page = 1;
-        "
-      >
-        <option value="">ทุกเดือน</option>
-        <option v-for="m in 12" :key="m" :value="m">เดือน {{ m }}</option>
-      </select>
+    <div class="card">
+      <div class="archive-filters">
+        <select
+          class="filter-select focus-ring"
+          :value="filterYear"
+          @change="
+            filterYear = ($event.target as HTMLSelectElement).value ? Number(($event.target as HTMLSelectElement).value) : null;
+            page = 1;
+          "
+        >
+          <option value="">ทุกปี</option>
+          <option v-for="y in years" :key="y" :value="y">{{ y + 543 }}</option>
+        </select>
+        <select
+          class="filter-select focus-ring"
+          :value="filterMonth"
+          @change="
+            filterMonth = ($event.target as HTMLSelectElement).value ? Number(($event.target as HTMLSelectElement).value) : null;
+            page = 1;
+          "
+        >
+          <option value="">ทุกเดือน</option>
+          <option v-for="m in 12" :key="m" :value="m">เดือน {{ m }}</option>
+        </select>
+      </div>
     </div>
 
     <LoadingSkeleton v-if="pending" variant="podium" :rows="8" />
@@ -155,11 +157,13 @@ const years = computed(() => {
   color: var(--text-secondary);
   flex: 1;
 }
+
 .archive-first {
   font-size: var(--text-lg);
   color: var(--accent-gold);
   letter-spacing: 3px;
 }
+
 .archive-chevron {
   font-size: var(--text-xs);
   color: var(--accent-dim);
@@ -169,6 +173,7 @@ const years = computed(() => {
 .archive-detail {
   padding: 0 var(--gap-md) var(--gap-md);
 }
+
 .archive-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -181,11 +186,13 @@ const years = computed(() => {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
 .archive-grid > div {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
+
 .archive-key {
   font-size: var(--text-xs);
   color: var(--text-secondary);
@@ -197,6 +204,7 @@ const years = computed(() => {
   justify-content: center;
   gap: var(--gap-md);
 }
+
 .pagination-page {
   font-size: var(--text-sm);
   color: var(--text-secondary);

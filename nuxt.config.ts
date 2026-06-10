@@ -24,10 +24,9 @@ export default defineNuxtConfig({
 				{ name: "description", content: "Advanced lottery analytics platform with real-time data insights" },
 			],
 			link: [
-				{ rel: "preconnect", href: "https://fonts.googleapis.com" },
 				{
 					rel: "stylesheet",
-					href: "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap",
+					href: "https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@7/fonts/LINESeedSansTH/LINESeedSansTH.css",
 				},
 			],
 		},

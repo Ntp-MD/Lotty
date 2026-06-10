@@ -115,30 +115,28 @@ function copyQuickPick() {
   <div class="page-content">
     <FilterBar />
 
-    <section v-if="latestDraw?.data" class="latest-draw-section">
-      <h2 class="section-title" style="font-size: var(--text-lg)">ผลสลากล่าสุด</h2>
-      <div class="latest-draw-card">
-        <div class="latest-draw-date">{{ formatDate(latestDraw.data.draw_date) }}</div>
-        <div class="latest-draw-numbers">
-          <div class="latest-draw-col">
-            <span class="latest-draw-label">รางวัลที่ 1</span>
-            <span class="num-display latest-draw-number">{{ latestDraw.data.first }}</span>
-          </div>
-          <div class="latest-draw-col">
-            <span class="latest-draw-label">3 ตัวหน้า</span>
-            <span class="num-display latest-draw-number">{{ latestDraw.data.last3f }}</span>
-          </div>
-          <div class="latest-draw-col">
-            <span class="latest-draw-label">3 ตัวล่าง</span>
-            <span class="num-display latest-draw-number">{{ latestDraw.data.last3b }}</span>
-          </div>
-          <div class="latest-draw-col">
-            <span class="latest-draw-label">2 ตัวล่าง</span>
-            <span class="num-display latest-draw-number">{{ latestDraw.data.last2 }}</span>
-          </div>
+    <h1 v-if="latestDraw?.data" class="section-title">ผลสลากล่าสุด</h1>
+    <div v-if="latestDraw?.data" class="card">
+      <div class="latest-draw-date">{{ formatDate(latestDraw.data.draw_date) }}</div>
+      <div class="latest-draw-numbers">
+        <div class="latest-draw-col">
+          <span class="latest-draw-label">รางวัลที่ 1</span>
+          <span class="num-display latest-draw-number">{{ latestDraw.data.first }}</span>
+        </div>
+        <div class="latest-draw-col">
+          <span class="latest-draw-label">3 ตัวหน้า</span>
+          <span class="num-display latest-draw-number">{{ latestDraw.data.last3f }}</span>
+        </div>
+        <div class="latest-draw-col">
+          <span class="latest-draw-label">3 ตัวล่าง</span>
+          <span class="num-display latest-draw-number">{{ latestDraw.data.last3b }}</span>
+        </div>
+        <div class="latest-draw-col">
+          <span class="latest-draw-label">2 ตัวล่าง</span>
+          <span class="num-display latest-draw-number">{{ latestDraw.data.last2 }}</span>
         </div>
       </div>
-    </section>
+    </div>
 
     <h1 class="section-title">เลขแนะนำ</h1>
 
@@ -146,17 +144,17 @@ function copyQuickPick() {
     <ErrorCard v-else-if="error" message="โหลดข้อมูลไม่สำเร็จ" :on-retry="refresh" />
     <EmptyState v-else-if="!advisor" reason="no_data_in_range" :scope="filter.scope" />
     <template v-else>
-      <div class="advisor-grid">
+      <div class="card">
         <LotteryTicketCard
           :draw_date_next="advisor.draw_date_next"
           :suggestions="advisor.suggestions"
           :rationale="advisor.rationale"
           :scope="scopeLabel"
         />
+      </div>
 
-        <section class="card">
-          <h2 class="section-title">Quick Pick & ค้นหาสถิติ</h2>
-
+      <h1 class="section-title">Quick Pick & ค้นหาสถิติ</h1>
+      <div class="card">
           <div class="tools-section">
             <div class="tools-row">
               <div class="tool-block">
@@ -269,12 +267,10 @@ function copyQuickPick() {
               </div>
             </div>
           </div>
-        </section>
       </div>
 
-      <section class="card">
-        <h2 class="section-title">รางวัลที่ 1 — แยก 6 หลัก</h2>
-
+      <h1 class="section-title">รางวัลที่ 1 — แยก 6 หลัก</h1>
+      <div class="card">
         <LoadingSkeleton v-if="digitsPending" variant="chart" />
         <ErrorCard v-else-if="digitsError" message="โหลดข้อมูลไม่สำเร็จ" :on-retry="refreshDigits" />
         <EmptyState v-else-if="!positions.length" reason="no_data_in_range" :scope="filter.scope" />
@@ -288,7 +284,7 @@ function copyQuickPick() {
             :cold_digit="pos.cold_digit"
           />
         </div>
-      </section>
+      </div>
     </template>
   </div>
 </template>
@@ -300,35 +296,6 @@ function copyQuickPick() {
   gap: var(--gap-md);
   height: 100%;
   min-height: 0;
-}
-
-.card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: var(--gap-md);
-  height: 100%;
-}
-
-.advisor-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--gap-md);
-}
-
-@media (min-width: 1024px) {
-  .advisor-grid {
-    grid-template-columns: 1fr 1fr;
-    align-items: stretch;
-  }
-
-  .advisor-grid > * {
-    height: 100%;
-  }
-
-  .advisor-grid .card {
-    height: 100%;
-  }
 }
 
 .tools-section {
@@ -367,10 +334,10 @@ function copyQuickPick() {
 }
 
 .tool-title {
-  font-size: var(--text-md);
+  font-size: var(--text-lg);
   font-weight: var(--weight-semibold);
   color: var(--text-primary);
-  margin: 0;
+  margin: 0 0 var(--gap-xs) 0;
 }
 
 .tool-divider {
@@ -385,32 +352,26 @@ function copyQuickPick() {
   }
 }
 
-.latest-draw-section {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-sm);
-}
-
-.latest-draw-card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: var(--gap-md);
+.tool-divider-horizontal {
+  width: 100%;
+  height: 1px;
+  background: var(--border);
 }
 
 .latest-draw-date {
   font-size: var(--text-xs);
   color: var(--text-secondary);
   font-weight: var(--weight-medium);
+  margin-bottom: var(--gap-md);
 }
 
 .latest-draw-numbers {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: var(--gap-xs);
+  gap: var(--gap-sm);
 }
 
-@media (min-width: 768px) {
+@media (min-width: 640px) {
   .latest-draw-numbers {
     grid-template-columns: repeat(4, 1fr);
   }
@@ -424,8 +385,17 @@ function copyQuickPick() {
   padding: var(--gap-md);
   background: var(--bg-base);
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   text-align: center;
+  min-height: 80px;
+  gap: var(--gap-xs);
+  transition: all 0.2s ease;
+}
+
+.latest-draw-col:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
 }
 
 .latest-draw-label {
