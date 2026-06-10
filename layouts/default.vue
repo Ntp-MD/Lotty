@@ -256,7 +256,6 @@ const sortedDigits = computed(() => {
   flex: 1;
   overflow-y: auto;
   padding: clamp(12px, 3vw, var(--gap-md));
-  padding-bottom: calc(60px + var(--gap-lg));
   scroll-behavior: smooth;
 }
 
@@ -436,8 +435,8 @@ const sortedDigits = computed(() => {
   }
 
   .layout-main {
-    padding: clamp(var(--gap-md), 4vw, var(--gap-lg));
-    padding-bottom: clamp(var(--gap-md), 4vw, var(--gap-lg));
+    padding: var(--gap-lg);
+    margin-bottom: 40px;
   }
 }
 </style>

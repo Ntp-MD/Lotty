@@ -72,7 +72,7 @@ function onKeydown(e: KeyboardEvent, idx: number) {
   flex-direction: column;
   gap: clamp(2px, 0.5vw, 4px);
   width: 100%;
-  overflow-x: auto;
+  overflow: hidden;
 }
 
 .heatmap-row {
@@ -84,7 +84,6 @@ function onKeydown(e: KeyboardEvent, idx: number) {
 .heatmap-cell {
   position: relative;
   flex: 1;
-  aspect-ratio: 1;
   min-width: clamp(32px, 6vw, 48px);
   min-height: clamp(32px, 6vw, 48px);
   display: flex;
@@ -94,16 +93,12 @@ function onKeydown(e: KeyboardEvent, idx: number) {
   background: color-mix(in srgb, var(--accent) calc(var(--cell-opacity) * 100%), var(--bg-base));
   border: 1px solid var(--border);
   cursor: pointer;
-  overflow: visible;
-  transition: all 0.15s ease;
 }
 
 .heatmap-cell:hover,
 .heatmap-cell:focus-visible {
   border-color: var(--accent);
-  border-width: 2px;
   z-index: 10;
-  transform: scale(1.05);
 }
 
 .heatmap-cell-hot {
@@ -131,7 +126,7 @@ function onKeydown(e: KeyboardEvent, idx: number) {
 .heatmap-tooltip {
   display: none;
   position: absolute;
-  bottom: calc(100% + 6px);
+  top: calc(100% + 6px);
   left: 50%;
   transform: translateX(-50%);
   background: var(--bg-raised);
