@@ -75,78 +75,55 @@ const days: { value: DrawDay; label: string }[] = [
 .filter-bar {
   display: flex;
   flex-direction: column;
-  gap: var(--gap-md);
-  background: var(--bg-surface);
-  border-bottom: 1px solid var(--border);
-  padding: clamp(var(--gap-sm), 3vw, var(--gap-md));
-}
-
-@media (min-width: 768px) {
-  .filter-bar {
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-  }
+  gap: var(--gap-sm);
 }
 
 .filter-group {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--gap-xs);
-}
-
-@media (min-width: 768px) {
-  .filter-group {
-    flex-direction: row;
-    align-items: center;
-    gap: var(--gap-sm);
-  }
+  align-items: center;
+  gap: var(--gap-sm);
+  flex-wrap: wrap;
 }
 
 .filter-label {
   font-size: var(--text-xs);
-  color: var(--text-muted);
   font-weight: var(--weight-medium);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  color: var(--text-muted);
   white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
 }
 
 .filter-chips {
   display: flex;
-  flex-wrap: wrap;
   gap: 4px;
+  flex-wrap: wrap;
 }
 
+/* chip = pill tab */
 .chip {
-  min-height: 40px;
-  padding: 8px 20px;
-  min-width: 80px;
+  padding: 5px var(--gap-sm);
   border-radius: var(--radius-full);
-  font-size: var(--text-xs);
-  font-family: var(--font-body);
-  color: var(--text-secondary);
   border: 1px solid var(--border);
-  background: var(--bg-surface);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
   cursor: pointer;
   transition: all var(--transition-fast);
-  display: grid;
-  align-items: center;
-  text-align: center;
+  font-family: var(--font-body);
+  white-space: nowrap;
 }
 
 .chip:hover {
   border-color: var(--accent);
   color: var(--accent);
-  background: var(--accent-light);
 }
 
 .chip-active {
   background: var(--accent);
-  color: #ffffff;
   border-color: var(--accent);
-  font-weight: var(--weight-medium);
+  color: #ffffff;
 }
 
 .filter-row {
@@ -161,8 +138,7 @@ const days: { value: DrawDay; label: string }[] = [
   border-radius: var(--radius-sm);
   color: var(--text-primary);
   font-size: var(--text-xs);
-  padding: 8px var(--gap-sm);
-  min-height: 40px;
+  padding: var(--gap-xs) var(--gap-sm);
   cursor: pointer;
   transition: border-color var(--transition-fast);
 }
@@ -198,6 +174,7 @@ const days: { value: DrawDay; label: string }[] = [
     opacity: 0;
     transform: translateY(-5px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

@@ -44,55 +44,74 @@ const unitsColdDigit = computed(() => Object.entries(unitsByDigit.value).sort((a
 </script>
 
 <template>
-  <div class="page-container page-content">
+  <div class="page-content">
     <FilterBar />
-
-    <h1 class="section-title">สถิติ 2 ตัว</h1>
 
     <LoadingSkeleton v-if="pending" variant="heatmap" />
     <ErrorCard v-else-if="error" message="โหลดข้อมูลไม่สำเร็จ" :on-retry="refresh" />
     <EmptyState v-else-if="!ranking.length" reason="no_data_in_range" :scope="filter.scope" />
     <template v-else>
-      <section class="section-block page-grid page-grid-2">
-        <div>
-          <h2 class="section-title">ออกบ่อย 10 อันดับ</h2>
-          <div class="podium-list">
-            <PodiumCard v-for="(item, i) in top10" :key="item.number" :item="item" :rank="i + 1" />
-          </div>
-        </div>
-        <div class="breakdown-container">
-          <h2 class="section-title">Breakdown แยกหลัก</h2>
-          <div class="breakdown-row">
-            <DigitBarChart
-              :position="1"
-              :freq="tensByDigit"
-              :hot_digit="tensHotDigit"
-              :cold_digit="tensColdDigit"
-            />
-            <DigitBarChart
-              :position="2"
-              :freq="unitsByDigit"
-              :hot_digit="unitsHotDigit"
-              :cold_digit="unitsColdDigit"
-            />
-          </div>
-        </div>
-      </section>
 
-      <section class="section-block">
-        <h2 class="section-title">Heatmap ความถี่</h2>
-        <HeatmapGrid :data="ranking" :selected="selected" @select="selected = $event" />
-      </section>
+      <div class="stats-grid">
+
+        <!-- Top 10 -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">ออกบ่อย 10 อันดับ</h2>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="podium-list">
+              <PodiumCard v-for="(item, i) in top10" :key="item.number" :item="item" :rank="i + 1" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Breakdown -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Breakdown แยกหลัก</h2>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="breakdown-row">
+              <DigitBarChart
+                :position="1"
+                :freq="tensByDigit"
+                :hot_digit="tensHotDigit"
+                :cold_digit="tensColdDigit"
+              />
+              <DigitBarChart
+                :position="2"
+                :freq="unitsByDigit"
+                :hot_digit="unitsHotDigit"
+                :cold_digit="unitsColdDigit"
+              />
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Heatmap -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Heatmap ความถี่</h2>
+          </div>
+        </div>
+        <div class="card-body">
+          <HeatmapGrid :data="ranking" :selected="selected" @select="selected = $event" />
+        </div>
+      </div>
+
     </template>
   </div>
 </template>
 
 <style scoped>
-.page-container {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
 .page-content {
   display: flex;
   flex-direction: column;
@@ -100,33 +119,30 @@ const unitsColdDigit = computed(() => Object.entries(unitsByDigit.value).sort((a
   height: 100%;
   min-height: 0;
 }
-.section-block {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-md);
-}
-.podium-list {
+
+.stats-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--gap-sm);
+  gap: var(--gap-md);
 }
 
-@media (min-width: 768px) {
-  .podium-list {
-    grid-template-columns: repeat(2, 1fr);
+@media (min-width: 960px) {
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
   }
 }
-.breakdown-container {
+
+.podium-list {
   display: flex;
   flex-direction: column;
-  height: 100%;
 }
+
 .breakdown-row {
   display: flex;
   gap: var(--gap-md);
   flex-wrap: wrap;
-  flex: 1;
 }
+
 .breakdown-row > * {
   flex: 1 1 100%;
   min-width: 0;

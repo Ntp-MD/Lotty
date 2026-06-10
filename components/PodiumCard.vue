@@ -11,74 +11,81 @@ defineProps<Props>();
 
 <template>
   <div
-    class="podium-card card"
+    class="podium-item"
     :class="{
-      'podium-card-hot': item.label === 'ออกบ่อย',
-      'podium-card-cold': item.label === 'ไม่เคยออก',
+      'podium-item-hot':  item.label === 'ออกบ่อย',
+      'podium-item-cold': item.label === 'ไม่เคยออก',
     }"
   >
-    <div class="podium-rank">
-      <span class="podium-rank-num">{{ rank }}</span>
+    <!-- rank avatar -->
+    <div class="podium-rank-avatar" :class="rank <= 3 ? 'podium-rank-top' : ''">
+      {{ rank }}
     </div>
-    <div class="podium-number num-display">{{ item.number }}</div>
-    <div class="podium-meta">
-      <div class="podium-bar" role="meter" :aria-valuenow="item.pct" aria-valuemin="0" aria-valuemax="100">
-        <div class="podium-bar-fill" :style="{ width: `${item.pct}%` }"></div>
+
+    <!-- number + meta -->
+    <div class="podium-info">
+      <span class="num-display podium-number">{{ item.number }}</span>
+      <div class="podium-bar-wrap">
+        <div class="podium-bar">
+          <div class="podium-bar-fill" :style="{ width: `${item.pct}%` }"></div>
+        </div>
+        <span class="num-mono podium-pct">{{ (item.pct ?? 0).toFixed(1) }}%</span>
       </div>
-      <span class="num-mono podium-pct">{{ (item.pct ?? 0).toFixed(1) }}%</span>
     </div>
-    <div class="podium-last">
-      <span class="podium-last-label">ออกล่าสุด</span>
-      <span class="podium-last-val">{{ item.last_draw || "—" }}</span>
-    </div>
-    <div class="podium-gap" v-if="item.gap > 0">
-      <span class="podium-gap-label">ห่างมา</span>
-      <span class="podium-gap-val">{{ item.gap === 999 ? "ไม่เคยออก" : `${item.gap} งวด` }}</span>
+
+    <!-- right: gap badge -->
+    <div class="podium-right">
+      <span v-if="item.label === 'ออกบ่อย'" class="badge-hot">ออกบ่อย</span>
+      <span v-else-if="item.gap > 0" class="podium-gap-label">
+        {{ item.gap === 999 ? "ไม่เคย" : `${item.gap} งวด` }}
+      </span>
     </div>
   </div>
 </template>
 
 <style scoped>
-.podium-card {
+.podium-item {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   gap: var(--gap-sm);
-  padding: clamp(var(--gap-sm), 3vw, var(--gap-md));
+  padding: var(--gap-sm) 0;
+  border-bottom: 1px solid var(--border);
 }
 
-.podium-card-hot {
+.podium-item:last-child {
+  border-bottom: none;
+}
+
+.podium-item-hot {
   border-left: 3px solid var(--accent-gold);
+  padding-left: var(--gap-sm);
 }
-.podium-card-cold {
+
+.podium-item-cold {
   border-left: 3px solid var(--accent-green);
+  padding-left: var(--gap-sm);
 }
 
-.podium-rank {
+.podium-rank-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-raised);
+  color: var(--text-secondary);
   display: flex;
-  flex-direction: column;
   align-items: center;
-  min-width: clamp(24px, 5vw, 32px);
-  gap: 2px;
-}
-
-.podium-rank-num {
-  font-family: var(--font-mono);
+  justify-content: center;
   font-size: var(--text-xs);
-  color: var(--text-muted);
-  line-height: 1;
-}
-
-.podium-number {
-  font-family: var(--font-display);
-  font-size: var(--text-lg);
   font-weight: var(--weight-bold);
-  color: var(--text-primary);
-  letter-spacing: 2px;
-  min-width: clamp(48px, 12vw, 60px);
+  flex-shrink: 0;
 }
 
-.podium-meta {
+.podium-rank-top {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+.podium-info {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -86,8 +93,21 @@ defineProps<Props>();
   min-width: 0;
 }
 
+.podium-number {
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+  letter-spacing: 2px;
+}
+
+.podium-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-xs);
+}
+
 .podium-bar {
-  width: 100%;
+  flex: 1;
   height: 4px;
   background: var(--bg-raised);
   border-radius: var(--radius-full);
@@ -101,29 +121,19 @@ defineProps<Props>();
   transition: width var(--transition-normal);
 }
 
-.podium-card-hot .podium-bar-fill {
-  background: var(--accent-gold);
-}
-.podium-card-cold .podium-bar-fill {
-  background: var(--accent-green);
-}
-
 .podium-pct {
   font-size: var(--text-xs);
   color: var(--text-muted);
+  white-space: nowrap;
 }
 
-.podium-last,
-.podium-gap {
-  display: flex;
-  justify-content: space-between;
+.podium-right {
+  flex-shrink: 0;
+}
+
+.podium-gap-label {
   font-size: var(--text-xs);
   color: var(--text-muted);
-}
-
-.podium-last-val,
-.podium-gap-val {
-  font-family: var(--font-mono);
-  color: var(--text-secondary);
+  white-space: nowrap;
 }
 </style>
