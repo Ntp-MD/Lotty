@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { AdvisorResponse, StatsResponse } from "~/types";
+import type { AdvisorResponse, StatsResponse, DigitsResponse, DigitPosition } from "~/types";
 import { formatDate } from "~/composables/useDate";
 
 useHead({ title: "เลขแนะนำ — Lotty" });
@@ -53,6 +53,39 @@ const lookupPending = ref(false);
 
 const { data: latestDraw, pending: latestDrawPending } = await useFetch("/api/latest-draw");
 
+// 6-digit stats
+const digitsAsyncKey = computed(() => `digits-${filter.scope}`);
+const { data: digitsData, pending: digitsPending, error: digitsError, refresh: refreshDigits } = await useAsyncData(
+  digitsAsyncKey,
+  () => $fetch<DigitsResponse>("/api/stats/digits", { query: { scope: filter.scope } }),
+  { watch: [digitsAsyncKey] },
+);
+
+const positions = computed<DigitPosition[]>(() => digitsData.value?.data ?? []);
+
+const locks = ref<Record<number, string>>({});
+
+function toggleLock(pos: number, digit: string) {
+  const current = locks.value[pos];
+  locks.value = { ...locks.value, [pos]: current === digit ? "" : digit };
+}
+
+const comboFreq = computed(() => {
+  const lockedPositions = Object.entries(locks.value).filter(([, d]) => d !== "");
+  if (!lockedPositions.length) return null;
+
+  let combined = 100;
+  lockedPositions.forEach(([posStr, digit]) => {
+    const posData = positions.value.find((p) => p.position === Number(posStr));
+    if (posData) {
+      const total = Object.values(posData.freq).reduce((a, b) => a + b, 0);
+      const digitFreq = posData.freq[digit] ?? 0;
+      combined = Math.round(((combined * (digitFreq / Math.max(total, 1))) / 100) * 100);
+    }
+  });
+  return combined;
+});
+
 async function doLookup() {
   const q = lookupQuery.value.trim();
   if (q.length < 2 || q.length > 3) return;
@@ -81,22 +114,9 @@ function copyQuickPick() {
 <template>
   <div class="page-content">
     <FilterBar />
-    <h1 class="section-title">เลขแนะนำ</h1>
-
-    <LoadingSkeleton v-if="pending" variant="ticket" />
-    <ErrorCard v-else-if="error" message="โหลดข้อมูลไม่สำเร็จ" :on-retry="refresh" />
-    <EmptyState v-else-if="!advisor" reason="no_data_in_range" :scope="filter.scope" />
-    <template v-else>
-      <LotteryTicketCard
-        :draw_date_next="advisor.draw_date_next"
-        :suggestions="advisor.suggestions"
-        :rationale="advisor.rationale"
-        :scope="scopeLabel"
-      />
-    </template>
 
     <section v-if="latestDraw?.data" class="latest-draw-section">
-      <h2 class="section-title" style="font-size: var(--text-lg)">ผลสลากล่าสุด</h2>
+      <h2 class="section-title">ผลสลากล่าสุด</h2>
       <div class="latest-draw-card">
         <div class="latest-draw-date">{{ formatDate(latestDraw.data.draw_date) }}</div>
         <div class="latest-draw-numbers">
@@ -120,85 +140,160 @@ function copyQuickPick() {
       </div>
     </section>
 
-    <template v-if="!pending && !error && advisor">
-      <section class="card">
-        <h2 class="section-title">Quick Pick</h2>
-        <p style="font-size: var(--text-sm); color: var(--text-secondary)">
-          สุ่มเลขตามสถิติ — เลขที่ค้างนานได้น้ำหนักมากกว่า
-        </p>
-        <div class="quickpick-actions">
-          <button class="btn btn-gold" @click="generateQuickPick" :disabled="quickPickLoading">
-            <span v-if="quickPickLoading">กำลังคำนวณ...</span>
-            <span v-else>สุ่มเลขตามสถิติ</span>
-          </button>
-          <button class="btn btn-ghost" @click="quickPick = null" v-if="quickPick && !quickPickLoading">รีเซ็ต</button>
-        </div>
-        <div v-if="quickPick" class="quickpick-result">
-          <div class="quickpick-numbers">
-            <div class="quickpick-col">
-              <span class="quickpick-label">2 ตัวล่าง</span>
-              <span class="num-display quickpick-num">{{ quickPick.last2 }}</span>
+    <div class="advisor-grid-group">
+      <div class="advisor-grid">
+        <h1 class="section-title">เลขแนะนำ</h1>
+        <LoadingSkeleton v-if="pending" variant="ticket" />
+        <ErrorCard v-else-if="error" message="โหลดข้อมูลไม่สำเร็จ" :on-retry="refresh" />
+        <EmptyState v-else-if="!advisor" reason="no_data_in_range" :scope="filter.scope" />
+        <template v-else>
+          <section class="card">
+            <LotteryTicketCard
+              :draw_date_next="advisor.draw_date_next"
+              :suggestions="advisor.suggestions"
+              :rationale="advisor.rationale"
+              :scope="scopeLabel"
+            />
+          </section>
+        </template>
+      </div>
+
+      <div class="advisor-grid">
+        <h1 class="section-title">Quick Pick & ค้นหาสถิติ</h1>
+        <section class="card">
+          <div class="tools-section">
+            <div class="tools-row">
+              <div class="tool-block">
+                <h3 class="tool-title">Quick Pick</h3>
+                <p style="font-size: var(--text-md); color: var(--text-secondary)">
+                  สุ่มเลขตามสถิติ — เลขที่ค้างนานได้น้ำหนักมากกว่า
+                </p>
+                <div class="quickpick-actions">
+                  <button class="btn btn-gold" @click="generateQuickPick" :disabled="quickPickLoading">
+                    <span v-if="quickPickLoading">กำลังคำนวณ...</span>
+                    <span v-else>สุ่มเลขตามสถิติ</span>
+                  </button>
+                  <button class="btn btn-ghost" @click="quickPick = null" v-if="quickPick && !quickPickLoading">รีเซ็ต</button>
+                </div>
+                <div v-if="quickPick" class="quickpick-result">
+                  <div class="quickpick-numbers">
+                    <div class="quickpick-col">
+                      <span class="quickpick-label">2 ตัวล่าง</span>
+                      <span class="num-display quickpick-num">{{ quickPick.last2 }}</span>
+                    </div>
+                    <div class="quickpick-col">
+                      <span class="quickpick-label">3 ตัวล่าง</span>
+                      <span class="num-display quickpick-num">{{ quickPick.last3b }}</span>
+                    </div>
+                    <div class="quickpick-col">
+                      <span class="quickpick-label">3 ตัวหน้า</span>
+                      <span class="num-display quickpick-num">{{ quickPick.last3f }}</span>
+                    </div>
+                  </div>
+                  <button class="btn btn-sm btn-ghost" @click="copyQuickPick">
+                    คัดลอกเลข
+                  </button>
+                </div>
+              </div>
+
+              <div class="tool-divider"></div>
+
+              <div class="tool-block">
+                <h3 class="tool-title">ค้นหาสถิติเลข</h3>
+                <div class="lookup-row">
+                  <input
+                    v-model="lookupQuery"
+                    class="search-input focus-ring"
+                    type="text"
+                    inputmode="numeric"
+                    pattern="[0-9]*"
+                    placeholder="พิมพ์เลข 2–3 ตัว"
+                    maxlength="3"
+                    aria-label="ค้นหาสถิติเลข"
+                    @keydown.enter="doLookup"
+                    @input="validateNumericInput"
+                  />
+                  <button class="btn btn-gold" @click="doLookup" :disabled="lookupPending || lookupQuery.length < 2">
+                    {{ lookupPending ? "กำลังค้นหา..." : "ค้นหา" }}
+                  </button>
+                </div>
+                <div v-if="lookupResult" class="lookup-result">
+                  <div
+                    class="num-display lookup-number"
+                    :class="{ 'badge-hot': lookupResult.label === 'ออกบ่อย', 'badge-cold': lookupResult.label === 'ไม่เคยออก' }"
+                  >
+                    {{ lookupResult.number }}
+                  </div>
+                  <div class="lookup-grid">
+                    <div>
+                      <span class="lookup-key">ออกทั้งหมด</span><span class="num-mono">{{ lookupResult.count }} ครั้ง</span>
+                    </div>
+                    <div>
+                      <span class="lookup-key">อันดับ</span><span class="num-mono">{{ lookupResult.rank }} / {{ lookupResult.total }}</span>
+                    </div>
+                    <div>
+                      <span class="lookup-key">ล่าสุด</span><span class="num-mono">{{ lookupResult.last_draw || "—" }}</span>
+                    </div>
+                    <div>
+                      <span class="lookup-key">ค้างมา</span
+                      ><span class="num-mono">{{ lookupResult.gap === 999 ? "ไม่เคยออก" : `${lookupResult.gap} งวด` }}</span>
+                    </div>
+                  </div>
+                </div>
+                <EmptyState v-else-if="lookupQuery && !lookupPending" reason="no_search_result" />
+              </div>
             </div>
-            <div class="quickpick-col">
-              <span class="quickpick-label">3 ตัวล่าง</span>
-              <span class="num-display quickpick-num">{{ quickPick.last3b }}</span>
-            </div>
-            <div class="quickpick-col">
-              <span class="quickpick-label">3 ตัวหน้า</span>
-              <span class="num-display quickpick-num">{{ quickPick.last3f }}</span>
+
+            <div class="tool-block combo-block">
+              <h3 class="tool-title">Combo Finder</h3>
+              <p class="combo-hint">กด lock หลักที่ต้องการ แล้วดู pattern frequency</p>
+              <div class="combo-locks">
+                <div v-for="pos in positions" :key="pos.position" class="combo-pos">
+                  <span class="combo-pos-label">หลักที่ {{ pos.position }}</span>
+                  <div class="combo-digits">
+                    <button
+                      v-for="d in 10"
+                      :key="d - 1"
+                      class="combo-digit-btn focus-ring"
+                      :class="{ 'combo-digit-locked': locks[pos.position] === String(d - 1) }"
+                      @click="toggleLock(pos.position, String(d - 1))"
+                      :aria-pressed="locks[pos.position] === String(d - 1)"
+                      :aria-label="`ล็อกหลักที่ ${pos.position} เป็นเลข ${d - 1}`"
+                    >
+                      {{ d - 1 }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div v-if="comboFreq !== null" class="combo-result">
+                <span class="combo-result-label">Pattern frequency:</span>
+                <span class="num-display combo-result-val">{{ comboFreq }}%</span>
+              </div>
             </div>
           </div>
-          <button class="btn btn-sm btn-ghost" @click="copyQuickPick">
-            คัดลอกเลข
-          </button>
-        </div>
-      </section>
+        </section>
+      </div>
+    </div>
+
+    <div class="section-with-card">
+      <h1 class="section-title">รางวัลที่ 1 — แยก 6 หลัก</h1>
 
       <section class="card">
-        <h2 class="section-title">ค้นหาสถิติเลข</h2>
-        <div class="lookup-row">
-          <input
-            v-model="lookupQuery"
-            class="search-input focus-ring"
-            type="text"
-            inputmode="numeric"
-            pattern="[0-9]*"
-            placeholder="พิมพ์เลข 2–3 ตัว"
-            maxlength="3"
-            aria-label="ค้นหาสถิติเลข"
-            @keydown.enter="doLookup"
-            @input="validateNumericInput"
-          />
-          <button class="btn btn-gold" @click="doLookup" :disabled="lookupPending || lookupQuery.length < 2">
-            {{ lookupPending ? "กำลังค้นหา..." : "ค้นหา" }}
-          </button>
-        </div>
-        <div v-if="lookupResult" class="lookup-result card">
-          <div
-            class="num-display lookup-number"
-            :class="{ 'badge-hot': lookupResult.label === 'ออกบ่อย', 'badge-cold': lookupResult.label === 'ไม่เคยออก' }"
-          >
-            {{ lookupResult.number }}
+          <LoadingSkeleton v-if="digitsPending" variant="chart" />
+          <ErrorCard v-else-if="digitsError" message="โหลดข้อมูลไม่สำเร็จ" :on-retry="refreshDigits" />
+          <EmptyState v-else-if="!positions.length" reason="no_data_in_range" :scope="filter.scope" />
+          <div v-else class="digits-grid">
+            <DigitBarChart
+              v-for="pos in positions"
+              :key="pos.position"
+              :position="pos.position"
+              :freq="pos.freq"
+              :hot_digit="pos.hot_digit"
+              :cold_digit="pos.cold_digit"
+            />
           </div>
-          <div class="lookup-grid">
-            <div>
-              <span class="lookup-key">ออกทั้งหมด</span><span class="num-mono">{{ lookupResult.count }} ครั้ง</span>
-            </div>
-            <div>
-              <span class="lookup-key">อันดับ</span><span class="num-mono">{{ lookupResult.rank }} / {{ lookupResult.total }}</span>
-            </div>
-            <div>
-              <span class="lookup-key">ล่าสุด</span><span class="num-mono">{{ lookupResult.last_draw || "—" }}</span>
-            </div>
-            <div>
-              <span class="lookup-key">ค้างมา</span
-              ><span class="num-mono">{{ lookupResult.gap === 999 ? "ไม่เคยออก" : `${lookupResult.gap} งวด` }}</span>
-            </div>
-          </div>
-        </div>
-        <EmptyState v-else-if="lookupQuery && !lookupPending" reason="no_search_result" />
-      </section>
-    </template>
+        </section>
+      </div>
   </div>
 </template>
 
@@ -207,6 +302,97 @@ function copyQuickPick() {
   display: flex;
   flex-direction: column;
   gap: var(--gap-md);
+  height: 100%;
+  min-height: 0;
+}
+
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--gap-md);
+  height: 100%;
+}
+
+.section-with-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  height: 100%;
+}
+
+.advisor-grid-group {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gap-md);
+}
+
+@media (min-width: 1024px) {
+  .advisor-grid-group {
+    grid-template-columns: 1fr 1fr;
+    align-items: stretch;
+  }
+}
+
+.advisor-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+  height: 100%;
+}
+
+.tools-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
+.tools-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
+@media (min-width: 768px) {
+  .tools-row {
+    flex-direction: row;
+  }
+}
+
+.tool-block {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+}
+
+@media (min-width: 1024px) {
+  .tool-block {
+    height: 100%;
+  }
+}
+
+.combo-block {
+  flex: none;
+}
+
+.tool-title {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.tool-divider {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .tool-divider {
+    display: block;
+    width: 1px;
+    background: var(--border);
+  }
 }
 
 .latest-draw-section {
@@ -258,7 +444,7 @@ function copyQuickPick() {
 }
 
 .latest-draw-number {
-  font-size: var(--text-lg);
+  font-size: var(--text-xl);
   color: var(--accent);
   font-weight: var(--weight-bold);
   letter-spacing: 2px;
@@ -315,7 +501,7 @@ function copyQuickPick() {
   border-radius: var(--radius-sm);
   color: var(--text-primary);
   padding: var(--gap-xs) var(--gap-sm);
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: var(--text-md);
   width: 100%;
   flex: 1;
@@ -343,5 +529,93 @@ function copyQuickPick() {
 .lookup-key {
   font-size: var(--text-xs);
   color: var(--text-secondary);
+}
+
+.digits-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--gap-sm);
+  height: 100%;
+}
+
+@media (min-width: 768px) {
+  .digits-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .digits-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+.combo-hint {
+  font-size: var(--text-md);
+  color: var(--text-secondary);
+  margin: var(--gap-xs) 0 var(--gap-sm);
+}
+
+.combo-locks {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--gap-sm);
+}
+
+.combo-pos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
+}
+
+.combo-pos-label {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.combo-digits {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.combo-digit-btn {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.combo-digit-locked {
+  background: var(--accent-gold);
+  color: #0d0d0d;
+  border-color: var(--accent-gold);
+  font-weight: var(--weight-bold);
+}
+
+.combo-result {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-md);
+  padding-top: var(--gap-md);
+  border-top: 1px solid var(--border-color-strong);
+}
+
+.combo-result-label {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.combo-result-val {
+  color: var(--accent-gold);
+  font-size: var(--text-xl);
 }
 </style>

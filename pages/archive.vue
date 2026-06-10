@@ -110,6 +110,8 @@ const years = computed(() => {
   display: flex;
   flex-direction: column;
   gap: var(--gap-md);
+  height: 100%;
+  min-height: 0;
 }
 
 .archive-filters {

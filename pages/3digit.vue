@@ -183,6 +183,8 @@ const pos2ColdDigit = computed(() => Object.entries(posFreq2.value).sort((a, b) 
   display: flex;
   flex-direction: column;
   gap: var(--gap-md);
+  height: 100%;
+  min-height: 0;
 }
 .section-block {
   display: flex;
@@ -230,7 +232,7 @@ const pos2ColdDigit = computed(() => Object.entries(posFreq2.value).sort((a, b) 
   border-radius: var(--radius-sm);
   color: var(--text-primary);
   padding: var(--gap-xs) var(--gap-sm);
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: var(--text-md);
   width: 100%;
   max-width: 200px;

@@ -97,6 +97,8 @@ const unitsColdDigit = computed(() => Object.entries(unitsByDigit.value).sort((a
   display: flex;
   flex-direction: column;
   gap: var(--gap-md);
+  height: 100%;
+  min-height: 0;
 }
 .section-block {
   display: flex;

@@ -1,11 +1,12 @@
 <script setup lang="ts">
+import type { StatsResponse } from "~/types";
+
 const route = useRoute();
 
 const navItems = [
-  { path: "/", label: "แนะนำ", icon: "" },
-  { path: "/2digit", label: "2 ตัว", icon: "2" },
-  { path: "/3digit", label: "3 ตัว", icon: "3" },
-  { path: "/digits", label: "6 หลัก", icon: "6" },
+  { path: "/", label: "แนะนำ", icon: "หน้าหลัก" },
+  { path: "/2digit", label: "2 ตัว", icon: "เลข 2 หลัก" },
+  { path: "/3digit", label: "3 ตัว", icon: "เลข 3 หลัก" },
   { path: "/archive", label: "ย้อนหลัง", icon: "" },
 ];
 
@@ -13,11 +14,79 @@ const pageTitles: Record<string, { title: string; sub: string }> = {
   "/": { title: "เลขแนะนำ", sub: "เลขค้างนาน + Quick Pick" },
   "/2digit": { title: "2 ตัว", sub: "สถิติเลขท้าย 2 ตัว" },
   "/3digit": { title: "3 ตัว", sub: "สถิติเลข 3 ตัวบน/หน้า/ล่าง" },
-  "/digits": { title: "6 หลัก", sub: "วิเคราะห์รายหลักรางวัลที่ 1" },
   "/archive": { title: "ผลย้อนหลัง", sub: "ผลการออกรางวัลทุกงวด" },
 };
 
 const currentPage = computed(() => pageTitles[route.path] ?? { title: "Lotty", sub: "" });
+
+// Fetch all-time digit frequency data
+const { data: stats2d } = await useFetch<StatsResponse>("/api/stats/2digit", {
+  query: { scope: "all", type: "last2" }
+});
+
+const { data: stats3b } = await useFetch<StatsResponse>("/api/stats/3digit", {
+  query: { scope: "all", type: "last3b" }
+});
+
+const { data: stats3f } = await useFetch<StatsResponse>("/api/stats/3digit", {
+  query: { scope: "all", type: "last3f" }
+});
+
+const { data: stats6d } = await useFetch<StatsResponse>("/api/stats/digits", {
+  query: { scope: "all" }
+});
+
+const digitFrequency = computed(() => {
+  const freq: Record<string, number> = {};
+
+  if (stats2d.value?.data.ranking) {
+    stats2d.value.data.ranking.forEach((r) => {
+      r.number.split('').forEach((d) => {
+        freq[d] = (freq[d] ?? 0) + r.count;
+      });
+    });
+  }
+
+  if (stats3b.value?.data.ranking) {
+    stats3b.value.data.ranking.forEach((r) => {
+      r.number.split('').forEach((d) => {
+        freq[d] = (freq[d] ?? 0) + r.count;
+      });
+    });
+  }
+
+  if (stats3f.value?.data.ranking) {
+    stats3f.value.data.ranking.forEach((r) => {
+      r.number.split('').forEach((d) => {
+        freq[d] = (freq[d] ?? 0) + r.count;
+      });
+    });
+  }
+
+  if (stats6d.value?.data.ranking) {
+    stats6d.value.data.ranking.forEach((r) => {
+      r.number.split('').forEach((d) => {
+        freq[d] = (freq[d] ?? 0) + r.count;
+      });
+    });
+  }
+
+  return freq;
+});
+
+const sortedDigits = computed(() => {
+  const total = Object.values(digitFrequency.value).reduce((a, b) => a + b, 0);
+  const maxCount = Math.max(...Object.values(digitFrequency.value), 1);
+  return Array.from({ length: 10 }, (_, i) => {
+    const count = digitFrequency.value[String(i)] ?? 0;
+    return {
+      digit: String(i),
+      count,
+      percentage: total > 0 ? Math.round((count / total) * 100) : 0,
+      barWidth: maxCount > 0 ? (count / maxCount) * 100 : 0
+    };
+  });
+});
 </script>
 
 <template>
@@ -40,6 +109,22 @@ const currentPage = computed(() => pageTitles[route.path] ?? { title: "Lotty", s
           </NuxtLink>
         </li>
       </ul>
+
+      <div v-if="sortedDigits.length" class="sidebar-chart">
+        <div class="sidebar-chart-title">เลขที่ออกบ่อย (All Time)</div>
+        <div class="sidebar-chart-bars">
+          <div v-for="item in sortedDigits" :key="item.digit" class="sidebar-chart-row">
+            <span class="sidebar-chart-label">{{ item.digit }}</span>
+            <div class="sidebar-chart-track">
+              <div
+                class="sidebar-chart-fill"
+                :style="{ width: `${item.barWidth}%` }"
+              ></div>
+            </div>
+            <span class="sidebar-chart-count">{{ item.count }}</span>
+          </div>
+        </div>
+      </div>
     </nav>
 
     <div class="layout-body">
@@ -121,7 +206,7 @@ const currentPage = computed(() => pageTitles[route.path] ?? { title: "Lotty", s
 
 .topbar-page-title {
   font-family: var(--font-display);
-  font-size: var(--text-lg);
+  font-size: var(--text-xl);
   font-weight: var(--weight-bold);
   color: var(--text-primary);
   line-height: 1;
@@ -221,13 +306,14 @@ const currentPage = computed(() => pageTitles[route.path] ?? { title: "Lotty", s
   .sidebar {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
     flex-shrink: 0;
-    width: var(--nav-width-desktop);
+    width: auto;
+    min-width: 200px;
     height: 100dvh;
     background: var(--bg-sidebar);
     border-right: 1px solid var(--border);
-    padding: var(--gap-md) 0;
+    padding: var(--gap-md);
     gap: var(--gap-md);
   }
 
@@ -253,7 +339,6 @@ const currentPage = computed(() => pageTitles[route.path] ?? { title: "Lotty", s
     flex-direction: column;
     gap: 4px;
     width: 100%;
-    padding: 0 var(--gap-sm);
     list-style: none;
   }
 
@@ -261,8 +346,8 @@ const currentPage = computed(() => pageTitles[route.path] ?? { title: "Lotty", s
     position: relative;
     display: flex;
     align-items: center;
-    justify-content: center;
-    width: 44px;
+    justify-content: flex-start;
+    padding: var(--gap-sm) var(--gap-md);
     height: 44px;
     border-radius: var(--radius-md);
     color: var(--sidebar-text);
@@ -270,7 +355,6 @@ const currentPage = computed(() => pageTitles[route.path] ?? { title: "Lotty", s
       background var(--transition-fast),
       color var(--transition-fast),
       transform var(--transition-fast);
-    margin: 0 auto;
   }
 
   .sidebar-link:hover {
@@ -294,23 +378,64 @@ const currentPage = computed(() => pageTitles[route.path] ?? { title: "Lotty", s
 
   .sidebar-tooltip {
     display: none;
-    position: absolute;
-    left: calc(100% + 10px);
-    top: 50%;
-    transform: translateY(-50%);
-    background: var(--text-primary);
-    color: #fff;
-    font-size: var(--text-xs);
-    font-weight: var(--weight-medium);
-    padding: 4px var(--gap-sm);
-    border-radius: var(--radius-sm);
-    white-space: nowrap;
-    pointer-events: none;
-    z-index: 999;
   }
 
-  .sidebar-link:hover .sidebar-tooltip {
-    display: block;
+  .sidebar-chart {
+    margin-top: var(--gap-md);
+    padding-top: var(--gap-md);
+    border-top: 1px solid var(--border);
+  }
+
+  .sidebar-chart-title {
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    color: var(--text-secondary);
+    margin-bottom: var(--gap-sm);
+  }
+
+  .sidebar-chart-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .sidebar-chart-row {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-xs);
+  }
+
+  .sidebar-chart-label {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-bold);
+    color: var(--text-primary);
+    width: 16px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .sidebar-chart-track {
+    flex: 1;
+    height: 8px;
+    background: var(--bg-base);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+
+  .sidebar-chart-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: var(--radius-sm);
+    transition: width 0.3s ease;
+  }
+
+  .sidebar-chart-count {
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+    width: 24px;
+    text-align: right;
+    flex-shrink: 0;
   }
 
   .nav-mobile {
