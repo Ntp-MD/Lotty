@@ -21,45 +21,72 @@ const currentPage = computed(() => pageTitles[route.path] ?? { title: "Lotty", s
 </script>
 
 <template>
-  <div class="layout">
-    <nav class="sidebar" aria-label="Main navigation">
-      <div class="sidebar-logo" aria-label="Lotty">
-        <span class="sidebar-logo-icon">L</span>
-      </div>
-      <ul class="sidebar-list">
-        <li v-for="item in navItems" :key="item.path">
-          <NuxtLink
-            :to="item.path"
-            class="sidebar-link focus-ring"
-            :class="{ 'sidebar-link-active': route.path === item.path }"
-            :aria-current="route.path === item.path ? 'page' : undefined"
-            :title="item.label"
-          >
-            <span class="sidebar-icon" aria-hidden="true">{{ item.icon }}</span>
-            <span class="sidebar-tooltip">{{ item.label }}</span>
+  <div class="layout-wrapper">
+    <div class="layout-container">
+
+      <!-- ── Sidebar ── -->
+      <aside class="layout-menu" aria-label="Main navigation">
+        <!-- Brand -->
+        <div class="menu-brand">
+          <NuxtLink to="/" class="menu-brand-link">
+            <span class="menu-brand-logo">L</span>
+            <span class="menu-brand-text">Lotty</span>
           </NuxtLink>
-        </li>
-      </ul>
-    </nav>
-
-    <div class="layout-body">
-      <header class="topbar">
-        <div class="topbar-title">
-          <h1 class="topbar-page-title">{{ currentPage.title }}</h1>
-          <p class="topbar-page-sub">{{ currentPage.sub }}</p>
         </div>
-        <div class="topbar-right">
-          <span class="topbar-badge">
-            <span class="topbar-badge-text">Lotty</span>
-          </span>
-        </div>
-      </header>
 
-      <main class="layout-main">
-        <slot />
-      </main>
+        <div class="menu-divider"></div>
+
+        <!-- Nav -->
+        <ul class="menu-inner" role="list">
+          <li class="menu-section-label">สถิติลอตเตอรี</li>
+          <li v-for="item in navItems" :key="item.path" class="menu-item">
+            <NuxtLink
+              :to="item.path"
+              class="menu-link focus-ring"
+              :class="{ 'menu-link-active': route.path === item.path }"
+              :aria-current="route.path === item.path ? 'page' : undefined"
+            >
+              <span class="menu-icon" aria-hidden="true">{{ item.icon }}</span>
+              <span class="menu-label">{{ item.label }}</span>
+            </NuxtLink>
+          </li>
+        </ul>
+      </aside>
+      <!-- /Sidebar -->
+
+      <!-- ── Layout Page ── -->
+      <div class="layout-page">
+
+        <!-- Topbar -->
+        <nav class="layout-navbar" aria-label="Top navigation">
+          <!-- mobile hamburger -->
+          <button class="navbar-menu-toggle" aria-label="Toggle menu">☰</button>
+
+          <div class="navbar-left">
+            <h1 class="navbar-page-title">{{ currentPage.title }}</h1>
+            <p class="navbar-page-sub">{{ currentPage.sub }}</p>
+          </div>
+
+          <div class="navbar-right">
+            <span class="navbar-badge">Lotty</span>
+          </div>
+        </nav>
+        <!-- /Topbar -->
+
+        <!-- Content -->
+        <div class="content-wrapper">
+          <div class="content-body">
+            <slot />
+          </div>
+        </div>
+        <!-- /Content -->
+
+      </div>
+      <!-- /Layout Page -->
+
     </div>
 
+    <!-- Mobile bottom nav -->
     <nav class="nav-mobile" aria-label="Mobile navigation">
       <NuxtLink
         v-for="item in navItems"
@@ -70,7 +97,7 @@ const currentPage = computed(() => pageTitles[route.path] ?? { title: "Lotty", s
         :aria-label="item.label"
         :aria-current="route.path === item.path ? 'page' : undefined"
       >
-        <span class="nav-mobile-icon" aria-hidden="true">{{ item.label }}</span>
+        <span class="nav-mobile-icon" aria-hidden="true">{{ item.icon }}</span>
         <span class="nav-mobile-label">{{ item.label }}</span>
       </NuxtLink>
     </nav>
@@ -78,116 +105,121 @@ const currentPage = computed(() => pageTitles[route.path] ?? { title: "Lotty", s
 </template>
 
 <style scoped>
-/* ---- Root ---- */
-.layout {
+/* ── Root ── */
+.layout-wrapper {
   display: flex;
-  height: 100dvh;
-  overflow: hidden;
+  flex-direction: column;
+  min-height: 100dvh;
   background: var(--bg-base);
 }
 
-/* ---- Sidebar hidden on mobile ---- */
-.sidebar {
+/* ── Inner container (sidebar + page) ── */
+.layout-container {
+  display: flex;
+  flex: 1;
+  min-height: 100dvh;
+}
+
+/* ── Sidebar hidden on mobile ── */
+.layout-menu {
   display: none;
 }
 
-/* ---- Body (topbar + content) ---- */
-.layout-body {
+/* ── Layout Page ── */
+.layout-page {
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   min-width: 0;
+  overflow: hidden;
+  min-height: 100dvh;
 }
 
-/* ---- Topbar ---- */
-.topbar {
-  flex-shrink: 0;
+/* ── Topbar ── */
+.layout-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
   min-height: var(--topbar-height);
   background: var(--bg-surface);
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: var(--gap-xs) clamp(var(--gap-sm), 4vw, var(--gap-lg));
   gap: var(--gap-md);
+  padding: 0 clamp(var(--gap-sm), 4vw, var(--gap-lg));
 }
 
-.topbar-title {
+.navbar-menu-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: var(--text-lg);
+}
+
+.navbar-left {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 1px;
 }
 
-.topbar-page-title {
-  font-family: var(--font-display);
+.navbar-page-title {
   font-size: var(--text-lg);
   font-weight: var(--weight-bold);
   color: var(--text-primary);
   line-height: 1;
 }
 
-.topbar-page-sub {
+.navbar-page-sub {
   font-size: var(--text-xs);
   color: var(--text-muted);
 }
 
-.topbar-right {
+.navbar-right {
   display: flex;
   align-items: center;
   gap: var(--gap-sm);
 }
 
-.topbar-badge {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+.navbar-badge {
   font-size: var(--text-xs);
   font-weight: var(--weight-medium);
   color: var(--accent);
   background: var(--accent-light);
   padding: 4px var(--gap-sm);
   border-radius: var(--radius-full);
-  border: 1px solid var(--accent);
 }
 
-.topbar-badge-icon {
-  font-size: var(--text-sm);
-  line-height: 1;
-}
-
-.topbar-badge-text {
-  white-space: nowrap;
-}
-
-@media (max-width: 480px) {
-  .topbar-badge-text {
-    display: none;
-  }
-}
-
-/* ---- Main content ---- */
-.layout-main {
+/* ── Content ── */
+.content-wrapper {
   flex: 1;
   overflow-y: auto;
-  padding: clamp(12px, 3vw, var(--gap-md));
-  padding-bottom: calc(60px + var(--gap-lg));
-  scroll-behavior: smooth;
 }
 
-/* ---- Mobile bottom nav ---- */
+.content-body {
+  width: 100%;
+  padding: clamp(var(--gap-md), 3vw, var(--gap-lg));
+  padding-bottom: calc(var(--nav-height-mobile) + var(--gap-lg));
+  max-width: var(--content-max-width);
+}
+
+/* ── Mobile Bottom Nav ── */
 .nav-mobile {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  min-height: 60px;
+  z-index: 100;
+  min-height: var(--nav-height-mobile);
   background: var(--bg-surface);
   border-top: 1px solid var(--border);
-  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 -2px 8px rgba(34, 48, 62, 0.08);
   display: flex;
   align-items: stretch;
-  z-index: 100;
   padding: 4px 0;
 }
 
@@ -205,121 +237,149 @@ const currentPage = computed(() => pageTitles[route.path] ?? { title: "Lotty", s
 .nav-mobile-item-active {
   color: var(--accent);
 }
+
 .nav-mobile-icon {
-  font-size: var(--text-lg);
-  line-height: 1;
+  font-size: var(--text-md);
   font-weight: var(--weight-bold);
+  line-height: 1;
 }
+
 .nav-mobile-label {
-  font-family: var(--font-body);
   font-size: var(--text-xs);
   font-weight: var(--weight-medium);
 }
 
-/* ---- Desktop ---- */
-@media (min-width: 1024px) {
-  .sidebar {
+/* ── Desktop ── */
+@media (min-width: 960px) {
+  .layout-wrapper {
+    flex-direction: row;
+  }
+
+  .layout-menu {
     display: flex;
     flex-direction: column;
-    align-items: center;
     flex-shrink: 0;
     width: var(--nav-width-desktop);
     height: 100dvh;
+    position: sticky;
+    top: 0;
     background: var(--bg-sidebar);
     border-right: 1px solid var(--border);
-    padding: var(--gap-md) 0;
-    gap: var(--gap-md);
+    overflow-y: auto;
+    padding-bottom: var(--gap-lg);
   }
 
-  .sidebar-logo {
-    width: 40px;
-    height: 40px;
+  /* Brand */
+  .menu-brand {
+    padding: var(--gap-md) var(--gap-md);
+    min-height: var(--topbar-height);
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .menu-brand-link {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-sm);
+    text-decoration: none;
+  }
+
+  .menu-brand-logo {
+    width: 34px;
+    height: 34px;
     background: var(--accent);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-sm);
     display: flex;
     align-items: center;
     justify-content: center;
+    color: #ffffff;
+    font-size: var(--text-md);
+    font-weight: var(--weight-bold);
     flex-shrink: 0;
   }
 
-  .sidebar-logo-icon {
+  .menu-brand-text {
     font-size: var(--text-lg);
-    color: #fff;
-    line-height: 1;
+    font-weight: var(--weight-bold);
+    color: var(--text-primary);
+    letter-spacing: -0.3px;
   }
 
-  .sidebar-list {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    width: 100%;
-    padding: 0 var(--gap-sm);
+  .menu-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 0;
+  }
+
+  /* Nav list */
+  .menu-inner {
     list-style: none;
+    padding: var(--gap-sm) 0;
+    flex: 1;
   }
 
-  .sidebar-link {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    border-radius: var(--radius-md);
-    color: var(--sidebar-text);
-    transition:
-      background var(--transition-fast),
-      color var(--transition-fast),
-      transform var(--transition-fast);
-    margin: 0 auto;
-  }
-
-  .sidebar-link:hover {
-    background: var(--sidebar-active-bg);
-    color: var(--sidebar-active);
-    transform: translateX(2px);
-  }
-
-  .sidebar-link-active {
-    background: var(--accent-light);
-    color: var(--accent);
-    border: 2px solid var(--accent);
-    font-weight: var(--weight-bold);
-  }
-
-  .sidebar-icon {
-    font-size: var(--text-lg);
-    line-height: 1;
-    font-weight: var(--weight-bold);
-  }
-
-  .sidebar-tooltip {
-    display: none;
-    position: absolute;
-    left: calc(100% + 10px);
-    top: 50%;
-    transform: translateY(-50%);
-    background: var(--text-primary);
-    color: #fff;
+  .menu-section-label {
+    padding: var(--gap-sm) var(--gap-md) 4px;
     font-size: var(--text-xs);
     font-weight: var(--weight-medium);
-    padding: 4px var(--gap-sm);
-    border-radius: var(--radius-sm);
-    white-space: nowrap;
-    pointer-events: none;
-    z-index: 999;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
   }
 
-  .sidebar-link:hover .sidebar-tooltip {
-    display: block;
+  .menu-item {
+    padding: 2px var(--gap-sm);
+  }
+
+  .menu-link {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-sm);
+    padding: 10px var(--gap-sm);
+    border-radius: var(--radius-sm);
+    color: var(--sidebar-text);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    transition: background var(--transition-fast), color var(--transition-fast);
+    text-decoration: none;
+  }
+
+  .menu-link:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+  }
+
+  .menu-link-active {
+    background: var(--sidebar-active-bg);
+    color: var(--sidebar-active);
+    font-weight: var(--weight-bold);
+  }
+
+  .menu-icon {
+    font-size: var(--text-md);
+    font-weight: var(--weight-bold);
+    line-height: 1;
+    width: 22px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .menu-label {
+    flex: 1;
+  }
+
+  .navbar-menu-toggle {
+    display: none;
   }
 
   .nav-mobile {
     display: none;
   }
 
-  .layout-main {
-    padding: clamp(var(--gap-md), 4vw, var(--gap-lg));
-    padding-bottom: clamp(var(--gap-md), 4vw, var(--gap-lg));
+  .content-body {
+    padding: clamp(var(--gap-md), 3vw, var(--gap-lg));
+    padding-bottom: clamp(var(--gap-md), 3vw, var(--gap-lg));
   }
 }
 </style>

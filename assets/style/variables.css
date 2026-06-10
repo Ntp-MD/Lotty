@@ -1,70 +1,95 @@
 /* ============================================================
    Lotty — variables.css
    Single source of truth. ห้ามใส่ hardcode ใน file อื่น
+   Redesign ref: Sneat Bootstrap Admin Template (Free)
+   Color source: assets/vendor/css/core.css
    ============================================================ */
 
 :root {
 	/* ----------------------------------------------------------
-     Color — Light Blue & White Theme
+     Color — Sneat Light Theme
   ---------------------------------------------------------- */
-	--bg-base: #f0f4f8;
+	--bg-base: #f5f5f9;
+	/* --bs-body-bg */
 	--bg-surface: #ffffff;
-	--bg-raised: #f8fafc;
+	/* --bs-paper-bg */
+	--bg-raised: #f2f3f3;
+	/* --bs-gray-60 */
 	--bg-sidebar: #ffffff;
-	--bg-hover: #e8f0f7;
+	/* --bs-menu-bg */
+	--bg-hover: #f2f3f3;
+	/* --bs-menu-hover-bg */
 
-	--accent: #3b82f6;
-	--accent-light: #dbeafe;
-	--accent-hover: #2563eb;
-	--accent-gold: #f59e0b;
-	--accent-green: #10b981;
-	--accent-danger: #ef4444;
-	--accent-danger-light: #fee2e2;
-	--accent-dim: #94a3b8;
+	--accent: #696cff;
+	/* --bs-primary */
+	--accent-light: #e7e7ff;
+	/* --bs-primary-bg-subtle */
+	--accent-hover: #5f61e6;
+	/* --bs-link-hover-color */
 
-	--sidebar-text: #64748b;
-	--sidebar-active: #1e293b;
-	--sidebar-active-bg: #dbeafe;
+	--accent-gold: #ffab00;
+	/* --bs-warning */
+	--accent-gold-light: #fff2d6;
+	/* --bs-warning-bg-subtle */
+	--accent-green: #71dd37;
+	/* --bs-success */
+	--accent-green-light: #e8fadf;
+	/* --bs-success-bg-subtle */
+	--accent-danger: #ff3e1d;
+	/* --bs-danger */
+	--accent-danger-light: #ffe0db;
+	/* --bs-danger-bg-subtle */
+	--accent-info: #03c3ec;
+	/* --bs-info */
+	--accent-info-light: #d7f5fc;
+	/* --bs-info-bg-subtle */
+	--accent-dim: #a7acb2;
+	/* --bs-gray-400 */
 
-	--text-primary: #1e293b;
-	--text-secondary: #334155;
-	--text-muted: #64748b;
+	--sidebar-text: #384551;
+	/* --bs-menu-color */
+	--sidebar-active: #696cff;
+	/* --bs-primary */
+	--sidebar-active-bg: #e7e7ff;
+	/* --bs-primary-bg-subtle */
 
-	--border: #cbd5e1;
-	--border-strong: #94a3b8;
+	--text-primary: #384551;
+	/* --bs-heading-color */
+	--text-secondary: #646e78;
+	/* --bs-body-color */
+	--text-muted: #a7acb2;
+	/* --bs-secondary-color */
+
+	--border: #e4e6e8;
+	/* --bs-border-color */
+	--border-strong: #bdc1c5;
+	/* --bs-gray-300 */
 
 	/* ----------------------------------------------------------
-     Typography — Fonts
+     Typography
   ---------------------------------------------------------- */
-	--font-display: "LINE Seed Sans TH", sans-serif;
-	--font-body: "LINE Seed Sans TH", sans-serif;
+	--font-display: "IBM Plex Sans Thai", "Public Sans", sans-serif;
+	--font-body: "IBM Plex Sans Thai", "Public Sans", sans-serif;
 	--font-mono: "JetBrains Mono", "Courier New", monospace;
 
-	/* ----------------------------------------------------------
-     Typography — Size Scale
-  ---------------------------------------------------------- */
 	--text-xs: clamp(11px, 1.2vw, 12px);
 	--text-sm: clamp(13px, 1.4vw, 14px);
 	--text-md: clamp(15px, 1.6vw, 16px);
 	--text-lg: clamp(18px, 2vw, 20px);
 	--text-xl: clamp(28px, 3.5vw, 40px);
 
-	/* ----------------------------------------------------------
-     Typography — Weight
-  ---------------------------------------------------------- */
 	--weight-regular: 400;
 	--weight-medium: 500;
-	--weight-bold: 700;
+	--weight-bold: 600;
+	/* Sneat heading = 600 */
 
-	/* ----------------------------------------------------------
-     Typography — Line Height
-  ---------------------------------------------------------- */
 	--leading-tight: 1.2;
-	--leading-normal: 1.5;
+	--leading-normal: 1.375;
+	/* --bs-body-line-height */
 	--leading-loose: 1.75;
 
 	/* ----------------------------------------------------------
-     Spacing Scale
+     Spacing
   ---------------------------------------------------------- */
 	--gap-xs: 5px;
 	--gap-sm: 10px;
@@ -72,37 +97,44 @@
 	--gap-lg: 30px;
 
 	/* ----------------------------------------------------------
-     Border
+     Border & Radius
   ---------------------------------------------------------- */
 	--border-width: 1px;
 	--border-style: solid;
 	--border-color: var(--border);
 	--border-color-strong: var(--accent-dim);
 
-	--radius-xs: 4px;
+	--radius-xs: 3px;
 	--radius-sm: 6px;
+	/* --bs-border-radius = 0.375rem */
 	--radius-md: 8px;
-	--radius-lg: 12px;
+	/* --bs-border-radius-lg = 0.5rem */
+	--radius-lg: 10px;
+	/* --bs-border-radius-xl = 0.625rem */
 	--radius-full: 9999px;
 
 	/* ----------------------------------------------------------
-     Shadow / Glow
+     Shadow — Sneat source values
   ---------------------------------------------------------- */
-	--shadow-raised: 0 4px 12px rgba(0, 0, 0, 0.08);
+	--shadow-card: 0 2px 6px 0 rgba(34, 48, 62, 0.08);
+	/* --bs-box-shadow-sm */
+	--shadow-raised: 0 3px 8px 0 rgba(34, 48, 62, 0.1);
+	/* --bs-box-shadow */
+	--shadow-lg: 0 4px 12px 0 rgba(34, 48, 62, 0.14);
+	/* --bs-box-shadow-lg */
 
 	/* ----------------------------------------------------------
-     Transition
+     Transition / Layout (ไม่เปลี่ยน)
   ---------------------------------------------------------- */
 	--transition-fast: 150ms ease;
 	--transition-normal: 250ms ease;
 
-	/* ----------------------------------------------------------
-     Layout
-  ---------------------------------------------------------- */
 	--nav-height-mobile: 56px;
-	--nav-width-desktop: 64px;
-	--nav-width-expanded: 220px;
-	--topbar-height: 56px;
+	--nav-width-desktop: 260px;
+	/* ← เปลี่ยนจาก 64px → Sneat expanded sidebar */
+	--nav-width-expanded: 260px;
+	--topbar-height: 64px;
+	/* ← Sneat navbar height */
 	--content-max-width: 1400px;
 
 	--bp-mobile: 600px;
