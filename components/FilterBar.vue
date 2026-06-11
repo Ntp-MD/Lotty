@@ -5,27 +5,27 @@ const { filter, setScope, setMonth, setDay } = useFilter();
 const showAdvanced = ref(false);
 
 const scopes: { value: Scope; label: string }[] = [
-  { value: "1y", label: "1 ปี" },
-  { value: "3y", label: "3 ปี" },
-  { value: "5y", label: "5 ปี" },
-  { value: "10y", label: "10 ปี" },
-  { value: "all", label: "ทั้งหมด" },
+  { value: "1y", label: "1 Year" },
+  { value: "3y", label: "3 Years" },
+  { value: "5y", label: "5 Years" },
+  { value: "10y", label: "10 Years" },
+  { value: "all", label: "All" },
 ];
 
-const months = [{ value: null, label: "ทั้งปี" }, ...Array.from({ length: 12 }, (_, i) => ({ value: i + 1, label: `เดือน ${i + 1}` }))];
+const months = [{ value: null, label: "All Year" }, ...Array.from({ length: 12 }, (_, i) => ({ value: i + 1, label: `Month ${i + 1}` }))];
 
 const days: { value: DrawDay; label: string }[] = [
-  { value: "all", label: "ทุกงวด" },
-  { value: "1", label: "1 ของเดือน" },
-  { value: "16", label: "16 ของเดือน" },
+  { value: "all", label: "All Draws" },
+  { value: "1", label: "1st of Month" },
+  { value: "16", label: "16th of Month" },
 ];
 </script>
 
 <template>
-  <div class="filter-bar" role="search" aria-label="ตัวกรองข้อมูล">
+  <div class="filter-bar" role="search" aria-label="Data filter">
     <div class="filter-group">
-      <span class="filter-label">ช่วงเวลา</span>
-      <div class="filter-chips" role="group" aria-label="เลือกช่วงเวลา">
+      <span class="filter-label">Time Period</span>
+      <div class="filter-chips" role="group" aria-label="Select time period">
         <button
           v-for="s in scopes"
           :key="s.value"
@@ -40,12 +40,12 @@ const days: { value: DrawDay; label: string }[] = [
     </div>
 
     <button class="btn-toggle-advanced" @click="showAdvanced = !showAdvanced" type="button">
-      <span>{{ showAdvanced ? '-' : '+' }} ตัวเลือกเพิ่มเติม</span>
+      <span>{{ showAdvanced ? '-' : '+' }} Advanced Options</span>
     </button>
 
     <div v-show="showAdvanced" class="filter-row filter-advanced">
       <div class="filter-group">
-        <label class="filter-label" for="filter-month" title="กรองตามเดือนที่ออกรางวัล">เดือน</label>
+        <label class="filter-label" for="filter-month" title="Filter by draw month">Month</label>
         <select
           id="filter-month"
           class="filter-select focus-ring"
@@ -57,7 +57,7 @@ const days: { value: DrawDay; label: string }[] = [
       </div>
 
       <div class="filter-group">
-        <label class="filter-label" for="filter-day" title="กรองตามวันที่ออกรางวัล (1 หรือ 16)">วันที่ออก</label>
+        <label class="filter-label" for="filter-day" title="Filter by draw date (1 or 16)">Draw Date</label>
         <select
           id="filter-day"
           class="filter-select focus-ring"
@@ -150,15 +150,18 @@ const days: { value: DrawDay; label: string }[] = [
 
 .btn-toggle-advanced {
   background: transparent;
-  border: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
   color: var(--text-secondary);
   font-size: var(--text-xs);
-  padding: var(--gap-xs) 0;
+  font-family: var(--font-body);
+  padding: var(--gap-xs) var(--gap-sm);
   cursor: pointer;
-  transition: color var(--transition-fast);
-  display: flex;
+  transition: all var(--transition-fast);
+  display: inline-flex;
   align-items: center;
   gap: 4px;
+  align-self: flex-start;
 }
 
 .btn-toggle-advanced:hover {

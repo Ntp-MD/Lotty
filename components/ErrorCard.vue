@@ -10,7 +10,7 @@ defineProps<Props>();
 <template>
   <div class="error-card card" role="alert">
     <p class="error-msg">{{ message }}</p>
-    <button v-if="onRetry" class="btn btn-ghost" @click="onRetry">ลองใหม่</button>
+    <button v-if="onRetry" class="btn btn-ghost" @click="onRetry">Retry</button>
   </div>
 </template>
 

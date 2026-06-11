@@ -1,6 +1,6 @@
 export type Scope = "1y" | "3y" | "5y" | "10y" | "all";
 export type PrizeType = "last2" | "first2" | "last3b" | "last3f" | "first";
-export type NumberLabel = "ออกบ่อย" | "ไม่เคยออก" | "ปกติ";
+export type NumberLabel = "Frequent" | "Never" | "Normal";
 export type DrawDay = "all" | "1" | "16";
 
 export interface FilterState {

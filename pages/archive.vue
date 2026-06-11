@@ -2,7 +2,7 @@
 import { formatDate } from "~/composables/useDate";
 import type { DrawRecord } from "~/types";
 
-useHead({ title: "ผลย้อนหลัง — Lotty" });
+useHead({ title: "Archive — Lotty" });
 
 const page = ref(1);
 const perPage = 20;
@@ -39,7 +39,7 @@ const years = computed(() => {
 
 <template>
   <div class="page-content">
-    <h1 class="section-title">ผลสลากย้อนหลัง</h1>
+    <h1 class="section-title">Historical Results</h1>
 
     <div class="card">
       <div class="archive-filters">
@@ -51,7 +51,7 @@ const years = computed(() => {
             page = 1;
           "
         >
-          <option value="">ทุกปี</option>
+          <option value="">All Years</option>
           <option v-for="y in years" :key="y" :value="y">{{ y + 543 }}</option>
         </select>
         <select
@@ -62,8 +62,8 @@ const years = computed(() => {
             page = 1;
           "
         >
-          <option value="">ทุกเดือน</option>
-          <option v-for="m in 12" :key="m" :value="m">เดือน {{ m }}</option>
+          <option value="">All Months</option>
+          <option v-for="m in 12" :key="m" :value="m">Month {{ m }}</option>
         </select>
       </div>
     </div>
@@ -83,16 +83,16 @@ const years = computed(() => {
           <hr class="divider-dashed" />
           <div class="archive-grid">
             <div>
-              <span class="archive-key">รางวัลที่ 1</span><span class="num-mono">{{ draw.first }}</span>
+              <span class="archive-key">1st Prize</span><span class="num-mono">{{ draw.first }}</span>
             </div>
             <div>
-              <span class="archive-key">2 ตัวท้าย</span><span class="num-mono">{{ draw.last2 }}</span>
+              <span class="archive-key">2 Digit Last</span><span class="num-mono">{{ draw.last2 }}</span>
             </div>
             <div>
-              <span class="archive-key">3 ตัวหน้า</span><span class="num-mono">{{ draw.last3f }}</span>
+              <span class="archive-key">3 Digit Front</span><span class="num-mono">{{ draw.last3f }}</span>
             </div>
             <div>
-              <span class="archive-key">3 ตัวท้าย</span><span class="num-mono">{{ draw.last3b }}</span>
+              <span class="archive-key">3 Digit Last</span><span class="num-mono">{{ draw.last3b }}</span>
             </div>
           </div>
         </div>
@@ -100,9 +100,9 @@ const years = computed(() => {
     </div>
 
     <div class="pagination">
-      <button class="btn btn-ghost focus-ring" :disabled="page <= 1" @click="page--">← ก่อนหน้า</button>
-      <span class="pagination-page num-mono">หน้า {{ page }}</span>
-      <button class="btn btn-ghost focus-ring" :disabled="(data?.length ?? 0) < perPage" @click="page++">ถัดไป →</button>
+      <button class="btn btn-ghost focus-ring" :disabled="page <= 1" @click="page--">← Previous</button>
+      <span class="pagination-page num-mono">Page {{ page }}</span>
+      <button class="btn btn-ghost focus-ring" :disabled="(data?.length ?? 0) < perPage" @click="page++">Next →</button>
     </div>
   </div>
 </template>

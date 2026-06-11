@@ -1,27 +1,37 @@
 <script setup lang="ts">
 import type { StatsResponse } from "~/types";
 
+interface LatestDrawResponse {
+  data: {
+    draw_date: string;
+    first: string;
+    last2: string;
+    last3f: string;
+    last3b: string;
+  } | null;
+}
+
 const route = useRoute();
 
 const navItems = [
-  { path: "/", label: "แนะนำ" },
-  { path: "/2digit", label: "เลข 2 ตัว" },
-  { path: "/3digit", label: "เลข 3 ตัว" },
-  { path: "/stat-bar", label: "สถิติกราฟ" },
-  { path: "/archive", label: "ผลย้อนหลัง" },
+  { path: "/", label: "Recommend", icon: "🎯" },
+  { path: "/2digit", label: "2 Digit", icon: "🔢" },
+  { path: "/3digit", label: "3 Digit", icon: "🎲" },
+  { path: "/stat-bar", label: "Stat Graph", icon: "📊" },
+  { path: "/archive", label: "Archive", icon: "📅" },
 ];
 
 const pageTitles: Record<string, { title: string; sub: string }> = {
-  "/": { title: "เลขแนะนำ", sub: "เลขค้างนาน + Quick Pick" },
-  "/2digit": { title: "2 ตัว", sub: "สถิติเลขท้าย 2 ตัว" },
-  "/3digit": { title: "3 ตัว", sub: "สถิติเลข 3 ตัวบน/หน้า/ล่าง" },
-  "/stat-bar": { title: "Stat Bar", sub: "กราฟแยกหลัก 2/3/6 ตัว" },
-  "/archive": { title: "ผลย้อนหลัง", sub: "ผลการออกรางวัลทุกงวด" },
+  "/": { title: "Recommended Numbers", sub: "Longest gap + Quick Pick" },
+  "/2digit": { title: "2 Digit", sub: "Statistics for last 2 digits" },
+  "/3digit": { title: "3 Digit", sub: "Statistics for 3 digits (top/front/bottom)" },
+  "/stat-bar": { title: "Stat Bar", sub: "Digit breakdown graph 2/3/6 digits" },
+  "/archive": { title: "Archive", sub: "Historical lottery results" },
 };
 
 const currentPage = computed(() => pageTitles[route.path] ?? { title: "Lotty", sub: "" });
 
-// Fetch all-time digit frequency data
+// Fetch stats for gap display
 const { data: stats2d } = await useFetch<StatsResponse>("/api/stats/2digit", {
   query: { scope: "all", type: "last2" }
 });
@@ -34,68 +44,59 @@ const { data: stats3f } = await useFetch<StatsResponse>("/api/stats/3digit", {
   query: { scope: "all", type: "last3f" }
 });
 
-const { data: stats6d } = await useFetch<StatsResponse>("/api/stats/digits", {
-  query: { scope: "all" }
+// Fetch latest draw for Quick Stats
+const { data: latestDraw } = await useFetch<LatestDrawResponse>("/api/latest-draw");
+
+// Helper to get gap for a specific number
+const getGapForNumber = (number: string, stats: any) => {
+  if (!stats?.data?.ranking) return 0;
+  const found = stats.data.ranking.find((r: any) => r.number === number);
+  return found?.gap ?? 0;
+};
+
+// Helper to get gap class
+const getGapClass = (gap: number) => {
+  if (gap >= 10) return "gap-hot";
+  if (gap >= 5) return "gap-warm";
+  return "gap-normal";
+};
+
+// Computed gaps for latest draw
+const latestGaps = computed(() => {
+  if (!latestDraw.value?.data) return null;
+  return {
+    last2: getGapForNumber(latestDraw.value.data.last2, stats2d.value),
+    last3b: getGapForNumber(latestDraw.value.data.last3b, stats3b.value),
+    last3f: getGapForNumber(latestDraw.value.data.last3f, stats3f.value),
+  };
 });
 
-const digitFrequency = computed(() => {
-  const freq: Record<string, number> = {};
+// Generate random lucky numbers
+const luckyNumbers = ref<string[]>([]);
 
-  if (stats2d.value?.data.ranking) {
-    stats2d.value.data.ranking.forEach((r) => {
-      r.number.split('').forEach((d) => {
-        freq[d] = (freq[d] ?? 0) + r.count;
-      });
-    });
+const generateLuckyNumbers = () => {
+  const nums: string[] = [];
+  for (let i = 0; i < 3; i++) {
+    nums.push(Math.floor(Math.random() * 100).toString().padStart(2, '0'));
   }
+  luckyNumbers.value = nums;
+};
 
-  if (stats3b.value?.data.ranking) {
-    stats3b.value.data.ranking.forEach((r) => {
-      r.number.split('').forEach((d) => {
-        freq[d] = (freq[d] ?? 0) + r.count;
-      });
-    });
-  }
-
-  if (stats3f.value?.data.ranking) {
-    stats3f.value.data.ranking.forEach((r) => {
-      r.number.split('').forEach((d) => {
-        freq[d] = (freq[d] ?? 0) + r.count;
-      });
-    });
-  }
-
-  if (stats6d.value?.data.ranking) {
-    stats6d.value.data.ranking.forEach((r) => {
-      r.number.split('').forEach((d) => {
-        freq[d] = (freq[d] ?? 0) + r.count;
-      });
-    });
-  }
-
-  return freq;
+// Generate on mount
+onMounted(() => {
+  generateLuckyNumbers();
 });
 
-const sortedDigits = computed(() => {
-  const total = Object.values(digitFrequency.value).reduce((a, b) => a + b, 0);
-  const maxCount = Math.max(...Object.values(digitFrequency.value), 1);
-  return Array.from({ length: 10 }, (_, i) => {
-    const count = digitFrequency.value[String(i)] ?? 0;
-    return {
-      digit: String(i),
-      count,
-      percentage: total > 0 ? Math.round((count / total) * 100) : 0,
-      barWidth: maxCount > 0 ? (count / maxCount) * 100 : 0
-    };
-  });
-});
 </script>
 
 <template>
   <div class="layout">
     <nav class="sidebar" aria-label="Main navigation">
-      <div class="sidebar-logo" aria-label="Lotty">
-        <span class="sidebar-logo-icon">L</span>
+      <div class="sidebar-logo-wrap" aria-label="Lotty">
+        <div class="sidebar-logo">
+          <span class="sidebar-logo-icon">L</span>
+        </div>
+        <span class="sidebar-logo-name">Lotty</span>
       </div>
       <ul class="sidebar-list">
         <li v-for="item in navItems" :key="item.path">
@@ -106,25 +107,63 @@ const sortedDigits = computed(() => {
             :aria-current="route.path === item.path ? 'page' : undefined"
             :title="item.label"
           >
+            <span class="sidebar-icon">{{ item.icon }}</span>
             <span class="sidebar-label">{{ item.label }}</span>
           </NuxtLink>
         </li>
       </ul>
 
-      <div v-if="sortedDigits.length" class="sidebar-chart">
-        <div class="sidebar-chart-title">เลขที่ออกบ่อย (All Time)</div>
-        <div class="sidebar-chart-bars">
-          <div v-for="item in sortedDigits" :key="item.digit" class="sidebar-chart-row">
-            <span class="sidebar-chart-label">{{ item.digit }}</span>
-            <div class="sidebar-chart-track">
-              <div
-                class="sidebar-chart-fill"
-                :style="{ width: `${item.barWidth}%` }"
-              ></div>
-            </div>
-            <span class="sidebar-chart-count">{{ item.count }}</span>
+      <!-- Quick Stats Card -->
+      <div v-if="latestDraw?.data" class="sidebar-card sidebar-card--gradient">
+        <div class="sidebar-card-header">
+          <span class="sidebar-card-icon">📰</span>
+          <span class="sidebar-card-title">Latest Draw</span>
+        </div>
+        <div class="sidebar-card-content">
+          <div class="sidebar-stat-row">
+            <span class="stat-label">2 Digit</span>
+            <span class="sidebar-stat-value">{{ latestDraw.data.last2 }}</span>
+            <span v-if="latestGaps && latestGaps.last2 > 0" class="ticket-gap num-mono" :class="getGapClass(latestGaps.last2)">
+              {{ latestGaps.last2 === 999 ? "Never" : `${latestGaps.last2} draws` }}
+            </span>
+          </div>
+          <div class="sidebar-stat-row">
+            <span class="stat-label">3 Digit Top</span>
+            <span class="sidebar-stat-value">{{ latestDraw.data.last3b }}</span>
+            <span v-if="latestGaps && latestGaps.last3b > 0" class="ticket-gap num-mono" :class="getGapClass(latestGaps.last3b)">
+              {{ latestGaps.last3b === 999 ? "Never" : `${latestGaps.last3b} draws` }}
+            </span>
+          </div>
+          <div class="sidebar-stat-row">
+            <span class="stat-label">3 Digit Bottom</span>
+            <span class="sidebar-stat-value">{{ latestDraw.data.last3f }}</span>
+            <span v-if="latestGaps && latestGaps.last3f > 0" class="ticket-gap num-mono" :class="getGapClass(latestGaps.last3f)">
+              {{ latestGaps.last3f === 999 ? "Never" : `${latestGaps.last3f} draws` }}
+            </span>
           </div>
         </div>
+      </div>
+
+      <!-- Lucky Numbers Card -->
+      <div class="sidebar-card">
+        <div class="sidebar-card-header">
+          <span class="sidebar-card-icon">🍀</span>
+          <span class="sidebar-card-title">Lucky Numbers</span>
+        </div>
+        <div class="sidebar-card-content">
+          <div class="sidebar-lucky-numbers">
+            <span v-for="num in luckyNumbers" :key="num" class="sidebar-lucky-badge">{{ num }}</span>
+          </div>
+          <button @click="generateLuckyNumbers" class="btn btn-ghost btn-sm">
+            <span>🔄</span>
+            <span>Randomize</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="sidebar-footer">
+        <span class="sidebar-footer-text">Lotty v1.0 • © 2025</span>
       </div>
     </nav>
 
@@ -236,11 +275,6 @@ const sortedDigits = computed(() => {
   border: 1px solid var(--accent);
 }
 
-.topbar-badge-icon {
-  font-size: var(--text-sm);
-  line-height: 1;
-}
-
 .topbar-badge-text {
   white-space: nowrap;
 }
@@ -305,17 +339,34 @@ const sortedDigits = computed(() => {
     align-items: stretch;
     flex-shrink: 0;
     width: auto;
-    min-width: 200px;
+    min-width: 250px;
     height: 100dvh;
     background: var(--bg-sidebar);
-    border-right: 1px solid var(--border);
-    padding: var(--gap-md);
-    gap: var(--gap-md);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    padding: var(--gap-sm);
+    gap: var(--gap-sm);
+    /* Dark context — override tokens for all children */
+    --bg-surface: #253347;
+    --bg-raised: rgba(255, 255, 255, 0.05);
+    --bg-hover: rgba(255, 255, 255, 0.08);
+    --border: rgba(255, 255, 255, 0.1);
+    --text-primary: #e2e8f0;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --accent-light: rgba(59, 130, 246, 0.18);
+  }
+
+  .sidebar-logo-wrap {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-sm);
+    flex-shrink: 0;
+    padding: var(--gap-xs) 0;
   }
 
   .sidebar-logo {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     background: var(--accent);
     border-radius: var(--radius-md);
     display: flex;
@@ -325,9 +376,17 @@ const sortedDigits = computed(() => {
   }
 
   .sidebar-logo-icon {
-    font-size: var(--text-lg);
+    font-size: var(--text-md);
     color: #fff;
     line-height: 1;
+    font-weight: var(--weight-bold);
+  }
+
+  .sidebar-logo-name {
+    font-size: var(--text-lg);
+    font-weight: var(--weight-bold);
+    color: #e2e8f0;
+    letter-spacing: -0.3px;
   }
 
   .sidebar-list {
@@ -346,88 +405,127 @@ const sortedDigits = computed(() => {
     padding: var(--gap-sm) var(--gap-md);
     height: 44px;
     border-radius: var(--radius-md);
-    color: var(--sidebar-text);
+    color: #94a3b8;
     transition:
       background var(--transition-fast),
       color var(--transition-fast),
       transform var(--transition-fast);
+    gap: var(--gap-sm);
+  }
+
+  .sidebar-icon {
+    font-size: var(--text-lg);
+    line-height: 1;
+    flex-shrink: 0;
   }
 
   .sidebar-link:hover {
-    background: var(--sidebar-active-bg);
-    color: var(--sidebar-active);
+    background: rgba(255, 255, 255, 0.08);
+    color: #e2e8f0;
     transform: translateX(2px);
   }
 
   .sidebar-link-active {
-    background: var(--accent-light);
-    color: var(--accent);
-    border: 2px solid var(--accent);
+    background: rgba(59, 130, 246, 0.18);
+    color: #60a5fa;
+    border: none;
+    border-left: 3px solid var(--accent);
     font-weight: var(--weight-bold);
   }
 
   .sidebar-label {
     font-size: var(--text-md);
     font-weight: var(--weight-medium);
-    color: var(--text-primary);
+    color: inherit;
   }
 
-  .sidebar-chart {
-    margin-top: var(--gap-md);
-    padding-top: var(--gap-md);
-    border-top: 1px solid var(--border);
+  /* ---- Sidebar Cards ---- */
+  .sidebar-card {
+    background: #253347;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-md);
+    padding: var(--gap-md);
   }
 
-  .sidebar-chart-title {
-    font-size: var(--text-xs);
-    font-weight: var(--weight-semibold);
-    color: var(--text-secondary);
-    margin-bottom: var(--gap-sm);
+  .sidebar-card--gradient {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, #253347 100%);
+    border-color: rgba(59, 130, 246, 0.3);
   }
 
-  .sidebar-chart-bars {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .sidebar-chart-row {
+  .sidebar-card-header {
     display: flex;
     align-items: center;
     gap: var(--gap-xs);
+    margin-bottom: var(--gap-sm);
   }
 
-  .sidebar-chart-label {
+  .sidebar-card-icon {
+    font-size: var(--text-md);
+    line-height: 1;
+  }
+
+  .sidebar-card-title {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    color: #e2e8f0;
+  }
+
+  .sidebar-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-xs);
+  }
+
+  .sidebar-stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    gap: var(--gap-xs);
+  }
+
+  .sidebar-stat-value {
     font-family: var(--font-mono);
-    font-size: var(--text-xs);
+    font-size: var(--text-sm);
     font-weight: var(--weight-bold);
-    color: var(--text-primary);
-    width: 16px;
-    text-align: center;
-    flex-shrink: 0;
+    color: #60a5fa;
   }
 
-  .sidebar-chart-track {
-    flex: 1;
-    height: 8px;
-    background: var(--bg-base);
+  .sidebar-lucky-numbers {
+    display: flex;
+    gap: var(--gap-xs);
+    flex-wrap: wrap;
+  }
+
+  .sidebar-lucky-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 32px;
+    padding: 0 var(--gap-sm);
+    background: rgba(59, 130, 246, 0.18);
+    color: #60a5fa;
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-bold);
     border-radius: var(--radius-sm);
-    overflow: hidden;
+    border: 1px solid rgba(59, 130, 246, 0.3);
   }
 
-  .sidebar-chart-fill {
-    height: 100%;
-    background: var(--accent);
-    border-radius: var(--radius-sm);
-    transition: width 0.3s ease;
+  /* ---- Sidebar Footer ---- */
+  .sidebar-footer {
+    padding-top: var(--gap-sm);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: var(--gap-xs);
+		margin-top: auto;
   }
 
-  .sidebar-chart-count {
+  .sidebar-footer-text {
     font-size: var(--text-xs);
-    color: var(--text-secondary);
-    width: 24px;
-    text-align: right;
-    flex-shrink: 0;
+    color: var(--text-muted);
   }
 
   .nav-mobile {

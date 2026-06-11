@@ -105,7 +105,7 @@ const positions = computed(() => {
     <FilterBar />
 
     <!-- 2-digit Section -->
-    <h1 class="section-title">2 ตัว — Breakdown แยกหลัก</h1>
+    <h1 class="section-title">2 Digit — Digit Breakdown</h1>
     <LoadingSkeleton v-if="pending2digit" variant="chart" />
     <ErrorCard v-else-if="error2digit" message="โหลดข้อมูลไม่สำเร็จ" :on-retry="refresh2digit" />
     <EmptyState v-else-if="!ranking2digit.length" reason="no_data_in_range" :scope="filter.scope" />
@@ -127,7 +127,7 @@ const positions = computed(() => {
     </div>
 
     <!-- 3-digit Section -->
-    <h1 class="section-title">3 ตัว — Breakdown แยกหลัก</h1>
+    <h1 class="section-title">3 Digit — Digit Breakdown</h1>
     <LoadingSkeleton v-if="pending3digit" variant="chart" />
     <ErrorCard v-else-if="error3digit" message="โหลดข้อมูลไม่สำเร็จ" :on-retry="refresh3digit" />
     <EmptyState v-else-if="!ranking3digit.length" reason="no_data_in_range" :scope="filter.scope" />
@@ -155,7 +155,7 @@ const positions = computed(() => {
     </div>
 
     <!-- 6-digit Section -->
-    <h1 class="section-title">6 ตัว — แยกหลัก</h1>
+    <h1 class="section-title">6 Digit — Digit Breakdown</h1>
     <LoadingSkeleton v-if="digitsPending" variant="chart" />
     <ErrorCard v-else-if="digitsError" message="โหลดข้อมูลไม่สำเร็จ" :on-retry="refreshDigits" />
     <EmptyState v-else-if="!positions.length" reason="no_data_in_range" :scope="filter.scope" />

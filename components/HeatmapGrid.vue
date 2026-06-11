@@ -13,7 +13,7 @@ const cells = computed(() => {
   const map = new Map(props.data.map((d) => [d.number, d]));
   return Array.from({ length: 100 }, (_, i) => {
     const num = String(i).padStart(2, "0");
-    return map.get(num) ?? { number: num, count: 0, last_draw: "", gap: 0, pct: 0, label: "ปกติ" as const };
+    return map.get(num) ?? { number: num, count: 0, last_draw: "", gap: 0, pct: 0, label: "Normal" as const };
   });
 });
 
@@ -36,7 +36,7 @@ function onKeydown(e: KeyboardEvent, idx: number) {
 </script>
 
 <template>
-  <div class="heatmap" role="grid" aria-label="Heatmap ความถี่เลข 2 ตัว">
+  <div class="heatmap" role="grid" aria-label="Heatmap frequency for 2 digit numbers">
     <div class="heatmap-row" v-for="row in 10" :key="row" role="row">
       <button
         v-for="col in 10"
@@ -44,13 +44,13 @@ function onKeydown(e: KeyboardEvent, idx: number) {
         :data-cell="(row - 1) * 10 + (col - 1)"
         class="heatmap-cell focus-ring"
         :class="{
-          'heatmap-cell-hot': cells[(row - 1) * 10 + (col - 1)].label === 'ออกบ่อย',
-          'heatmap-cell-cold': cells[(row - 1) * 10 + (col - 1)].label === 'ไม่เคยออก',
+          'heatmap-cell-hot': cells[(row - 1) * 10 + (col - 1)].label === 'Frequent',
+          'heatmap-cell-cold': cells[(row - 1) * 10 + (col - 1)].label === 'Never',
           'heatmap-cell-selected': selected === cells[(row - 1) * 10 + (col - 1)].number,
         }"
         :style="{ '--cell-opacity': cellOpacity(cells[(row - 1) * 10 + (col - 1)].count) }"
         role="gridcell"
-        :aria-label="`เลข ${cells[(row - 1) * 10 + (col - 1)].number} ออก ${cells[(row - 1) * 10 + (col - 1)].count} ครั้ง`"
+        :aria-label="`Number ${cells[(row - 1) * 10 + (col - 1)].number} appeared ${cells[(row - 1) * 10 + (col - 1)].count} times`"
         :aria-selected="selected === cells[(row - 1) * 10 + (col - 1)].number"
         :tabindex="row === 1 && col === 1 ? 0 : -1"
         @click="emit('select', cells[(row - 1) * 10 + (col - 1)].number)"
@@ -58,8 +58,8 @@ function onKeydown(e: KeyboardEvent, idx: number) {
       >
         <span class="heatmap-num">{{ cells[(row - 1) * 10 + (col - 1)].number }}</span>
         <span class="heatmap-tooltip" role="tooltip">
-          ออก {{ cells[(row - 1) * 10 + (col - 1)].count }} ครั้ง<br />
-          ล่าสุด: {{ cells[(row - 1) * 10 + (col - 1)].last_draw || "—" }}
+          Appeared {{ cells[(row - 1) * 10 + (col - 1)].count }} times<br />
+          Latest: {{ cells[(row - 1) * 10 + (col - 1)].last_draw || "—" }}
         </span>
       </button>
     </div>

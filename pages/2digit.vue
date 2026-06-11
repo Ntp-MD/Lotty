@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { StatsResponse, RankingItem } from "~/types";
 
-useHead({ title: "2 ตัว — Lotty" });
+useHead({ title: "2 Digit — Lotty" });
 
 const { filter, queryParams } = useFilter();
 const selected = ref<string | null>(null);
@@ -54,7 +54,7 @@ const unitsColdDigit = computed(() => Object.entries(unitsByDigit.value).sort((a
 
       <div class="card-group">
         <div class="card-content">
-          <h1 class="section-title">ออกบ่อย 10 อันดับ</h1>
+          <h1 class="section-title">Top 10 Frequent</h1>
           <div class="card">
             <div class="podium-list">
               <PodiumCard v-for="(item, i) in top10" :key="item.number" :item="item" :rank="i + 1" />
@@ -63,7 +63,7 @@ const unitsColdDigit = computed(() => Object.entries(unitsByDigit.value).sort((a
         </div>
 
         <div class="card-content">
-          <h1 class="section-title">Breakdown แยกหลัก</h1>
+          <h1 class="section-title">Digit Breakdown</h1>
           <div class="card">
             <div class="breakdown-row">
               <DigitBarChart
@@ -83,7 +83,7 @@ const unitsColdDigit = computed(() => Object.entries(unitsByDigit.value).sort((a
         </div>
       </div>
 
-      <h1 class="section-title">Heatmap ความถี่</h1>
+      <h1 class="section-title">Frequency Heatmap</h1>
       <div class="card">
         <HeatmapGrid :data="ranking" :selected="selected" @select="selected = $event" />
       </div>

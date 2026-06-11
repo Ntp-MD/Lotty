@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { StatsResponse, RankingItem } from "~/types";
 
-useHead({ title: "3 ตัว — Lotty" });
+useHead({ title: "3 Digit — Lotty" });
 
 const { filter, queryParams } = useFilter();
 const searchQuery = ref("");
@@ -92,7 +92,7 @@ const pos2ColdDigit = computed(() => Object.entries(posFreq2.value).sort((a, b) 
     <template v-else>
       <div class="card-group">
         <div class="card-content">
-          <h1 class="section-title">ออกบ่อย 10 อันดับ</h1>
+          <h1 class="section-title">Top 10 Frequent</h1>
           <div class="card">
             <div class="podium-list">
               <PodiumCard v-for="(item, i) in top10" :key="item.number" :item="item" :rank="i + 1" />
@@ -101,7 +101,7 @@ const pos2ColdDigit = computed(() => Object.entries(posFreq2.value).sort((a, b) 
         </div>
 
         <div class="card-content">
-          <h1 class="section-title">Breakdown แยกหลัก</h1>
+          <h1 class="section-title">Digit Breakdown</h1>
           <div class="card">
             <div class="breakdown-row">
               <DigitBarChart
@@ -127,34 +127,34 @@ const pos2ColdDigit = computed(() => Object.entries(posFreq2.value).sort((a, b) 
         </div>
       </div>
 
-      <h1 class="section-title">ตารางความถี่</h1>
+      <h1 class="section-title">Frequency Table</h1>
       <div class="card">
         <div class="search-wrap">
           <input
             v-model="searchQuery"
             class="search-input focus-ring"
             type="text"
-            placeholder="ค้นหาเลข เช่น 123"
+            placeholder="Search number e.g. 123"
             maxlength="3"
-            aria-label="ค้นหาเลข 3 ตัว"
+            aria-label="Search 3 digit number"
           />
         </div>
         <EmptyState v-if="!sorted.length" reason="no_search_result" />
         <div v-else class="table-container">
-          <table class="freq-table" aria-label="ตารางความถี่เลข 3 ตัว">
+          <table class="freq-table" aria-label="Frequency table for 3 digit numbers">
             <thead>
               <tr>
-                <th>เลข</th>
-                <th>ครั้ง</th>
-                <th>ครั้งล่าสุด</th>
-                <th>ห่างงวด</th>
+                <th>Number</th>
+                <th>Count</th>
+                <th>Last Draw</th>
+                <th>Gap</th>
               </tr>
             </thead>
             <tbody>
               <tr
                 v-for="item in displayedItems"
                 :key="item.number"
-                :class="{ 'row-hot': item.label === 'ออกบ่อย', 'row-cold': item.label === 'ไม่เคยออก' }"
+                :class="{ 'row-hot': item.label === 'Frequent', 'row-cold': item.label === 'Never' }"
               >
                 <td class="num-display" style="font-size: var(--text-md)">{{ item.number }}</td>
                 <td class="num-mono">{{ item.count }}</td>
@@ -170,7 +170,7 @@ const pos2ColdDigit = computed(() => Object.entries(posFreq2.value).sort((a, b) 
           class="btn btn-ghost btn-sm"
           style="width: 100%"
         >
-          โหลดเพิ่ม (แสดง {{ displayedItems.length }} / {{ sorted.length }})
+          Load More (Showing {{ displayedItems.length }} / {{ sorted.length }})
         </button>
       </div>
     </template>

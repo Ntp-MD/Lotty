@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
 	const result = {
 		draw_date_next: nextDrawDate(),
 		suggestions: { last2: topByGap(rows2 ?? []), last3b: topByGap(rows3b ?? []), last3f: topByGap(rows3f ?? []) },
-		rationale: `เลขที่แนะนำคือเลขที่ค้างนานที่สุดในช่วง ${scope} (ยังไม่ออกมานานที่สุดเมื่อเทียบกับค่าเฉลี่ย)`,
+		rationale: `Recommended numbers are those with the longest gap in the ${scope} period (longest time without appearing compared to average)`,
 	};
 
 	await db.from("stats_cache").upsert({

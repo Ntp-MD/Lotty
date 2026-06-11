@@ -2,7 +2,7 @@
 import type { AdvisorResponse, StatsResponse, DigitsResponse, DigitPosition } from "~/types";
 import { formatDate } from "~/composables/useDate";
 
-useHead({ title: "เลขแนะนำ — Lotty" });
+useHead({ title: "Recommended Numbers — Lotty" });
 
 const { filter, scopeLabel } = useFilter();
 
@@ -106,7 +106,7 @@ function validateNumericInput(e: Event) {
 
 function copyQuickPick() {
   if (!quickPick.value) return;
-  const text = `2ตัว: ${quickPick.value.last2}\n3ตัวล่าง: ${quickPick.value.last3b}\n3ตัวหน้า: ${quickPick.value.last3f}`;
+  const text = `2 Digit: ${quickPick.value.last2}\n3 Digit Bottom: ${quickPick.value.last3b}\n3 Digit Front: ${quickPick.value.last3f}`;
   navigator.clipboard.writeText(text);
 }
 </script>
@@ -115,30 +115,30 @@ function copyQuickPick() {
   <div class="page-content">
     <FilterBar />
 
-    <h1 v-if="latestDraw?.data" class="section-title">ผลสลากล่าสุด</h1>
+    <h1 v-if="latestDraw?.data" class="section-title">Latest Draw Results</h1>
     <div v-if="latestDraw?.data" class="card">
       <div class="latest-draw-date">{{ formatDate(latestDraw.data.draw_date) }}</div>
       <div class="latest-draw-numbers">
-        <div class="latest-draw-col">
-          <span class="latest-draw-label">รางวัลที่ 1</span>
-          <span class="num-display latest-draw-number">{{ latestDraw.data.first }}</span>
+        <div class="latest-draw-col latest-draw-col-hero">
+          <span class="latest-draw-label">1st Prize</span>
+          <span class="num-display latest-draw-number-hero">{{ latestDraw.data.first }}</span>
         </div>
         <div class="latest-draw-col">
-          <span class="latest-draw-label">3 ตัวหน้า</span>
+          <span class="latest-draw-label">3 Digit Front</span>
           <span class="num-display latest-draw-number">{{ latestDraw.data.last3f }}</span>
         </div>
         <div class="latest-draw-col">
-          <span class="latest-draw-label">3 ตัวล่าง</span>
+          <span class="latest-draw-label">3 Digit Bottom</span>
           <span class="num-display latest-draw-number">{{ latestDraw.data.last3b }}</span>
         </div>
         <div class="latest-draw-col">
-          <span class="latest-draw-label">2 ตัวล่าง</span>
+          <span class="latest-draw-label">2 Digit Bottom</span>
           <span class="num-display latest-draw-number">{{ latestDraw.data.last2 }}</span>
         </div>
       </div>
     </div>
 
-    <h1 class="section-title">เลขแนะนำ</h1>
+    <h1 class="section-title">Recommended Numbers</h1>
 
     <LoadingSkeleton v-if="pending" variant="ticket" />
     <ErrorCard v-else-if="error" message="โหลดข้อมูลไม่สำเร็จ" :on-retry="refresh" />
@@ -153,39 +153,39 @@ function copyQuickPick() {
         />
       </div>
 
-      <h1 class="section-title">Quick Pick & ค้นหาสถิติ</h1>
+      <h2 class="section-title section-title-sub">Quick Pick & Number Statistics</h2>
       <div class="card">
           <div class="tools-section">
             <div class="tools-row">
               <div class="tool-block">
                 <h3 class="tool-title">Quick Pick</h3>
                 <p style="font-size: var(--text-sm); color: var(--text-secondary)">
-                  สุ่มเลขตามสถิติ — เลขที่ค้างนานได้น้ำหนักมากกว่า
+                  Random by statistics — numbers with longer gaps get more weight
                 </p>
                 <div class="quickpick-actions">
                   <button class="btn btn-gold" @click="generateQuickPick" :disabled="quickPickLoading">
-                    <span v-if="quickPickLoading">กำลังคำนวณ...</span>
-                    <span v-else>สุ่มเลขตามสถิติ</span>
+                    <span v-if="quickPickLoading">Calculating...</span>
+                    <span v-else>Random by Statistics</span>
                   </button>
-                  <button class="btn btn-ghost" @click="quickPick = null" v-if="quickPick && !quickPickLoading">รีเซ็ต</button>
+                  <button class="btn btn-ghost" @click="quickPick = null" v-if="quickPick && !quickPickLoading">Reset</button>
                 </div>
                 <div v-if="quickPick" class="quickpick-result">
                   <div class="quickpick-numbers">
                     <div class="quickpick-col">
-                      <span class="quickpick-label">2 ตัวล่าง</span>
+                      <span class="quickpick-label">2 Digit Bottom</span>
                       <span class="num-display quickpick-num">{{ quickPick.last2 }}</span>
                     </div>
                     <div class="quickpick-col">
-                      <span class="quickpick-label">3 ตัวล่าง</span>
+                      <span class="quickpick-label">3 Digit Bottom</span>
                       <span class="num-display quickpick-num">{{ quickPick.last3b }}</span>
                     </div>
                     <div class="quickpick-col">
-                      <span class="quickpick-label">3 ตัวหน้า</span>
+                      <span class="quickpick-label">3 Digit Front</span>
                       <span class="num-display quickpick-num">{{ quickPick.last3f }}</span>
                     </div>
                   </div>
                   <button class="btn btn-sm btn-ghost" @click="copyQuickPick">
-                    คัดลอกเลข
+                    Copy Numbers
                   </button>
                 </div>
               </div>
@@ -193,7 +193,7 @@ function copyQuickPick() {
               <div class="tool-divider"></div>
 
               <div class="tool-block">
-                <h3 class="tool-title">ค้นหาสถิติเลข</h3>
+                <h3 class="tool-title">Number Statistics Lookup</h3>
                 <div class="lookup-row">
                   <input
                     v-model="lookupQuery"
@@ -201,36 +201,36 @@ function copyQuickPick() {
                     type="text"
                     inputmode="numeric"
                     pattern="[0-9]*"
-                    placeholder="พิมพ์เลข 2–3 ตัว"
+                    placeholder="Enter 2–3 digit number"
                     maxlength="3"
-                    aria-label="ค้นหาสถิติเลข"
+                    aria-label="Search number statistics"
                     @keydown.enter="doLookup"
                     @input="validateNumericInput"
                   />
                   <button class="btn btn-gold" @click="doLookup" :disabled="lookupPending || lookupQuery.length < 2">
-                    {{ lookupPending ? "กำลังค้นหา..." : "ค้นหา" }}
+                    {{ lookupPending ? "Searching..." : "Search" }}
                   </button>
                 </div>
                 <div v-if="lookupResult" class="lookup-result">
                   <div
                     class="num-display lookup-number"
-                    :class="{ 'badge-hot': lookupResult.label === 'ออกบ่อย', 'badge-cold': lookupResult.label === 'ไม่เคยออก' }"
+                    :class="{ 'badge-gold': lookupResult.label === 'Frequent', 'badge-green': lookupResult.label === 'Never' }"
                   >
                     {{ lookupResult.number }}
                   </div>
                   <div class="lookup-grid">
                     <div>
-                      <span class="lookup-key">ออกทั้งหมด</span><span class="num-mono">{{ lookupResult.count }} ครั้ง</span>
+                      <span class="lookup-key">Total Appeared</span><span class="num-mono">{{ lookupResult.count }} times</span>
                     </div>
                     <div>
-                      <span class="lookup-key">อันดับ</span><span class="num-mono">{{ lookupResult.rank }} / {{ lookupResult.total }}</span>
+                      <span class="lookup-key">Rank</span><span class="num-mono">{{ lookupResult.rank }} / {{ lookupResult.total }}</span>
                     </div>
                     <div>
-                      <span class="lookup-key">ล่าสุด</span><span class="num-mono">{{ lookupResult.last_draw || "—" }}</span>
+                      <span class="lookup-key">Latest</span><span class="num-mono">{{ lookupResult.last_draw || "—" }}</span>
                     </div>
                     <div>
-                      <span class="lookup-key">ค้างมา</span
-                      ><span class="num-mono">{{ lookupResult.gap === 999 ? "ไม่เคยออก" : `${lookupResult.gap} งวด` }}</span>
+                      <span class="lookup-key">Gap</span
+                      ><span class="num-mono">{{ lookupResult.gap === 999 ? "Never" : `${lookupResult.gap} draws` }}</span>
                     </div>
                   </div>
                 </div>
@@ -241,11 +241,15 @@ function copyQuickPick() {
             <div class="tool-divider-horizontal"></div>
 
             <div class="tool-block combo-block">
-              <h3 class="tool-title">Combo Finder</h3>
-              <p class="combo-hint">กด lock หลักที่ต้องการ แล้วดู pattern frequency</p>
+              <details class="combo-collapse">
+              <summary class="combo-summary">
+                <span class="tool-title">Combo Finder</span>
+                <span class="combo-summary-hint">Click to open</span>
+              </summary>
+              <p class="combo-hint">Click lock on desired positions and check pattern frequency</p>
               <div class="combo-locks">
                 <div v-for="pos in positions" :key="pos.position" class="combo-pos">
-                  <span class="combo-pos-label">หลักที่ {{ pos.position }}</span>
+                  <span class="combo-pos-label">Position {{ pos.position }}</span>
                   <div class="combo-digits">
                     <button
                       v-for="d in 10"
@@ -254,7 +258,7 @@ function copyQuickPick() {
                       :class="{ 'combo-digit-locked': locks[pos.position] === String(d - 1) }"
                       @click="toggleLock(pos.position, String(d - 1))"
                       :aria-pressed="locks[pos.position] === String(d - 1)"
-                      :aria-label="`ล็อกหลักที่ ${pos.position} เป็นเลข ${d - 1}`"
+                      :aria-label="`Lock position ${pos.position} to number ${d - 1}`"
                     >
                       {{ d - 1 }}
                     </button>
@@ -265,11 +269,12 @@ function copyQuickPick() {
                 <span class="combo-result-label">Pattern frequency:</span>
                 <span class="num-display combo-result-val">{{ comboFreq }}%</span>
               </div>
+              </details>
             </div>
           </div>
       </div>
 
-      <h1 class="section-title">รางวัลที่ 1 — แยก 6 หลัก</h1>
+      <h2 class="section-title section-title-sub">1st Prize — 6 Digit Breakdown</h2>
       <div class="card">
         <LoadingSkeleton v-if="digitsPending" variant="chart" />
         <ErrorCard v-else-if="digitsError" message="โหลดข้อมูลไม่สำเร็จ" :on-retry="refreshDigits" />
@@ -296,6 +301,77 @@ function copyQuickPick() {
   gap: var(--gap-md);
   height: 100%;
   min-height: 0;
+}
+
+.section-title-sub {
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  color: var(--text-secondary);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.latest-draw-number-hero {
+  font-size: var(--text-xl);
+  color: var(--accent);
+  font-weight: var(--weight-bold);
+  letter-spacing: 3px;
+  line-height: 1;
+}
+
+.latest-draw-col-hero {
+  grid-column: span 2;
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+
+@media (min-width: 640px) {
+  .latest-draw-col-hero {
+    grid-column: span 1;
+  }
+}
+
+.combo-collapse {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+}
+
+.combo-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+  padding: var(--gap-xs) 0;
+}
+
+.combo-summary::-webkit-details-marker {
+  display: none;
+}
+
+.combo-summary::after {
+  content: '▸';
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  transition: transform var(--transition-fast);
+  margin-left: auto;
+}
+
+.combo-collapse[open] > .combo-summary::after {
+  transform: rotate(90deg);
+}
+
+.combo-summary-hint {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  font-weight: var(--weight-regular);
+}
+
+.combo-collapse[open] .combo-summary-hint {
+  display: none;
 }
 
 .tools-section {

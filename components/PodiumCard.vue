@@ -13,8 +13,8 @@ defineProps<Props>();
   <div
     class="podium-item"
     :class="{
-      'podium-item-hot':  item.label === 'ออกบ่อย',
-      'podium-item-cold': item.label === 'ไม่เคยออก',
+      'podium-item-hot':  item.label === 'Frequent',
+      'podium-item-cold': item.label === 'Never',
     }"
   >
     <!-- rank avatar -->
@@ -35,9 +35,9 @@ defineProps<Props>();
 
     <!-- right: gap badge -->
     <div class="podium-right">
-      <span v-if="item.label === 'ออกบ่อย'" class="badge-hot">ออกบ่อย</span>
+      <span v-if="item.label === 'Frequent'" class="badge-gold">Frequent</span>
       <span v-else-if="item.gap > 0" class="podium-gap-label">
-        {{ item.gap === 999 ? "ไม่เคย" : `${item.gap} งวด` }}
+        {{ item.gap === 999 ? "Never" : `${item.gap} draws` }}
       </span>
     </div>
   </div>

@@ -21,11 +21,11 @@ export function useFilter() {
 
 	const scopeLabel = computed(() => {
 		const map: Record<Scope, string> = {
-			"1y": "1 ปี",
-			"3y": "3 ปี",
-			"5y": "5 ปี",
-			"10y": "10 ปี",
-			all: "ทั้งหมด",
+			"1y": "1 Year",
+			"3y": "3 Years",
+			"5y": "5 Years",
+			"10y": "10 Years",
+			all: "All",
 		};
 		return map[filter.scope];
 	});

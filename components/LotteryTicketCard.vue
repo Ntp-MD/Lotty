@@ -23,15 +23,15 @@ function getGapClass(gap: number) {
 }
 
 const DISCLAIMER =
-  "ข้อมูลทั้งหมดเป็นสถิติจากผลการออกรางวัลในอดีต ไม่ใช่การพยากรณ์หรือรับประกันผลรางวัล สลากกินแบ่งรัฐบาลเป็นการเสี่ยงโชค โปรดใช้วิจารณญาณในการตัดสินใจ";
+  "All data is based on historical lottery statistics. This is not a prediction or guarantee of winning results. Government lottery is a game of chance. Please use your own judgment when making decisions.";
 </script>
 
 <template>
-  <div class="ticket" role="region" aria-label="เลขแนะนำงวดนี้">
+  <div class="ticket" role="region" aria-label="Recommended numbers for this draw">
     <div class="ticket-header">
       <div>
-        <div class="ticket-title">เลขแนะนำงวด {{ formatDate(draw_date_next) }}</div>
-        <div class="ticket-scope">อิงสถิติ {{ scope }} ย้อนหลัง</div>
+        <div class="ticket-title">Recommended Numbers for {{ formatDate(draw_date_next) }}</div>
+        <div class="ticket-scope">Based on {{ scope }} statistics</div>
       </div>
     </div>
 
@@ -39,24 +39,24 @@ const DISCLAIMER =
 
     <div class="ticket-numbers">
       <div class="ticket-col">
-        <span class="ticket-col-label">2 ตัวล่าง</span>
+        <span class="ticket-col-label">2 Digit Bottom</span>
         <span class="ticket-number num-display">{{ suggestions.last2.number }}</span>
         <span class="ticket-gap num-mono" :class="getGapClass(suggestions.last2.gap)" v-if="suggestions.last2.gap > 0">
-          ค้าง {{ suggestions.last2.gap === 999 ? "ไม่เคย" : `${suggestions.last2.gap} งวด` }}
+          Gap {{ suggestions.last2.gap === 999 ? "Never" : `${suggestions.last2.gap} draws` }}
         </span>
       </div>
       <div class="ticket-col">
-        <span class="ticket-col-label">3 ตัวล่าง</span>
+        <span class="ticket-col-label">3 Digit Bottom</span>
         <span class="ticket-number num-display">{{ suggestions.last3b.number }}</span>
         <span class="ticket-gap num-mono" :class="getGapClass(suggestions.last3b.gap)" v-if="suggestions.last3b.gap > 0">
-          ค้าง {{ suggestions.last3b.gap === 999 ? "ไม่เคย" : `${suggestions.last3b.gap} งวด` }}
+          Gap {{ suggestions.last3b.gap === 999 ? "Never" : `${suggestions.last3b.gap} draws` }}
         </span>
       </div>
       <div class="ticket-col">
-        <span class="ticket-col-label">3 ตัวหน้า</span>
+        <span class="ticket-col-label">3 Digit Front</span>
         <span class="ticket-number num-display">{{ suggestions.last3f.number }}</span>
         <span class="ticket-gap num-mono" :class="getGapClass(suggestions.last3f.gap)" v-if="suggestions.last3f.gap > 0">
-          ค้าง {{ suggestions.last3f.gap === 999 ? "ไม่เคย" : `${suggestions.last3f.gap} งวด` }}
+          Gap {{ suggestions.last3f.gap === 999 ? "Never" : `${suggestions.last3f.gap} draws` }}
         </span>
       </div>
     </div>
@@ -67,7 +67,10 @@ const DISCLAIMER =
       <p>{{ rationale }}</p>
     </div>
 
-    <p class="disclaimer" role="note">{{ DISCLAIMER }}</p>
+    <details class="disclaimer-wrap">
+      <summary class="disclaimer-toggle">For reference only ℹ</summary>
+      <p class="disclaimer" role="note">{{ DISCLAIMER }}</p>
+    </details>
   </div>
 </template>
 
@@ -135,34 +138,6 @@ const DISCLAIMER =
   font-size: var(--text-xl);
 }
 
-.ticket-gap {
-  font-size: var(--text-xs);
-  display: flex;
-  align-items: center;
-  padding: 2px 6px;
-  border-radius: var(--radius-sm);
-  font-weight: var(--weight-medium);
-}
-
-.gap-hot {
-  color: #ffffff;
-  background: var(--accent-danger);
-}
-
-.gap-warm {
-  color: var(--accent-gold);
-  background: rgba(245, 200, 66, 0.1);
-}
-
-.gap-normal {
-  color: var(--text-secondary);
-  background: var(--bg-raised);
-}
-
-.gap-badge {
-  font-size: var(--text-sm);
-  line-height: 1;
-}
 
 .ticket-rationale {
   display: flex;
@@ -177,5 +152,29 @@ const DISCLAIMER =
 
 .ticket-rationale p {
   line-height: var(--leading-normal);
+}
+
+.disclaimer-wrap {
+  border-top: 1px solid var(--border);
+  padding-top: var(--gap-sm);
+}
+
+.disclaimer-toggle {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.disclaimer-toggle::-webkit-details-marker {
+  display: none;
+}
+
+.disclaimer {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  line-height: var(--leading-normal);
+  margin-top: var(--gap-xs);
 }
 </style>

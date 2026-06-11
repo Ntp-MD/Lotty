@@ -20,10 +20,10 @@ export function assignLabels(
 		gap: i.gap,
 		pct: i.pct,
 		label: (i.count >= hotThreshold
-			? "ออกบ่อย"
+			? "Frequent"
 			: i.count <= coldThreshold
-				? "ไม่เคยออก"
-				: "ปกติ") as NumberLabel,
+				? "Never"
+				: "Normal") as NumberLabel,
 	}));
 }
 

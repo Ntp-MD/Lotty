@@ -8,7 +8,7 @@ const props = withDefaults(defineProps<Props>(), { rows: 5 });
 </script>
 
 <template>
-  <div class="skeleton-wrap" aria-busy="true" aria-label="กำลังโหลดข้อมูล">
+  <div class="skeleton-wrap" aria-busy="true" aria-label="Loading data">
     <template v-if="variant === 'heatmap'">
       <div class="skeleton-heatmap">
         <div v-for="r in 10" :key="r" class="skeleton-heatmap-row">

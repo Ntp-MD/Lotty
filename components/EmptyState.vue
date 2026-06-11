@@ -7,8 +7,8 @@ interface Props {
 const props = defineProps<Props>();
 
 const message = computed(() => {
-  if (props.reason === "no_search_result") return "ไม่พบผลการค้นหา";
-  return props.scope ? `ไม่พบข้อมูลในช่วง ${props.scope} ที่เลือก` : "ไม่พบข้อมูล";
+  if (props.reason === "no_search_result") return "No search results found";
+  return props.scope ? `No data found in selected ${props.scope} range` : "No data found";
 });
 </script>
 

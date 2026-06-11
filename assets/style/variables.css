@@ -10,25 +10,34 @@
 	--bg-base: #f0f4f8;
 	--bg-surface: #ffffff;
 	--bg-raised: #f8fafc;
-	--bg-sidebar: #ffffff;
+	--bg-sidebar: #1e293b;
 	--bg-hover: #e8f0f7;
 
 	--accent: #3b82f6;
 	--accent-light: #dbeafe;
 	--accent-hover: #2563eb;
 	--accent-gold: #f59e0b;
+	--accent-gold-light: #fef3c7;
 	--accent-green: #10b981;
+	--accent-green-light: #d1fae5;
 	--accent-danger: #ef4444;
 	--accent-danger-light: #fee2e2;
+	--accent-info: #06b6d4;
+	--accent-info-light: #cffafe;
 	--accent-dim: #94a3b8;
 
-	--sidebar-text: #64748b;
-	--sidebar-active: #1e293b;
-	--sidebar-active-bg: #dbeafe;
+	--sidebar-text: #b7c6db;
+	--sidebar-active: #60a5fa;
+	--sidebar-active-bg: rgba(59, 130, 246, 0.18);
 
 	--text-primary: #1e293b;
 	--text-secondary: #334155;
 	--text-muted: #64748b;
+
+	/* ----------------------------------------------------------
+     Common Dimensions
+  ---------------------------------------------------------- */
+	--avatar-size: 42px;
 
 	--border: #cbd5e1;
 	--border-strong: #94a3b8;
@@ -46,8 +55,8 @@
 	--text-xs: clamp(12px, 1vw, 14px);
 	--text-sm: clamp(14px, 1.2vw, 16px);
 	--text-md: clamp(16px, 1.4vw, 18px);
-	--text-lg: clamp(20px, 1.8vw, 24px);
-	--text-xl: clamp(24px, 2vw, 30px);
+	--text-lg: clamp(20px, 1.8vw, 22px);
+	--text-xl: clamp(24px, 2vw, 26px);
 
 	/* ----------------------------------------------------------
      Typography — Weight

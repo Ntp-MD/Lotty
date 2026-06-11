@@ -9,7 +9,7 @@ interface Props {
 const props = defineProps<Props>();
 
 const posLabel = computed(() => {
-  const labels = ["แสน", "หมื่น", "พัน", "ร้อย", "สิบ", "หน่วย"];
+  const labels = ["Hundred Thousand", "Ten Thousand", "Thousand", "Hundred", "Ten", "Unit"];
   return labels[props.position - 1];
 });
 
@@ -24,18 +24,18 @@ const maxCount = computed(() => Math.max(...digits.value.map((d) => d.count), 1)
 </script>
 
 <template>
-  <div class="digit-chart card" :aria-label="`สถิติหลัก${posLabel} ของรางวัลที่ 1`">
+  <div class="digit-chart card" :aria-label="`Statistics for position ${posLabel} of 1st prize`">
     <div class="digit-chart-header">
-      <span class="digit-chart-pos">หลัก{{ posLabel }}</span>
+      <span class="digit-chart-pos">Position {{ posLabel }}</span>
       <span class="digit-chart-pos-num num-mono">{{ position }}</span>
     </div>
     <div class="digit-chart-info">
-      <span class="badge-hot">ออกบ่อย: {{ hot_digit }}</span>
-      <span class="badge-cold">ออกน้อย: {{ cold_digit }}</span>
+      <span class="badge-gold">Frequent: {{ hot_digit }}</span>
+      <span class="badge-green">Rare: {{ cold_digit }}</span>
     </div>
     <div class="digit-bars" role="list">
-      <div v-for="item in digits" :key="item.digit" class="digit-bar-item" role="listitem" :aria-label="`เลข ${item.digit} ออก ${item.count} ครั้ง`">
-        <div class="digit-bar-track">
+      <div v-for="item in digits" :key="item.digit" class="digit-bar-item" role="listitem" :aria-label="`Number ${item.digit} appeared ${item.count} times`">
+        <div class="digit-bar-track" :title="`Number ${item.digit}: appeared ${item.count} times`">
           <div
             class="digit-bar-fill"
             :class="{
@@ -92,7 +92,7 @@ const maxCount = computed(() => Math.max(...digits.value.map((d) => d.count), 1)
   gap: 4px;
   align-items: flex-end;
   flex: 1;
-  min-height: 60px;
+  min-height: 120px;
 }
 
 .digit-bar-item {
