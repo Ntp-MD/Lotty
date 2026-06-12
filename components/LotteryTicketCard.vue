@@ -112,8 +112,14 @@ const DISCLAIMER = computed(() => t("ticket.disclaimer"));
 
 .ticket-numbers {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr;
   gap: var(--gap-sm);
+}
+
+@media (min-width: 480px) {
+  .ticket-numbers {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .ticket-col {

@@ -111,34 +111,65 @@ function copyQuickPick() {
   const text = `2 Digit: ${quickPick.value.last2}\n3 Digit Bottom: ${quickPick.value.last3b}\n3 Digit Front: ${quickPick.value.last3f}`;
   navigator.clipboard.writeText(text);
 }
+
+const nextDrawDays = computed(() => {
+  const now = new Date();
+  const next = new Date(now);
+  if (now.getDate() < 16) {
+    next.setDate(16);
+  } else {
+    next.setMonth(now.getMonth() + 1, 1);
+  }
+  next.setHours(0, 0, 0, 0);
+  const today = new Date(now);
+  today.setHours(0, 0, 0, 0);
+  return Math.round((next.getTime() - today.getTime()) / 86400000);
+});
 </script>
 
 <template>
   <div class="page-content">
     <FilterBar />
 
-    <h1 v-if="latestDraw?.data" class="section-title">{{ t('results.latest') }}</h1>
-    <div v-if="latestDraw?.data" class="card">
-      <div class="latest-draw-date">{{ formatDate(latestDraw.data.draw_date) }}</div>
-      <div class="latest-draw-numbers">
-        <div class="latest-draw-col latest-draw-col-hero">
-          <span class="latest-draw-label">{{ t('results.firstPrize') }}</span>
-          <span class="num-display latest-draw-number-hero">{{ latestDraw.data.first }}</span>
+    <section v-if="latestDraw?.data" class="hero">
+      <div class="hero-glow hero-glow-warm"></div>
+      <div class="hero-glow hero-glow-cool"></div>
+      <div class="hero-top">
+        <div class="hero-heading">
+          <span class="hero-eyebrow">{{ t('results.latest') }}</span>
+          <span class="hero-date">{{ formatDate(latestDraw.data.draw_date) }}</span>
         </div>
-        <div class="latest-draw-col">
-          <span class="latest-draw-label">{{ t('results.last3f') }}</span>
-          <span class="num-display latest-draw-number">{{ latestDraw.data.last3f }}</span>
-        </div>
-        <div class="latest-draw-col">
-          <span class="latest-draw-label">{{ t('results.last3b') }}</span>
-          <span class="num-display latest-draw-number">{{ latestDraw.data.last3b }}</span>
-        </div>
-        <div class="latest-draw-col">
-          <span class="latest-draw-label">{{ t('results.last2') }}</span>
-          <span class="num-display latest-draw-number">{{ latestDraw.data.last2 }}</span>
+        <div class="hero-countdown">
+          <span class="hero-countdown-label">{{ nextDrawDays === 0 ? t('hero.today') : t('hero.nextDraw') }}</span>
+          <span v-if="nextDrawDays > 0" class="hero-countdown-value">{{ nextDrawDays }} {{ t('hero.days') }}</span>
         </div>
       </div>
-    </div>
+      <div class="hero-first">
+        <span class="hero-first-label">{{ t('results.firstPrize') }}</span>
+        <div class="hero-digits">
+          <span
+            v-for="(d, i) in latestDraw.data.first.split('')"
+            :key="i"
+            class="hero-digit num-display"
+            :style="{ animationDelay: `${i * 90}ms` }"
+          >{{ d }}</span>
+        </div>
+      </div>
+      <div class="hero-minor">
+        <div class="hero-minor-col">
+          <span class="hero-minor-label">{{ t('results.last3f') }}</span>
+          <span class="num-display hero-minor-number">{{ latestDraw.data.last3f }}</span>
+        </div>
+        <div class="hero-minor-col">
+          <span class="hero-minor-label">{{ t('results.last3b') }}</span>
+          <span class="num-display hero-minor-number">{{ latestDraw.data.last3b }}</span>
+        </div>
+        <div class="hero-minor-col">
+          <span class="hero-minor-label">{{ t('results.last2') }}</span>
+          <span class="num-display hero-minor-number">{{ latestDraw.data.last2 }}</span>
+        </div>
+      </div>
+    </section>
 
     <h1 class="section-title">{{ t('title.recommend') }}</h1>
 
@@ -305,23 +336,214 @@ function copyQuickPick() {
   text-transform: none;
 }
 
-.latest-draw-number-hero {
-  font-size: var(--text-xl);
-  color: var(--accent);
+.hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+  padding: var(--gap-xl) var(--gap-lg);
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
+  color: var(--text-primary);
+}
+
+.hero-glow {
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  border-radius: var(--radius-full);
+  filter: blur(80px);
+  opacity: 0.55;
+  pointer-events: none;
+  animation: hero-glow-float 9s ease-in-out infinite alternate;
+}
+
+@media (max-width: 480px) {
+  .hero-glow {
+    width: 200px;
+    height: 200px;
+  }
+  .hero-glow-warm {
+    top: -80px;
+    right: -40px;
+  }
+  .hero-glow-cool {
+    bottom: -100px;
+    left: -60px;
+  }
+}
+
+.hero-glow-warm {
+  background: var(--bg-blur-warm);
+  top: -140px;
+  right: -80px;
+}
+
+.hero-glow-cool {
+  background: var(--bg-blur-cool);
+  bottom: -160px;
+  left: -100px;
+  animation-delay: -4s;
+}
+
+@keyframes hero-glow-float {
+  from {
+    transform: translate(0, 0) scale(1);
+  }
+  to {
+    transform: translate(30px, 24px) scale(1.15);
+  }
+}
+
+.hero-top {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--gap-md);
+  flex-wrap: wrap;
+}
+
+@media (max-width: 480px) {
+  .hero-top {
+    flex-direction: column;
+  }
+  .hero-countdown {
+    align-items: flex-start;
+  }
+}
+
+.hero-heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
+}
+
+.hero-eyebrow {
+  font-size: var(--text-lg);
   font-weight: var(--weight-bold);
-  letter-spacing: 3px;
-  line-height: 1;
+  letter-spacing: -0.3px;
+  color: var(--text-primary);
 }
 
-.latest-draw-col-hero {
-  grid-column: span 2;
-  border-color: var(--accent);
+.hero-date {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.hero-countdown {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  padding: var(--gap-sm) var(--gap-md);
+  border-radius: var(--radius-md);
+  background: var(--accent-gold-light);
+}
+
+.hero-countdown-label {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.hero-countdown-value {
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  color: var(--accent-gold);
+}
+
+.hero-first {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap-sm);
+}
+
+.hero-first-label {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  font-weight: var(--weight-semibold);
+}
+
+.hero-digits {
+  display: flex;
+  gap: var(--gap-sm);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.hero-digit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: clamp(44px, 7vw, 64px);
+  min-height: clamp(56px, 9vw, 80px);
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: var(--weight-bold);
+  border-radius: var(--radius-sm);
   background: var(--accent-light);
+  color: var(--accent);
+  animation: hero-digit-in 0.55s cubic-bezier(0.2, 0.8, 0.3, 1.15) both;
 }
 
-@media (min-width: 640px) {
-  .latest-draw-col-hero {
-    grid-column: span 1;
+@keyframes hero-digit-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.hero-minor {
+  position: relative;
+  display: flex;
+  gap: var(--gap-sm);
+  flex-wrap: wrap;
+}
+
+.hero-minor-col {
+  flex: 1;
+  min-width: 90px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap-xs);
+  padding: var(--gap-md);
+  border-radius: var(--radius-md);
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  transition: transform var(--transition-fast), border-color var(--transition-fast);
+}
+
+.hero-minor-col:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+}
+
+.hero-minor-label {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.hero-minor-number {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  letter-spacing: 2px;
+  color: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-glow,
+  .hero-digit {
+    animation: none;
   }
 }
 
@@ -428,60 +650,6 @@ function copyQuickPick() {
   background: var(--border);
 }
 
-.latest-draw-date {
-  font-size: var(--text-xs);
-  color: var(--text-secondary);
-  font-weight: var(--weight-medium);
-  margin-bottom: var(--gap-md);
-}
-
-.latest-draw-numbers {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--gap-sm);
-}
-
-.latest-draw-col {
-  flex: 1;
-  min-width: calc(50% - var(--gap-sm) / 2);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: var(--gap-md);
-  background: var(--bg-base);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  text-align: center;
-  min-height: 80px;
-  gap: var(--gap-xs);
-  transition: all 0.2s ease;
-}
-
-@media (min-width: 640px) {
-  .latest-draw-col {
-    min-width: calc(25% - var(--gap-sm) * 3 / 4);
-  }
-}
-
-.latest-draw-col:hover {
-  border-color: var(--accent);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
-}
-
-.latest-draw-label {
-  font-size: var(--text-xs);
-  color: var(--text-secondary);
-}
-
-.latest-draw-number {
-  font-size: var(--text-lg);
-  color: var(--accent);
-  font-weight: var(--weight-bold);
-  letter-spacing: 2px;
-}
-
 .quickpick-actions {
   display: flex;
   gap: var(--gap-sm);
@@ -494,8 +662,14 @@ function copyQuickPick() {
 
 .quickpick-numbers {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr;
   gap: var(--gap-sm);
+}
+
+@media (min-width: 480px) {
+  .quickpick-numbers {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .quickpick-col {
@@ -526,6 +700,7 @@ function copyQuickPick() {
   display: flex;
   gap: var(--gap-sm);
   align-items: center;
+  flex-wrap: wrap;
 }
 .search-input {
   flex: 1;
@@ -536,9 +711,15 @@ function copyQuickPick() {
 }
 .lookup-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: var(--gap-sm);
   font-size: var(--text-sm);
+}
+
+@media (min-width: 480px) {
+  .lookup-grid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 .lookup-grid > div {
   display: flex;

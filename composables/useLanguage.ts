@@ -30,6 +30,11 @@ const translations: Record<string, { en: string; th: string }> = {
   "results.last2": { en: "2 Digit Bottom", th: "2 ตัวล่าง" },
   "results.historical": { en: "Historical Results", th: "ผลการออกรางวัลย้อนหลัง" },
 
+  // Hero
+  "hero.nextDraw": { en: "Next draw in", th: "งวดถัดไปอีก" },
+  "hero.days": { en: "days", th: "วัน" },
+  "hero.today": { en: "Draw day!", th: "วันนี้ออกรางวัล!" },
+
   // Quick Pick
   "quickpick.title": { en: "Quick Pick", th: "สุ่มเลข" },
   "quickpick.desc": { en: "Random by statistics — numbers with longer gaps get more weight", th: "สุ่มตามสถิติ — เลขที่ไม่ออกนานจะมีน้ำหนักมากขึ้น" },
