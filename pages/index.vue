@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import type { AdvisorResponse, StatsResponse, DigitsResponse, DigitPosition } from "~/types";
 import { formatDate } from "~/composables/useDate";
+import { useLanguage } from "~/composables/useLanguage";
 
 useHead({ title: "Recommended Numbers — Lotty" });
 
 const { filter, scopeLabel } = useFilter();
+const { t } = useLanguage();
 
 const asyncKey = computed(() => `advisor-${filter.scope}`);
 
@@ -115,30 +117,30 @@ function copyQuickPick() {
   <div class="page-content">
     <FilterBar />
 
-    <h1 v-if="latestDraw?.data" class="section-title">Latest Draw Results</h1>
+    <h1 v-if="latestDraw?.data" class="section-title">{{ t('results.latest') }}</h1>
     <div v-if="latestDraw?.data" class="card">
       <div class="latest-draw-date">{{ formatDate(latestDraw.data.draw_date) }}</div>
       <div class="latest-draw-numbers">
         <div class="latest-draw-col latest-draw-col-hero">
-          <span class="latest-draw-label">1st Prize</span>
+          <span class="latest-draw-label">{{ t('results.firstPrize') }}</span>
           <span class="num-display latest-draw-number-hero">{{ latestDraw.data.first }}</span>
         </div>
         <div class="latest-draw-col">
-          <span class="latest-draw-label">3 Digit Front</span>
+          <span class="latest-draw-label">{{ t('results.last3f') }}</span>
           <span class="num-display latest-draw-number">{{ latestDraw.data.last3f }}</span>
         </div>
         <div class="latest-draw-col">
-          <span class="latest-draw-label">3 Digit Bottom</span>
+          <span class="latest-draw-label">{{ t('results.last3b') }}</span>
           <span class="num-display latest-draw-number">{{ latestDraw.data.last3b }}</span>
         </div>
         <div class="latest-draw-col">
-          <span class="latest-draw-label">2 Digit Bottom</span>
+          <span class="latest-draw-label">{{ t('results.last2') }}</span>
           <span class="num-display latest-draw-number">{{ latestDraw.data.last2 }}</span>
         </div>
       </div>
     </div>
 
-    <h1 class="section-title">Recommended Numbers</h1>
+    <h1 class="section-title">{{ t('title.recommend') }}</h1>
 
     <LoadingSkeleton v-if="pending" variant="ticket" />
     <ErrorCard v-else-if="error" message="โหลดข้อมูลไม่สำเร็จ" :on-retry="refresh" />
@@ -153,39 +155,39 @@ function copyQuickPick() {
         />
       </div>
 
-      <h2 class="section-title section-title-sub">Quick Pick & Number Statistics</h2>
+      <h2 class="section-title section-title-sub">{{ t('quickpick.title') }} & {{ t('lookup.title') }}</h2>
       <div class="card">
           <div class="tools-section">
             <div class="tools-row">
               <div class="tool-block">
-                <h3 class="tool-title">Quick Pick</h3>
+                <h3 class="tool-title">{{ t('quickpick.title') }}</h3>
                 <p style="font-size: var(--text-sm); color: var(--text-secondary)">
-                  Random by statistics — numbers with longer gaps get more weight
+                  {{ t('quickpick.desc') }}
                 </p>
                 <div class="quickpick-actions">
                   <button class="btn btn-gold" @click="generateQuickPick" :disabled="quickPickLoading">
-                    <span v-if="quickPickLoading">Calculating...</span>
-                    <span v-else>Random by Statistics</span>
+                    <span v-if="quickPickLoading">{{ t('quickpick.calculating') }}</span>
+                    <span v-else>{{ t('quickpick.random') }}</span>
                   </button>
-                  <button class="btn btn-ghost" @click="quickPick = null" v-if="quickPick && !quickPickLoading">Reset</button>
+                  <button class="btn btn-ghost" @click="quickPick = null" v-if="quickPick && !quickPickLoading">{{ t('quickpick.reset') }}</button>
                 </div>
                 <div v-if="quickPick" class="quickpick-result">
                   <div class="quickpick-numbers">
                     <div class="quickpick-col">
-                      <span class="quickpick-label">2 Digit Bottom</span>
+                      <span class="quickpick-label">{{ t('results.last2') }}</span>
                       <span class="num-display quickpick-num">{{ quickPick.last2 }}</span>
                     </div>
                     <div class="quickpick-col">
-                      <span class="quickpick-label">3 Digit Bottom</span>
+                      <span class="quickpick-label">{{ t('results.last3b') }}</span>
                       <span class="num-display quickpick-num">{{ quickPick.last3b }}</span>
                     </div>
                     <div class="quickpick-col">
-                      <span class="quickpick-label">3 Digit Front</span>
+                      <span class="quickpick-label">{{ t('results.last3f') }}</span>
                       <span class="num-display quickpick-num">{{ quickPick.last3f }}</span>
                     </div>
                   </div>
                   <button class="btn btn-sm btn-ghost" @click="copyQuickPick">
-                    Copy Numbers
+                    {{ t('quickpick.copy') }}
                   </button>
                 </div>
               </div>
@@ -193,7 +195,7 @@ function copyQuickPick() {
               <div class="tool-divider"></div>
 
               <div class="tool-block">
-                <h3 class="tool-title">Number Statistics Lookup</h3>
+                <h3 class="tool-title">{{ t('lookup.title') }}</h3>
                 <div class="lookup-row">
                   <input
                     v-model="lookupQuery"
@@ -201,14 +203,14 @@ function copyQuickPick() {
                     type="text"
                     inputmode="numeric"
                     pattern="[0-9]*"
-                    placeholder="Enter 2–3 digit number"
+                    placeholder="{{ t('lookup.placeholder') }}"
                     maxlength="3"
-                    aria-label="Search number statistics"
+                    aria-label="{{ t('lookup.aria') }}"
                     @keydown.enter="doLookup"
                     @input="validateNumericInput"
                   />
                   <button class="btn btn-gold" @click="doLookup" :disabled="lookupPending || lookupQuery.length < 2">
-                    {{ lookupPending ? "Searching..." : "Search" }}
+                    {{ lookupPending ? t('lookup.searching') : t('lookup.search') }}
                   </button>
                 </div>
                 <div v-if="lookupResult" class="lookup-result">
@@ -220,17 +222,17 @@ function copyQuickPick() {
                   </div>
                   <div class="lookup-grid">
                     <div>
-                      <span class="lookup-key">Total Appeared</span><span class="num-mono">{{ lookupResult.count }} times</span>
+                      <span class="lookup-key">{{ t('lookup.totalAppeared') }}</span><span class="num-mono">{{ lookupResult.count }} {{ t('lookup.times') }}</span>
                     </div>
                     <div>
-                      <span class="lookup-key">Rank</span><span class="num-mono">{{ lookupResult.rank }} / {{ lookupResult.total }}</span>
+                      <span class="lookup-key">{{ t('lookup.rank') }}</span><span class="num-mono">{{ lookupResult.rank }} / {{ lookupResult.total }}</span>
                     </div>
                     <div>
-                      <span class="lookup-key">Latest</span><span class="num-mono">{{ lookupResult.last_draw || "—" }}</span>
+                      <span class="lookup-key">{{ t('lookup.latest') }}</span><span class="num-mono">{{ lookupResult.last_draw || "—" }}</span>
                     </div>
                     <div>
-                      <span class="lookup-key">Gap</span
-                      ><span class="num-mono">{{ lookupResult.gap === 999 ? "Never" : `${lookupResult.gap} draws` }}</span>
+                      <span class="lookup-key">{{ t('lookup.gap') }}</span
+                      ><span class="num-mono">{{ lookupResult.gap === 999 ? t('lookup.never') : `${lookupResult.gap} ${t('lookup.draws')}` }}</span>
                     </div>
                   </div>
                 </div>
@@ -243,13 +245,13 @@ function copyQuickPick() {
             <div class="tool-block combo-block">
               <details class="combo-collapse">
               <summary class="combo-summary">
-                <span class="tool-title">Combo Finder</span>
-                <span class="combo-summary-hint">Click to open</span>
+                <span class="tool-title">{{ t('combo.title') }}</span>
+                <span class="combo-summary-hint">{{ t('combo.hintOpen') }}</span>
               </summary>
-              <p class="combo-hint">Click lock on desired positions and check pattern frequency</p>
+              <p class="combo-hint">{{ t('combo.hint') }}</p>
               <div class="combo-locks">
                 <div v-for="pos in positions" :key="pos.position" class="combo-pos">
-                  <span class="combo-pos-label">Position {{ pos.position }}</span>
+                  <span class="combo-pos-label">{{ t('combo.position') }} {{ pos.position }}</span>
                   <div class="combo-digits">
                     <button
                       v-for="d in 10"
@@ -258,7 +260,7 @@ function copyQuickPick() {
                       :class="{ 'combo-digit-locked': locks[pos.position] === String(d - 1) }"
                       @click="toggleLock(pos.position, String(d - 1))"
                       :aria-pressed="locks[pos.position] === String(d - 1)"
-                      :aria-label="`Lock position ${pos.position} to number ${d - 1}`"
+                      :aria-label="t('combo.lockAria', { pos: pos.position, digit: d - 1 })"
                     >
                       {{ d - 1 }}
                     </button>
@@ -266,7 +268,7 @@ function copyQuickPick() {
                 </div>
               </div>
               <div v-if="comboFreq !== null" class="combo-result">
-                <span class="combo-result-label">Pattern frequency:</span>
+                <span class="combo-result-label">{{ t('combo.frequency') }}</span>
                 <span class="num-display combo-result-val">{{ comboFreq }}%</span>
               </div>
               </details>
@@ -274,7 +276,7 @@ function copyQuickPick() {
           </div>
       </div>
 
-      <h2 class="section-title section-title-sub">1st Prize — 6 Digit Breakdown</h2>
+      <h2 class="section-title section-title-sub">{{ t('breakdown.title6d') }}</h2>
       <div class="card">
         <LoadingSkeleton v-if="digitsPending" variant="chart" />
         <ErrorCard v-else-if="digitsError" message="โหลดข้อมูลไม่สำเร็จ" :on-retry="refreshDigits" />
@@ -295,14 +297,6 @@ function copyQuickPick() {
 </template>
 
 <style scoped>
-.page-content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-md);
-  height: 100%;
-  min-height: 0;
-}
-
 .section-title-sub {
   font-size: var(--text-md);
   font-weight: var(--weight-semibold);
@@ -442,18 +436,14 @@ function copyQuickPick() {
 }
 
 .latest-draw-numbers {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   gap: var(--gap-sm);
 }
 
-@media (min-width: 640px) {
-  .latest-draw-numbers {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
 .latest-draw-col {
+  flex: 1;
+  min-width: calc(50% - var(--gap-sm) / 2);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -466,6 +456,12 @@ function copyQuickPick() {
   min-height: 80px;
   gap: var(--gap-xs);
   transition: all 0.2s ease;
+}
+
+@media (min-width: 640px) {
+  .latest-draw-col {
+    min-width: calc(25% - var(--gap-sm) * 3 / 4);
+  }
 }
 
 .latest-draw-col:hover {
@@ -532,20 +528,7 @@ function copyQuickPick() {
   align-items: center;
 }
 .search-input {
-  background: var(--bg-raised);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--text-primary);
-  padding: var(--gap-xs) var(--gap-sm);
-  font-family: var(--font-mono);
-  font-size: var(--text-md);
-  width: 100%;
   flex: 1;
-  transition: border-color var(--transition-fast);
-}
-
-.search-input:focus {
-  border-color: var(--accent);
 }
 
 .lookup-number {
@@ -568,22 +551,7 @@ function copyQuickPick() {
 }
 
 .digits-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--gap-sm);
   height: 100%;
-}
-
-@media (min-width: 768px) {
-  .digits-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .digits-grid {
-    grid-template-columns: repeat(6, 1fr);
-  }
 }
 
 .combo-hint {
@@ -632,7 +600,7 @@ function copyQuickPick() {
 
 .combo-digit-locked {
   background: var(--accent-gold);
-  color: #0d0d0d;
+  color: var(--text-primary);
   border-color: var(--accent-gold);
   font-weight: var(--weight-bold);
 }

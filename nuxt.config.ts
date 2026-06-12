@@ -28,6 +28,12 @@ export default defineNuxtConfig({
 					rel: "stylesheet",
 					href: "https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@7/fonts/LINESeedSansTH/LINESeedSansTH.css",
 				},
+				{ rel: "preconnect", href: "https://fonts.googleapis.com" },
+				{ rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: "" },
+				{
+					rel: "stylesheet",
+					href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap",
+				},
 			],
 		},
 	},

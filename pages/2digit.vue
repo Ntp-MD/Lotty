@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import type { StatsResponse, RankingItem } from "~/types";
+import { useLanguage } from "~/composables/useLanguage";
 
 useHead({ title: "2 Digit — Lotty" });
 
 const { filter, queryParams } = useFilter();
+const { t } = useLanguage();
 const selected = ref<string | null>(null);
 const prizeType = ref("last2");
 
@@ -54,7 +56,7 @@ const unitsColdDigit = computed(() => Object.entries(unitsByDigit.value).sort((a
 
       <div class="card-group">
         <div class="card-content">
-          <h1 class="section-title">Top 10 Frequent</h1>
+          <h1 class="section-title">{{ t('breakdown.title10') }}</h1>
           <div class="card">
             <div class="podium-list">
               <PodiumCard v-for="(item, i) in top10" :key="item.number" :item="item" :rank="i + 1" />
@@ -63,7 +65,7 @@ const unitsColdDigit = computed(() => Object.entries(unitsByDigit.value).sort((a
         </div>
 
         <div class="card-content">
-          <h1 class="section-title">Digit Breakdown</h1>
+          <h1 class="section-title">{{ t('breakdown.digitBreakdown') }}</h1>
           <div class="card">
             <div class="breakdown-row">
               <DigitBarChart
@@ -83,7 +85,7 @@ const unitsColdDigit = computed(() => Object.entries(unitsByDigit.value).sort((a
         </div>
       </div>
 
-      <h1 class="section-title">Frequency Heatmap</h1>
+      <h1 class="section-title">{{ t('breakdown.heatmap') }}</h1>
       <div class="card">
         <HeatmapGrid :data="ranking" :selected="selected" @select="selected = $event" />
       </div>
@@ -93,30 +95,10 @@ const unitsColdDigit = computed(() => Object.entries(unitsByDigit.value).sort((a
 </template>
 
 <style scoped>
-.page-content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-md);
-  height: 100%;
-  min-height: 0;
-}
-
 .podium-list {
   display: flex;
   flex-direction: column;
   flex: 1;
-}
-
-.breakdown-row {
-  display: flex;
-  gap: var(--gap-md);
-  flex-wrap: wrap;
-  flex: 1;
-}
-
-.breakdown-row > * {
-  flex: 1 1 100%;
-  min-width: 0;
 }
 
 @media (min-width: 480px) {

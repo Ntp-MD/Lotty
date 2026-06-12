@@ -1,30 +1,32 @@
 <script setup lang="ts">
 import type { Scope, DrawDay } from "~/types";
+import { useLanguage } from "~/composables/useLanguage";
 
 const { filter, setScope, setMonth, setDay } = useFilter();
+const { t } = useLanguage();
 const showAdvanced = ref(false);
 
-const scopes: { value: Scope; label: string }[] = [
-  { value: "1y", label: "1 Year" },
-  { value: "3y", label: "3 Years" },
-  { value: "5y", label: "5 Years" },
-  { value: "10y", label: "10 Years" },
-  { value: "all", label: "All" },
-];
+const scopes = computed<{ value: Scope; label: string }[]>(() => [
+  { value: "1y", label: t("filter.1y") },
+  { value: "3y", label: t("filter.3y") },
+  { value: "5y", label: t("filter.5y") },
+  { value: "10y", label: t("filter.10y") },
+  { value: "all", label: t("filter.all") },
+]);
 
-const months = [{ value: null, label: "All Year" }, ...Array.from({ length: 12 }, (_, i) => ({ value: i + 1, label: `Month ${i + 1}` }))];
+const months = computed(() => [{ value: null, label: t("filter.allYear") }, ...Array.from({ length: 12 }, (_, i) => ({ value: i + 1, label: t("filter.monthName", { m: i + 1 }) }))]);
 
-const days: { value: DrawDay; label: string }[] = [
-  { value: "all", label: "All Draws" },
-  { value: "1", label: "1st of Month" },
-  { value: "16", label: "16th of Month" },
-];
+const days = computed<{ value: DrawDay; label: string }[]>(() => [
+  { value: "all", label: t("filter.allDraws") },
+  { value: "1", label: t("filter.1st") },
+  { value: "16", label: t("filter.16th") },
+]);
 </script>
 
 <template>
   <div class="filter-bar" role="search" aria-label="Data filter">
     <div class="filter-group">
-      <span class="filter-label">Time Period</span>
+      <span class="filter-label">{{ t('filter.timePeriod') }}</span>
       <div class="filter-chips" role="group" aria-label="Select time period">
         <button
           v-for="s in scopes"
@@ -40,12 +42,12 @@ const days: { value: DrawDay; label: string }[] = [
     </div>
 
     <button class="btn-toggle-advanced" @click="showAdvanced = !showAdvanced" type="button">
-      <span>{{ showAdvanced ? '-' : '+' }} Advanced Options</span>
+      <span>{{ showAdvanced ? t('filter.advancedClose') : t('filter.advancedOpen') }}</span>
     </button>
 
     <div v-show="showAdvanced" class="filter-row filter-advanced">
       <div class="filter-group">
-        <label class="filter-label" for="filter-month" title="Filter by draw month">Month</label>
+        <label class="filter-label" for="filter-month" :title="t('filter.monthDesc')">{{ t('filter.month') }}</label>
         <select
           id="filter-month"
           class="filter-select focus-ring"
@@ -57,7 +59,7 @@ const days: { value: DrawDay; label: string }[] = [
       </div>
 
       <div class="filter-group">
-        <label class="filter-label" for="filter-day" title="Filter by draw date (1 or 16)">Draw Date</label>
+        <label class="filter-label" for="filter-day" :title="t('filter.drawDateDesc')">{{ t('filter.drawDate') }}</label>
         <select
           id="filter-day"
           class="filter-select focus-ring"
@@ -123,7 +125,7 @@ const days: { value: DrawDay; label: string }[] = [
 .chip-active {
   background: var(--accent);
   border-color: var(--accent);
-  color: #ffffff;
+  color: var(--color-white);
 }
 
 .filter-row {

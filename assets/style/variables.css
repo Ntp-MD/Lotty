@@ -1,62 +1,79 @@
 /* ============================================================
    Lotty — variables.css
    Single source of truth. ห้ามใส่ hardcode ใน file อื่น
+   Redesign ref: docs/target-design.md (Dribbble 15204062)
    ============================================================ */
 
 :root {
 	/* ----------------------------------------------------------
-     Color — Light Blue & White Theme
+     Color — Finance Dashboard Theme (purple/orange on white)
   ---------------------------------------------------------- */
-	--bg-base: #f0f4f8;
+	--bg-blur-warm: #ffd8c2;
+	--bg-blur-cool: #c9b8f5;
+	--bg-base: #f6f4fb;
 	--bg-surface: #ffffff;
-	--bg-raised: #f8fafc;
-	--bg-sidebar: #1e293b;
-	--bg-hover: #e8f0f7;
+	--bg-raised: #f8f8fc;
+	--bg-sidebar: #ffffff;
+	--bg-hover: #f3f1fa;
 
-	--accent: #3b82f6;
-	--accent-light: #dbeafe;
-	--accent-hover: #2563eb;
-	--accent-gold: #f59e0b;
-	--accent-gold-light: #fef3c7;
-	--accent-green: #10b981;
-	--accent-green-light: #d1fae5;
-	--accent-danger: #ef4444;
-	--accent-danger-light: #fee2e2;
-	--accent-info: #06b6d4;
-	--accent-info-light: #cffafe;
-	--accent-dim: #94a3b8;
+	--accent: #6c5ce7;
+	--accent-light: #ece8fc;
+	--accent-hover: #5a4bd1;
+	--accent-gold: #f4a259;
+	--accent-gold-light: #fdeede;
+	--accent-green: #27c28b;
+	--accent-green-light: #def6ed;
+	--accent-danger: #ff6b6b;
+	--accent-danger-light: #ffe5e5;
+	--accent-info: #54a0ff;
+	--accent-info-light: #e3eeff;
+	--accent-dim: #a0a0b8;
 
-	--sidebar-text: #b7c6db;
-	--sidebar-active: #60a5fa;
-	--sidebar-active-bg: rgba(59, 130, 246, 0.18);
+	--card-dark: #1e1e3f;
+	--card-dark-2: #2d2d5a;
 
-	--text-primary: #1e293b;
-	--text-secondary: #334155;
-	--text-muted: #64748b;
+	--sidebar-text: #a0a0b8;
+	--sidebar-active: #6c5ce7;
+	--sidebar-active-bg: #ece8fc;
+
+	--text-primary: #1a1a2e;
+	--text-secondary: #252540;
+	--text-muted: #a0a0b8;
+
+	--color-white: #ffffff;
+	--color-white-dim: rgba(255, 255, 255, 0.55);
+	--color-white-faint: rgba(255, 255, 255, 0.15);
 
 	/* ----------------------------------------------------------
      Common Dimensions
   ---------------------------------------------------------- */
-	--avatar-size: 42px;
+	--btn-height: 38px;
+	--btn-height-sm: 30px;
+	--sidebar-width: 220px;
+	--panel-width: 280px;
+	--logo-size: 40px;
+	--nav-link-height: 44px;
+	--stat-icon-size: 36px;
+	--lucky-badge-size: 44px;
 
-	--border: #cbd5e1;
-	--border-strong: #94a3b8;
+	--border: #f0f0f5;
+	--border-strong: #d8d8e4;
 
 	/* ----------------------------------------------------------
      Typography — Fonts
   ---------------------------------------------------------- */
-	--font-display: "LINE Seed Sans TH", sans-serif;
-	--font-body: "LINE Seed Sans TH", sans-serif;
-	--font-mono: "LINE Seed Sans TH", sans-serif;
+	--font-display: "Poppins", "LINE Seed Sans TH", sans-serif;
+	--font-body: "Inter", "LINE Seed Sans TH", sans-serif;
+	--font-mono: "Inter", "LINE Seed Sans TH", sans-serif;
 
 	/* ----------------------------------------------------------
      Typography — Size Scale
   ---------------------------------------------------------- */
-	--text-xs: clamp(12px, 1vw, 14px);
-	--text-sm: clamp(14px, 1.2vw, 16px);
-	--text-md: clamp(16px, 1.4vw, 18px);
-	--text-lg: clamp(20px, 1.8vw, 22px);
-	--text-xl: clamp(24px, 2vw, 26px);
+	--text-xs: clamp(11px, 1vw, 12px);
+	--text-sm: clamp(12px, 1.1vw, 13px);
+	--text-md: clamp(14px, 1.3vw, 15px);
+	--text-lg: clamp(16px, 1.5vw, 18px);
+	--text-xl: clamp(28px, 2.6vw, 36px);
 
 	/* ----------------------------------------------------------
      Typography — Weight
@@ -76,11 +93,11 @@
 	/* ----------------------------------------------------------
      Spacing Scale
   ---------------------------------------------------------- */
-	--gap-xs: 6px;
-	--gap-sm: 12px;
-	--gap-md: 18px;
+	--gap-xs: 4px;
+	--gap-sm: 8px;
+	--gap-md: 16px;
 	--gap-lg: 24px;
-	--gap-xl: 36px;
+	--gap-xl: 32px;
 
 	/* ----------------------------------------------------------
      Border
@@ -90,19 +107,19 @@
 	--border-color: var(--border);
 	--border-color-strong: var(--accent-dim);
 
-	--radius-xs: 4px;
-	--radius-sm: 6px;
-	--radius-md: 8px;
-	--radius-lg: 12px;
+	--radius-xs: 6px;
+	--radius-sm: 8px;
+	--radius-md: 16px;
+	--radius-lg: 24px;
 	--radius-full: 9999px;
 
 	/* ----------------------------------------------------------
      Shadow / Glow
   ---------------------------------------------------------- */
-	--shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
-	--shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08);
-	--shadow-raised: 0 4px 12px rgba(0, 0, 0, 0.1);
-	--shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+	--shadow-sm: 0 1px 3px rgba(26, 26, 46, 0.05);
+	--shadow-card: 0 4px 16px rgba(26, 26, 46, 0.06);
+	--shadow-raised: 0 8px 24px rgba(26, 26, 46, 0.08);
+	--shadow-lg: 0 16px 40px rgba(26, 26, 46, 0.12);
 
 	/* ----------------------------------------------------------
      Transition
@@ -114,7 +131,47 @@
      Layout
   ---------------------------------------------------------- */
 	--nav-height-mobile: 60px;
-	--sidebar-width: 200px;
-	--topbar-height: 64px;
-	--content-max-width: 1400px;
+	--topbar-height: 72px;
+}
+
+.dark {
+	--bg-blur-warm: #3d241d;
+	--bg-blur-cool: #1b164a;
+	--bg-base: #0a0813;
+	--bg-surface: #121021;
+	--bg-raised: #18152b;
+	--bg-sidebar: #121021;
+	--bg-hover: #211c3d;
+
+	--accent: #8275f6;
+	--accent-light: #201a47;
+	--accent-hover: #9c8df8;
+	--accent-gold: #f6b37d;
+	--accent-gold-light: #382516;
+	--accent-green: #34d0a3;
+	--accent-green-light: #123326;
+	--accent-danger: #ff8585;
+	--accent-danger-light: #3b1c1c;
+	--accent-info: #70b1ff;
+	--accent-info-light: #162a45;
+	--accent-dim: #7a7a99;
+
+	--card-dark: #121021;
+	--card-dark-2: #18152b;
+
+	--sidebar-text: #7a7a99;
+	--sidebar-active: #8275f6;
+	--sidebar-active-bg: #201a47;
+
+	--text-primary: #ececf5;
+	--text-secondary: #d1d1e0;
+	--text-muted: #7a7a99;
+
+	--border: #201a35;
+	--border-strong: #352d54;
+
+	--shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
+	--shadow-card: 0 4px 16px rgba(0, 0, 0, 0.3);
+	--shadow-raised: 0 8px 24px rgba(0, 0, 0, 0.4);
+	--shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.5);
 }

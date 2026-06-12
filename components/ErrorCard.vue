@@ -1,16 +1,19 @@
 <script setup lang="ts">
+import { useLanguage } from "~/composables/useLanguage";
+
 interface Props {
   message: string;
   onRetry?: () => void;
 }
 
 defineProps<Props>();
+const { t } = useLanguage();
 </script>
 
 <template>
   <div class="error-card card" role="alert">
     <p class="error-msg">{{ message }}</p>
-    <button v-if="onRetry" class="btn btn-ghost" @click="onRetry">Retry</button>
+    <button v-if="onRetry" class="btn btn-ghost" @click="onRetry">{{ t('error.retry') }}</button>
   </div>
 </template>
 
@@ -28,6 +31,6 @@ defineProps<Props>();
 
 .error-msg {
   font-size: var(--text-sm);
-  color: #ffffff;
+  color: var(--color-white);
 }
 </style>

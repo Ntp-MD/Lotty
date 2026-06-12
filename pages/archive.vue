@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { formatDate } from "~/composables/useDate";
 import type { DrawRecord } from "~/types";
+import { useLanguage } from "~/composables/useLanguage";
 
 useHead({ title: "Archive — Lotty" });
+
+const { t } = useLanguage();
 
 const page = ref(1);
 const perPage = 20;
@@ -39,7 +42,7 @@ const years = computed(() => {
 
 <template>
   <div class="page-content">
-    <h1 class="section-title">Historical Results</h1>
+    <h1 class="section-title">{{ t('results.historical') }}</h1>
 
     <div class="card">
       <div class="archive-filters">
@@ -51,7 +54,7 @@ const years = computed(() => {
             page = 1;
           "
         >
-          <option value="">All Years</option>
+          <option value="">{{ t('archive.allYears') }}</option>
           <option v-for="y in years" :key="y" :value="y">{{ y + 543 }}</option>
         </select>
         <select
@@ -62,8 +65,8 @@ const years = computed(() => {
             page = 1;
           "
         >
-          <option value="">All Months</option>
-          <option v-for="m in 12" :key="m" :value="m">Month {{ m }}</option>
+          <option value="">{{ t('archive.allMonths') }}</option>
+          <option v-for="m in 12" :key="m" :value="m">{{ t('archive.monthName', { m }) }}</option>
         </select>
       </div>
     </div>
@@ -83,16 +86,16 @@ const years = computed(() => {
           <hr class="divider-dashed" />
           <div class="archive-grid">
             <div>
-              <span class="archive-key">1st Prize</span><span class="num-mono">{{ draw.first }}</span>
+              <span class="archive-key">{{ t('archive.detail.first') }}</span><span class="num-mono">{{ draw.first }}</span>
             </div>
             <div>
-              <span class="archive-key">2 Digit Last</span><span class="num-mono">{{ draw.last2 }}</span>
+              <span class="archive-key">{{ t('archive.detail.last2') }}</span><span class="num-mono">{{ draw.last2 }}</span>
             </div>
             <div>
-              <span class="archive-key">3 Digit Front</span><span class="num-mono">{{ draw.last3f }}</span>
+              <span class="archive-key">{{ t('archive.detail.last3f') }}</span><span class="num-mono">{{ draw.last3f }}</span>
             </div>
             <div>
-              <span class="archive-key">3 Digit Last</span><span class="num-mono">{{ draw.last3b }}</span>
+              <span class="archive-key">{{ t('archive.detail.last3b') }}</span><span class="num-mono">{{ draw.last3b }}</span>
             </div>
           </div>
         </div>
@@ -100,22 +103,14 @@ const years = computed(() => {
     </div>
 
     <div class="pagination">
-      <button class="btn btn-ghost focus-ring" :disabled="page <= 1" @click="page--">← Previous</button>
-      <span class="pagination-page num-mono">Page {{ page }}</span>
-      <button class="btn btn-ghost focus-ring" :disabled="(data?.length ?? 0) < perPage" @click="page++">Next →</button>
+      <button class="btn btn-ghost focus-ring" :disabled="page <= 1" @click="page--">{{ t('archive.prev') }}</button>
+      <span class="pagination-page num-mono">{{ t('archive.page', { p: page }) }}</span>
+      <button class="btn btn-ghost focus-ring" :disabled="(data?.length ?? 0) < perPage" @click="page++">{{ t('archive.next') }}</button>
     </div>
   </div>
 </template>
 
 <style scoped>
-.page-content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-md);
-  height: 100%;
-  min-height: 0;
-}
-
 .archive-filters {
   display: flex;
   gap: var(--gap-sm);

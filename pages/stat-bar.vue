@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import type { StatsResponse, RankingItem, DigitsResponse, DigitPosition } from "~/types";
+import { useLanguage } from "~/composables/useLanguage";
 
 useHead({ title: "Stat Bar — Lotty" });
 
 const { filter, queryParams } = useFilter();
+const { t } = useLanguage();
 
 // 2-digit data
 const asyncKey2digit = computed(() => `2digit-${filter.scope}-${filter.month ?? ""}-${filter.day}`);
@@ -105,7 +107,7 @@ const positions = computed(() => {
     <FilterBar />
 
     <!-- 2-digit Section -->
-    <h1 class="section-title">2 Digit — Digit Breakdown</h1>
+    <h1 class="section-title">{{ t('breakdown.title2d') }}</h1>
     <LoadingSkeleton v-if="pending2digit" variant="chart" />
     <ErrorCard v-else-if="error2digit" message="โหลดข้อมูลไม่สำเร็จ" :on-retry="refresh2digit" />
     <EmptyState v-else-if="!ranking2digit.length" reason="no_data_in_range" :scope="filter.scope" />
@@ -127,7 +129,7 @@ const positions = computed(() => {
     </div>
 
     <!-- 3-digit Section -->
-    <h1 class="section-title">3 Digit — Digit Breakdown</h1>
+    <h1 class="section-title">{{ t('breakdown.title3d') }}</h1>
     <LoadingSkeleton v-if="pending3digit" variant="chart" />
     <ErrorCard v-else-if="error3digit" message="โหลดข้อมูลไม่สำเร็จ" :on-retry="refresh3digit" />
     <EmptyState v-else-if="!ranking3digit.length" reason="no_data_in_range" :scope="filter.scope" />
@@ -155,7 +157,7 @@ const positions = computed(() => {
     </div>
 
     <!-- 6-digit Section -->
-    <h1 class="section-title">6 Digit — Digit Breakdown</h1>
+    <h1 class="section-title">{{ t('breakdown.title6d') }}</h1>
     <LoadingSkeleton v-if="digitsPending" variant="chart" />
     <ErrorCard v-else-if="digitsError" message="โหลดข้อมูลไม่สำเร็จ" :on-retry="refreshDigits" />
     <EmptyState v-else-if="!positions.length" reason="no_data_in_range" :scope="filter.scope" />
@@ -175,47 +177,9 @@ const positions = computed(() => {
 </template>
 
 <style scoped>
-.page-content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-md);
-  height: 100%;
-  min-height: 0;
-}
-
-.breakdown-row {
-  display: flex;
-  gap: var(--gap-md);
-  flex: 1;
-}
-
-.breakdown-row > * {
-  flex: 1 1 100%;
-  min-width: 0;
-}
-
 @media (min-width: 768px) {
   .breakdown-row > * {
     flex: 1 1 calc(50% - var(--gap-md));
-  }
-}
-
-.digits-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--gap-sm);
-  flex: 1;
-}
-
-@media (min-width: 768px) {
-  .digits-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .digits-grid {
-    grid-template-columns: repeat(6, 1fr);
   }
 }
 </style>

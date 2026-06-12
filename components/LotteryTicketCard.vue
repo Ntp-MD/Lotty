@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { formatDate } from "~/composables/useDate";
+import { useLanguage } from "~/composables/useLanguage";
 
 interface Suggestion {
   number: string;
@@ -16,22 +17,23 @@ interface Props {
 
 defineProps<Props>();
 
+const { t } = useLanguage();
+
 function getGapClass(gap: number) {
   if (gap >= 10) return "gap-hot";
   if (gap >= 5) return "gap-warm";
   return "gap-normal";
 }
 
-const DISCLAIMER =
-  "All data is based on historical lottery statistics. This is not a prediction or guarantee of winning results. Government lottery is a game of chance. Please use your own judgment when making decisions.";
+const DISCLAIMER = computed(() => t("ticket.disclaimer"));
 </script>
 
 <template>
   <div class="ticket" role="region" aria-label="Recommended numbers for this draw">
     <div class="ticket-header">
       <div>
-        <div class="ticket-title">Recommended Numbers for {{ formatDate(draw_date_next) }}</div>
-        <div class="ticket-scope">Based on {{ scope }} statistics</div>
+        <div class="ticket-title">{{ t('ticket.title', { date: formatDate(draw_date_next) }) }}</div>
+        <div class="ticket-scope">{{ t('ticket.scope', { scope }) }}</div>
       </div>
     </div>
 
@@ -39,24 +41,24 @@ const DISCLAIMER =
 
     <div class="ticket-numbers">
       <div class="ticket-col">
-        <span class="ticket-col-label">2 Digit Bottom</span>
+        <span class="ticket-col-label">{{ t('results.last2') }}</span>
         <span class="ticket-number num-display">{{ suggestions.last2.number }}</span>
         <span class="ticket-gap num-mono" :class="getGapClass(suggestions.last2.gap)" v-if="suggestions.last2.gap > 0">
-          Gap {{ suggestions.last2.gap === 999 ? "Never" : `${suggestions.last2.gap} draws` }}
+          {{ t('ticket.gap', { g: suggestions.last2.gap === 999 ? t('ticket.never') : `${suggestions.last2.gap} ${t('ticket.draws')}` }) }}
         </span>
       </div>
       <div class="ticket-col">
-        <span class="ticket-col-label">3 Digit Bottom</span>
+        <span class="ticket-col-label">{{ t('results.last3b') }}</span>
         <span class="ticket-number num-display">{{ suggestions.last3b.number }}</span>
         <span class="ticket-gap num-mono" :class="getGapClass(suggestions.last3b.gap)" v-if="suggestions.last3b.gap > 0">
-          Gap {{ suggestions.last3b.gap === 999 ? "Never" : `${suggestions.last3b.gap} draws` }}
+          {{ t('ticket.gap', { g: suggestions.last3b.gap === 999 ? t('ticket.never') : `${suggestions.last3b.gap} ${t('ticket.draws')}` }) }}
         </span>
       </div>
       <div class="ticket-col">
-        <span class="ticket-col-label">3 Digit Front</span>
+        <span class="ticket-col-label">{{ t('results.last3f') }}</span>
         <span class="ticket-number num-display">{{ suggestions.last3f.number }}</span>
         <span class="ticket-gap num-mono" :class="getGapClass(suggestions.last3f.gap)" v-if="suggestions.last3f.gap > 0">
-          Gap {{ suggestions.last3f.gap === 999 ? "Never" : `${suggestions.last3f.gap} draws` }}
+          {{ t('ticket.gap', { g: suggestions.last3f.gap === 999 ? t('ticket.never') : `${suggestions.last3f.gap} ${t('ticket.draws')}` }) }}
         </span>
       </div>
     </div>
@@ -68,7 +70,7 @@ const DISCLAIMER =
     </div>
 
     <details class="disclaimer-wrap">
-      <summary class="disclaimer-toggle">For reference only ℹ</summary>
+      <summary class="disclaimer-toggle">{{ t('ticket.disclaimerToggle') }}</summary>
       <p class="disclaimer" role="note">{{ DISCLAIMER }}</p>
     </details>
   </div>

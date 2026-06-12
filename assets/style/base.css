@@ -19,6 +19,10 @@ body {
 	font-size: var(--text-md);
 	color: var(--text-primary);
 	background: var(--bg-base);
+	background-image:
+		radial-gradient(ellipse 60% 50% at 15% 10%, var(--bg-blur-warm), transparent 60%),
+		radial-gradient(ellipse 60% 50% at 85% 90%, var(--bg-blur-cool), transparent 60%);
+	background-attachment: fixed;
 	line-height: var(--leading-normal);
 	min-height: 100dvh;
 }
@@ -86,6 +90,7 @@ h3.section-title {
 	background: var(--bg-surface);
 	border: 1px solid var(--border);
 	border-radius: var(--radius-md);
+	box-shadow: var(--shadow-card);
 	padding: var(--gap-md);
 	flex: 1;
 	display: flex;
@@ -120,5 +125,47 @@ h3.section-title {
 @media (min-width: 768px) {
 	.page-grid-2 {
 		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+/* Page content shell */
+.page-content {
+	display: flex;
+	flex-direction: column;
+	gap: var(--gap-md);
+	height: 100%;
+	min-height: 0;
+}
+
+/* Breakdown row — pages override breakpoint widths */
+.breakdown-row {
+	display: flex;
+	gap: var(--gap-md);
+	flex-wrap: wrap;
+	flex: 1;
+}
+
+.breakdown-row > * {
+	flex: 1 1 100%;
+	min-width: 0;
+}
+
+/* Digits grid */
+.digits-grid {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: var(--gap-sm);
+	flex: 1;
+}
+
+@media (min-width: 768px) {
+	.digits-grid {
+		grid-template-columns: repeat(3, 1fr);
+	}
+}
+
+@media (min-width: 1024px) {
+	.digits-grid {
+		grid-template-columns: repeat(6, 1fr);
 	}
 }

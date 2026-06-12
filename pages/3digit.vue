@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import type { StatsResponse, RankingItem } from "~/types";
+import { useLanguage } from "~/composables/useLanguage";
 
 useHead({ title: "3 Digit — Lotty" });
 
 const { filter, queryParams } = useFilter();
+const { t } = useLanguage();
 const searchQuery = ref("");
 const debouncedSearch = ref("");
 const prizeType = ref("last3b");
@@ -92,7 +94,7 @@ const pos2ColdDigit = computed(() => Object.entries(posFreq2.value).sort((a, b) 
     <template v-else>
       <div class="card-group">
         <div class="card-content">
-          <h1 class="section-title">Top 10 Frequent</h1>
+          <h1 class="section-title">{{ t('breakdown.title10') }}</h1>
           <div class="card">
             <div class="podium-list">
               <PodiumCard v-for="(item, i) in top10" :key="item.number" :item="item" :rank="i + 1" />
@@ -101,7 +103,7 @@ const pos2ColdDigit = computed(() => Object.entries(posFreq2.value).sort((a, b) 
         </div>
 
         <div class="card-content">
-          <h1 class="section-title">Digit Breakdown</h1>
+          <h1 class="section-title">{{ t('breakdown.digitBreakdown') }}</h1>
           <div class="card">
             <div class="breakdown-row">
               <DigitBarChart
@@ -127,16 +129,16 @@ const pos2ColdDigit = computed(() => Object.entries(posFreq2.value).sort((a, b) 
         </div>
       </div>
 
-      <h1 class="section-title">Frequency Table</h1>
+      <h1 class="section-title">{{ t('breakdown.table') }}</h1>
       <div class="card">
         <div class="search-wrap">
           <input
             v-model="searchQuery"
             class="search-input focus-ring"
             type="text"
-            placeholder="Search number e.g. 123"
+            placeholder="{{ t('search.placeholder') }}"
             maxlength="3"
-            aria-label="Search 3 digit number"
+            aria-label="{{ t('search.aria') }}"
           />
         </div>
         <EmptyState v-if="!sorted.length" reason="no_search_result" />
@@ -144,10 +146,10 @@ const pos2ColdDigit = computed(() => Object.entries(posFreq2.value).sort((a, b) 
           <table class="freq-table" aria-label="Frequency table for 3 digit numbers">
             <thead>
               <tr>
-                <th>Number</th>
-                <th>Count</th>
-                <th>Last Draw</th>
-                <th>Gap</th>
+                <th>{{ t('table.number') }}</th>
+                <th>{{ t('table.count') }}</th>
+                <th>{{ t('table.lastDraw') }}</th>
+                <th>{{ t('table.gap') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -170,7 +172,7 @@ const pos2ColdDigit = computed(() => Object.entries(posFreq2.value).sort((a, b) 
           class="btn btn-ghost btn-sm"
           style="width: 100%"
         >
-          Load More (Showing {{ displayedItems.length }} / {{ sorted.length }})
+          {{ t('table.loadMore', { current: displayedItems.length, total: sorted.length }) }}
         </button>
       </div>
     </template>
@@ -178,14 +180,6 @@ const pos2ColdDigit = computed(() => Object.entries(posFreq2.value).sort((a, b) 
 </template>
 
 <style scoped>
-.page-content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-md);
-  height: 100%;
-  min-height: 0;
-}
-
 .podium-list {
   display: grid;
   grid-template-columns: 1fr;
@@ -199,18 +193,6 @@ const pos2ColdDigit = computed(() => Object.entries(posFreq2.value).sort((a, b) 
   }
 }
 
-.breakdown-row {
-  display: flex;
-  gap: var(--gap-md);
-  flex-wrap: wrap;
-  flex: 1;
-}
-
-.breakdown-row > * {
-  flex: 1 1 100%;
-  min-width: 0;
-}
-
 @media (min-width: 768px) {
   .breakdown-row > * {
     flex: 1 1 calc(33.333% - var(--gap-md));
@@ -222,14 +204,6 @@ const pos2ColdDigit = computed(() => Object.entries(posFreq2.value).sort((a, b) 
 }
 
 .search-input {
-  background: var(--bg-raised);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--text-primary);
-  padding: var(--gap-xs) var(--gap-sm);
-  font-family: var(--font-mono);
-  font-size: var(--text-md);
-  width: 100%;
   max-width: 200px;
 }
 

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { StatsResponse } from "~/types";
+import { useLanguage } from "~/composables/useLanguage";
 
 interface LatestDrawResponse {
   data: {
@@ -12,24 +13,26 @@ interface LatestDrawResponse {
 }
 
 const route = useRoute();
+const { locale, t, toggleLocale, initLocale } = useLanguage();
 
-const navItems = [
-  { path: "/", label: "Recommend", icon: "🎯" },
-  { path: "/2digit", label: "2 Digit", icon: "🔢" },
-  { path: "/3digit", label: "3 Digit", icon: "🎲" },
-  { path: "/stat-bar", label: "Stat Graph", icon: "📊" },
-  { path: "/archive", label: "Archive", icon: "📅" },
-];
+const navItems = computed(() => [
+  { path: "/", label: t("nav.recommend"), icon: "🎯" },
+  { path: "/2digit", label: t("nav.2digit"), icon: "🔢" },
+  { path: "/3digit", label: t("nav.3digit"), icon: "🎲" },
+  { path: "/stat-bar", label: t("nav.statBar"), icon: "📊" },
+  { path: "/archive", label: t("nav.archive"), icon: "📅" },
+]);
 
-const pageTitles: Record<string, { title: string; sub: string }> = {
-  "/": { title: "Recommended Numbers", sub: "Longest gap + Quick Pick" },
-  "/2digit": { title: "2 Digit", sub: "Statistics for last 2 digits" },
-  "/3digit": { title: "3 Digit", sub: "Statistics for 3 digits (top/front/bottom)" },
-  "/stat-bar": { title: "Stat Bar", sub: "Digit breakdown graph 2/3/6 digits" },
-  "/archive": { title: "Archive", sub: "Historical lottery results" },
-};
-
-const currentPage = computed(() => pageTitles[route.path] ?? { title: "Lotty", sub: "" });
+const currentPage = computed(() => {
+  const titles: Record<string, { title: string; sub: string }> = {
+    "/": { title: t("title.recommend"), sub: t("sub.recommend") },
+    "/2digit": { title: t("title.2digit"), sub: t("sub.2digit") },
+    "/3digit": { title: t("title.3digit"), sub: t("sub.3digit") },
+    "/stat-bar": { title: t("title.statBar"), sub: t("sub.statBar") },
+    "/archive": { title: t("title.archive"), sub: t("sub.archive") },
+  };
+  return titles[route.path] ?? { title: "Lotty", sub: "" };
+});
 
 // Fetch stats for gap display
 const { data: stats2d } = await useFetch<StatsResponse>("/api/stats/2digit", {
@@ -83,135 +86,177 @@ const generateLuckyNumbers = () => {
 };
 
 // Generate on mount
+const isDark = ref(false);
+
+const toggleDarkMode = () => {
+  isDark.value = !isDark.value;
+  if (isDark.value) {
+    document.documentElement.classList.add("dark");
+    localStorage.setItem("theme", "dark");
+  } else {
+    document.documentElement.classList.remove("dark");
+    localStorage.setItem("theme", "light");
+  }
+};
+
 onMounted(() => {
   generateLuckyNumbers();
+  initLocale();
+  const savedTheme = localStorage.getItem("theme");
+  if (savedTheme === "dark") {
+    isDark.value = true;
+    document.documentElement.classList.add("dark");
+  } else {
+    isDark.value = false;
+    document.documentElement.classList.remove("dark");
+  }
 });
 
 </script>
 
 <template>
-  <div class="layout">
-    <nav class="sidebar" aria-label="Main navigation">
-      <div class="sidebar-logo-wrap" aria-label="Lotty">
-        <div class="sidebar-logo">
+  <div class="layout-shell">
+    <div class="layout">
+      <nav class="sidebar" aria-label="Main navigation">
+        <div class="sidebar-logo" aria-label="Lotty">
           <span class="sidebar-logo-icon">L</span>
         </div>
-        <span class="sidebar-logo-name">Lotty</span>
-      </div>
-      <ul class="sidebar-list">
-        <li v-for="item in navItems" :key="item.path">
-          <NuxtLink
-            :to="item.path"
-            class="sidebar-link focus-ring"
-            :class="{ 'sidebar-link-active': route.path === item.path }"
-            :aria-current="route.path === item.path ? 'page' : undefined"
-            :title="item.label"
-          >
-            <span class="sidebar-icon">{{ item.icon }}</span>
-            <span class="sidebar-label">{{ item.label }}</span>
-          </NuxtLink>
-        </li>
-      </ul>
+        <ul class="sidebar-list">
+          <li v-for="item in navItems" :key="item.path">
+            <NuxtLink
+              :to="item.path"
+              class="sidebar-link focus-ring"
+              :class="{ 'sidebar-link-active': route.path === item.path }"
+              :aria-current="route.path === item.path ? 'page' : undefined"
+              :title="item.label"
+            >
+              <span class="sidebar-icon">{{ item.icon }}</span>
+              <span class="sidebar-label">{{ item.label }}</span>
+            </NuxtLink>
+          </li>
+        </ul>
+      </nav>
 
-      <!-- Quick Stats Card -->
-      <div v-if="latestDraw?.data" class="sidebar-card sidebar-card--gradient">
-        <div class="sidebar-card-header">
-          <span class="sidebar-card-icon">📰</span>
-          <span class="sidebar-card-title">Latest Draw</span>
-        </div>
-        <div class="sidebar-card-content">
-          <div class="sidebar-stat-row">
-            <span class="stat-label">2 Digit</span>
-            <span class="sidebar-stat-value">{{ latestDraw.data.last2 }}</span>
-            <span v-if="latestGaps && latestGaps.last2 > 0" class="ticket-gap num-mono" :class="getGapClass(latestGaps.last2)">
-              {{ latestGaps.last2 === 999 ? "Never" : `${latestGaps.last2} draws` }}
+      <div class="layout-body">
+        <header class="topbar">
+          <div class="topbar-title">
+            <h1 class="topbar-page-title">{{ currentPage.title }}</h1>
+            <p class="topbar-page-sub">{{ currentPage.sub }}</p>
+          </div>
+          <div class="topbar-right">
+            <button @click="toggleLocale" class="btn-lang-toggle" :aria-label="locale === 'en' ? 'เปลี่ยนเป็นภาษาไทย' : 'Switch to English'">
+              {{ locale === 'en' ? 'TH' : 'EN' }}
+            </button>
+            <button @click="toggleDarkMode" class="btn-theme-toggle" :aria-label="isDark ? 'Switch to light mode' : 'Toggle dark mode'">
+              {{ isDark ? '🌙' : '☀️' }}
+            </button>
+            <span class="topbar-badge">
+              <span class="topbar-badge-text">Lotty</span>
             </span>
           </div>
-          <div class="sidebar-stat-row">
-            <span class="stat-label">3 Digit Top</span>
-            <span class="sidebar-stat-value">{{ latestDraw.data.last3b }}</span>
-            <span v-if="latestGaps && latestGaps.last3b > 0" class="ticket-gap num-mono" :class="getGapClass(latestGaps.last3b)">
-              {{ latestGaps.last3b === 999 ? "Never" : `${latestGaps.last3b} draws` }}
-            </span>
-          </div>
-          <div class="sidebar-stat-row">
-            <span class="stat-label">3 Digit Bottom</span>
-            <span class="sidebar-stat-value">{{ latestDraw.data.last3f }}</span>
-            <span v-if="latestGaps && latestGaps.last3f > 0" class="ticket-gap num-mono" :class="getGapClass(latestGaps.last3f)">
-              {{ latestGaps.last3f === 999 ? "Never" : `${latestGaps.last3f} draws` }}
-            </span>
-          </div>
-        </div>
+        </header>
+
+        <main class="layout-main">
+          <slot />
+        </main>
       </div>
 
-      <!-- Lucky Numbers Card -->
-      <div class="sidebar-card">
-        <div class="sidebar-card-header">
-          <span class="sidebar-card-icon">🍀</span>
-          <span class="sidebar-card-title">Lucky Numbers</span>
-        </div>
-        <div class="sidebar-card-content">
-          <div class="sidebar-lucky-numbers">
-            <span v-for="num in luckyNumbers" :key="num" class="sidebar-lucky-badge">{{ num }}</span>
+      <aside class="panel" aria-label="Quick stats panel">
+        <!-- Latest Draw -->
+        <section v-if="latestDraw?.data" class="panel-section">
+          <div class="panel-section-header">
+            <h2 class="panel-section-title">Latest Draw</h2>
           </div>
-          <button @click="generateLuckyNumbers" class="btn btn-ghost btn-sm">
-            <span>🔄</span>
-            <span>Randomize</span>
-          </button>
-        </div>
-      </div>
+          <div class="panel-stat-list">
+            <div class="panel-stat-card">
+              <div class="panel-stat-icon panel-stat-icon--primary">2</div>
+              <div class="panel-stat-info">
+                <span class="panel-stat-value">{{ latestDraw.data.last2 }}</span>
+                <span class="panel-stat-label">2 Digit</span>
+              </div>
+              <span v-if="latestGaps && latestGaps.last2 > 0" class="ticket-gap num-mono" :class="getGapClass(latestGaps.last2)">
+                {{ latestGaps.last2 === 999 ? "Never" : `${latestGaps.last2} draws` }}
+              </span>
+            </div>
+            <div class="panel-stat-card">
+              <div class="panel-stat-icon panel-stat-icon--gold">3</div>
+              <div class="panel-stat-info">
+                <span class="panel-stat-value">{{ latestDraw.data.last3b }}</span>
+                <span class="panel-stat-label">3 Digit Top</span>
+              </div>
+              <span v-if="latestGaps && latestGaps.last3b > 0" class="ticket-gap num-mono" :class="getGapClass(latestGaps.last3b)">
+                {{ latestGaps.last3b === 999 ? "Never" : `${latestGaps.last3b} draws` }}
+              </span>
+            </div>
+            <div class="panel-stat-card">
+              <div class="panel-stat-icon panel-stat-icon--info">3</div>
+              <div class="panel-stat-info">
+                <span class="panel-stat-value">{{ latestDraw.data.last3f }}</span>
+                <span class="panel-stat-label">3 Digit Bottom</span>
+              </div>
+              <span v-if="latestGaps && latestGaps.last3f > 0" class="ticket-gap num-mono" :class="getGapClass(latestGaps.last3f)">
+                {{ latestGaps.last3f === 999 ? "Never" : `${latestGaps.last3f} draws` }}
+              </span>
+            </div>
+          </div>
+        </section>
 
-      <!-- Footer -->
-      <div class="sidebar-footer">
-        <span class="sidebar-footer-text">Lotty v1.0 • © 2025</span>
-      </div>
-    </nav>
+        <!-- Lucky Numbers -->
+        <section class="panel-section">
+          <div class="panel-section-header">
+            <h2 class="panel-section-title">Lucky Numbers</h2>
+            <button @click="generateLuckyNumbers" class="panel-section-link focus-ring">REFRESH</button>
+          </div>
+          <div class="panel-lucky-grid">
+            <span v-for="num in luckyNumbers" :key="num" class="panel-lucky-badge">{{ num }}</span>
+          </div>
+        </section>
 
-    <div class="layout-body">
-      <header class="topbar">
-        <div class="topbar-title">
-          <h1 class="topbar-page-title">{{ currentPage.title }}</h1>
-          <p class="topbar-page-sub">{{ currentPage.sub }}</p>
+        <!-- Footer -->
+        <div class="panel-footer">
+          <span class="panel-footer-text">Lotty v1.0 • © 2025</span>
         </div>
-        <div class="topbar-right">
-          <span class="topbar-badge">
-            <span class="topbar-badge-text">Lotty</span>
-          </span>
-        </div>
-      </header>
+      </aside>
 
-      <main class="layout-main">
-        <slot />
-      </main>
+      <nav class="nav-mobile" aria-label="Mobile navigation">
+        <NuxtLink
+          v-for="item in navItems"
+          :key="item.path"
+          :to="item.path"
+          class="nav-mobile-item focus-ring"
+          :class="{ 'nav-mobile-item-active': route.path === item.path }"
+          :aria-label="item.label"
+          :aria-current="route.path === item.path ? 'page' : undefined"
+        >
+          <span class="nav-mobile-icon">{{ item.icon }}</span>
+          <span class="nav-mobile-label">{{ item.label }}</span>
+        </NuxtLink>
+      </nav>
     </div>
-
-    <nav class="nav-mobile" aria-label="Mobile navigation">
-      <NuxtLink
-        v-for="item in navItems"
-        :key="item.path"
-        :to="item.path"
-        class="nav-mobile-item focus-ring"
-        :class="{ 'nav-mobile-item-active': route.path === item.path }"
-        :aria-label="item.label"
-        :aria-current="route.path === item.path ? 'page' : undefined"
-      >
-        <span class="nav-mobile-label">{{ item.label }}</span>
-      </NuxtLink>
-    </nav>
   </div>
 </template>
 
 <style scoped>
-/* ---- Root ---- */
-.layout {
+/* ---- Shell — gradient blur background behind rounded container ---- */
+.layout-shell {
+  min-height: 100dvh;
   display: flex;
-  height: 100dvh;
-  overflow: hidden;
-  background: var(--bg-base);
+  align-items: stretch;
+  justify-content: center;
 }
 
-/* ---- Sidebar hidden on mobile ---- */
-.sidebar {
+/* ---- Root container — rounded white card ---- */
+.layout {
+  display: flex;
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--bg-surface);
+}
+
+/* ---- Sidebar / Panel hidden on mobile ---- */
+.sidebar,
+.panel {
   display: none;
 }
 
@@ -229,30 +274,29 @@ onMounted(() => {
   flex-shrink: 0;
   min-height: var(--topbar-height);
   background: var(--bg-surface);
-  border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--gap-xs) clamp(var(--gap-sm), 4vw, var(--gap-lg));
+  padding: var(--gap-sm) clamp(var(--gap-md), 4vw, var(--gap-lg));
   gap: var(--gap-md);
 }
 
 .topbar-title {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 2px;
 }
 
 .topbar-page-title {
   font-family: var(--font-display);
-  font-size: var(--text-xl);
-  font-weight: var(--weight-bold);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
   color: var(--text-primary);
-  line-height: 1;
+  line-height: 1.2;
 }
 
 .topbar-page-sub {
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
   color: var(--text-muted);
 }
 
@@ -260,6 +304,54 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: var(--gap-sm);
+}
+
+.btn-lang-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  color: var(--text-secondary);
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.btn-lang-toggle:hover {
+  background: var(--bg-hover);
+  border-color: var(--accent);
+  transform: scale(1.05);
+}
+
+.btn-theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  font-size: var(--text-md);
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.btn-theme-toggle:hover {
+  background: var(--bg-hover);
+  border-color: var(--accent);
+  transform: scale(1.05);
 }
 
 .topbar-badge {
@@ -270,9 +362,8 @@ onMounted(() => {
   font-weight: var(--weight-medium);
   color: var(--accent);
   background: var(--accent-light);
-  padding: 4px var(--gap-sm);
+  padding: var(--gap-xs) var(--gap-md);
   border-radius: var(--radius-full);
-  border: 1px solid var(--accent);
 }
 
 .topbar-badge-text {
@@ -289,8 +380,9 @@ onMounted(() => {
 .layout-main {
   flex: 1;
   overflow-y: auto;
-  padding: clamp(12px, 3vw, var(--gap-md));
+  padding: clamp(12px, 3vw, var(--gap-lg));
   scroll-behavior: smooth;
+  background: var(--bg-raised);
 }
 
 /* ---- Mobile bottom nav ---- */
@@ -299,14 +391,14 @@ onMounted(() => {
   bottom: 0;
   left: 0;
   right: 0;
-  min-height: 60px;
+  min-height: var(--nav-height-mobile);
   background: var(--bg-surface);
   border-top: 1px solid var(--border);
-  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 -2px 12px rgba(26, 26, 46, 0.06);
   display: flex;
   align-items: stretch;
   z-index: 100;
-  padding: 4px 0;
+  padding: var(--gap-xs) 0;
 }
 
 .nav-mobile-item {
@@ -325,74 +417,57 @@ onMounted(() => {
   font-weight: var(--weight-bold);
 }
 
+.nav-mobile-icon {
+  font-size: var(--text-md);
+  line-height: 1;
+}
+
 .nav-mobile-label {
   font-family: var(--font-body);
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
   font-weight: var(--weight-medium);
 }
 
 /* ---- Desktop ---- */
 @media (min-width: 1024px) {
+
+
+  /* ---- Sidebar with labels (~220px) ---- */
   .sidebar {
     display: flex;
     flex-direction: column;
     align-items: stretch;
     flex-shrink: 0;
-    width: auto;
-    min-width: 250px;
-    height: 100dvh;
+    width: var(--sidebar-width);
     background: var(--bg-sidebar);
-    border-right: 1px solid rgba(255, 255, 255, 0.08);
-    padding: var(--gap-sm);
-    gap: var(--gap-sm);
-    /* Dark context — override tokens for all children */
-    --bg-surface: #253347;
-    --bg-raised: rgba(255, 255, 255, 0.05);
-    --bg-hover: rgba(255, 255, 255, 0.08);
-    --border: rgba(255, 255, 255, 0.1);
-    --text-primary: #e2e8f0;
-    --text-secondary: #94a3b8;
-    --text-muted: #64748b;
-    --accent-light: rgba(59, 130, 246, 0.18);
-  }
-
-  .sidebar-logo-wrap {
-    display: flex;
-    align-items: center;
-    gap: var(--gap-sm);
-    flex-shrink: 0;
-    padding: var(--gap-xs) 0;
+    border-right: 1px solid var(--border);
+    padding: var(--gap-md) var(--gap-md);
+    gap: var(--gap-lg);
   }
 
   .sidebar-logo {
-    width: 36px;
-    height: 36px;
-    background: var(--accent);
-    border-radius: var(--radius-md);
+    width: var(--logo-size);
+    height: var(--logo-size);
+    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+    border-radius: var(--radius-full);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    box-shadow: 0 4px 10px rgba(108, 92, 231, 0.35);
   }
 
   .sidebar-logo-icon {
     font-size: var(--text-md);
-    color: #fff;
+    color: var(--color-white);
     line-height: 1;
     font-weight: var(--weight-bold);
-  }
-
-  .sidebar-logo-name {
-    font-size: var(--text-lg);
-    font-weight: var(--weight-bold);
-    color: #e2e8f0;
-    letter-spacing: -0.3px;
   }
 
   .sidebar-list {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: var(--gap-xs);
     width: 100%;
     list-style: none;
   }
@@ -402,15 +477,14 @@ onMounted(() => {
     display: flex;
     align-items: center;
     justify-content: flex-start;
+    gap: var(--gap-sm);
     padding: var(--gap-sm) var(--gap-md);
-    height: 44px;
-    border-radius: var(--radius-md);
-    color: #94a3b8;
+    height: var(--nav-link-height);
+    border-radius: var(--radius-sm);
+    color: var(--sidebar-text);
     transition:
       background var(--transition-fast),
-      color var(--transition-fast),
-      transform var(--transition-fast);
-    gap: var(--gap-sm);
+      color var(--transition-fast);
   }
 
   .sidebar-icon {
@@ -419,111 +493,174 @@ onMounted(() => {
     flex-shrink: 0;
   }
 
-  .sidebar-link:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: #e2e8f0;
-    transform: translateX(2px);
-  }
-
-  .sidebar-link-active {
-    background: rgba(59, 130, 246, 0.18);
-    color: #60a5fa;
-    border: none;
-    border-left: 3px solid var(--accent);
-    font-weight: var(--weight-bold);
-  }
-
   .sidebar-label {
-    font-size: var(--text-md);
+    font-size: var(--text-sm);
     font-weight: var(--weight-medium);
     color: inherit;
   }
 
-  /* ---- Sidebar Cards ---- */
-  .sidebar-card {
-    background: #253347;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: var(--radius-md);
-    padding: var(--gap-md);
+  .sidebar-link:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
   }
 
-  .sidebar-card--gradient {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, #253347 100%);
-    border-color: rgba(59, 130, 246, 0.3);
+  .sidebar-link-active {
+    background: var(--sidebar-active-bg);
+    color: var(--sidebar-active);
   }
 
-  .sidebar-card-header {
-    display: flex;
-    align-items: center;
-    gap: var(--gap-xs);
-    margin-bottom: var(--gap-sm);
+  .sidebar-link-active::before {
+    content: "";
+    position: absolute;
+    left: calc(var(--gap-md) * -1);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 24px;
+    border-radius: var(--radius-full);
+    background: var(--accent);
   }
 
-  .sidebar-card-icon {
-    font-size: var(--text-md);
-    line-height: 1;
-  }
-
-  .sidebar-card-title {
-    font-size: var(--text-sm);
-    font-weight: var(--weight-semibold);
-    color: #e2e8f0;
-  }
-
-  .sidebar-card-content {
+  /* ---- Right Panel ---- */
+  .panel {
     display: flex;
     flex-direction: column;
-    gap: var(--gap-xs);
+    flex-shrink: 0;
+    width: var(--panel-width);
+    background: var(--bg-surface);
+    border-left: 1px solid var(--border);
+    padding: var(--gap-lg) var(--gap-md);
+    gap: var(--gap-lg);
+    overflow-y: auto;
   }
 
-  .sidebar-stat-row {
+  .panel-section {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 4px 0;
-    gap: var(--gap-xs);
+    flex-direction: column;
+    gap: var(--gap-md);
   }
 
-  .sidebar-stat-value {
-    font-family: var(--font-mono);
+  .panel-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .panel-section-title {
+    font-family: var(--font-display);
+    font-size: var(--text-md);
+    font-weight: var(--weight-semibold);
+    color: var(--text-primary);
+  }
+
+  .panel-section-link {
+    font-size: var(--text-xs);
+    font-weight: var(--weight-medium);
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    transition: color var(--transition-fast);
+  }
+
+  .panel-section-link:hover {
+    color: var(--accent);
+  }
+
+  /* ---- Stat cards (ListItemRow pattern) ---- */
+  .panel-stat-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-sm);
+  }
+
+  .panel-stat-card {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-sm);
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: var(--gap-sm) var(--gap-md);
+  }
+
+  .panel-stat-icon {
+    width: var(--stat-icon-size);
+    height: var(--stat-icon-size);
+    border-radius: var(--radius-xs);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: var(--text-sm);
     font-weight: var(--weight-bold);
-    color: #60a5fa;
+    flex-shrink: 0;
   }
 
-  .sidebar-lucky-numbers {
+  .panel-stat-icon--primary {
+    background: var(--accent-light);
+    color: var(--accent);
+  }
+
+  .panel-stat-icon--gold {
+    background: var(--accent-gold-light);
+    color: var(--accent-gold);
+  }
+
+  .panel-stat-icon--info {
+    background: var(--accent-info-light);
+    color: var(--accent-info);
+  }
+
+  .panel-stat-info {
+    flex: 1;
     display: flex;
-    gap: var(--gap-xs);
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .panel-stat-value {
+    font-family: var(--font-mono);
+    font-size: var(--text-md);
+    font-weight: var(--weight-bold);
+    color: var(--text-primary);
+    letter-spacing: 1px;
+  }
+
+  .panel-stat-label {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+  }
+
+  /* ---- Lucky numbers (Members grid pattern) ---- */
+  .panel-lucky-grid {
+    display: flex;
+    gap: var(--gap-sm);
     flex-wrap: wrap;
   }
 
-  .sidebar-lucky-badge {
+  .panel-lucky-badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 36px;
-    height: 32px;
-    padding: 0 var(--gap-sm);
-    background: rgba(59, 130, 246, 0.18);
-    color: #60a5fa;
+    width: var(--lucky-badge-size);
+    height: var(--lucky-badge-size);
+    background: var(--accent-light);
+    color: var(--accent);
     font-family: var(--font-mono);
     font-size: var(--text-sm);
     font-weight: var(--weight-bold);
-    border-radius: var(--radius-sm);
-    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: var(--radius-full);
   }
 
-  /* ---- Sidebar Footer ---- */
-  .sidebar-footer {
-    padding-top: var(--gap-sm);
+  /* ---- Panel Footer ---- */
+  .panel-footer {
+    margin-top: auto;
+    padding-top: var(--gap-md);
     border-top: 1px solid var(--border);
     display: flex;
     align-items: center;
-    gap: var(--gap-xs);
-		margin-top: auto;
   }
 
-  .sidebar-footer-text {
+  .panel-footer-text {
     font-size: var(--text-xs);
     color: var(--text-muted);
   }
@@ -534,7 +671,6 @@ onMounted(() => {
 
   .layout-main {
     padding: var(--gap-lg);
-    margin-bottom: 40px;
   }
 }
 </style>
