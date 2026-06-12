@@ -85,6 +85,9 @@ const generateLuckyNumbers = () => {
   luckyNumbers.value = nums;
 };
 
+// Loading state
+const isLoading = ref(true);
+
 // Generate on mount
 const isDark = ref(false);
 
@@ -110,12 +113,27 @@ onMounted(() => {
     isDark.value = false;
     document.documentElement.classList.remove("dark");
   }
+  // Hide loading screen after a short delay for smooth transition
+  setTimeout(() => {
+    isLoading.value = false;
+  }, 800);
 });
 
 </script>
 
 <template>
   <div class="layout-shell">
+    <!-- Loading Screen -->
+    <Transition name="loading-fade">
+      <div v-if="isLoading" class="loading-screen" aria-live="polite">
+        <div class="loading-content">
+          <div class="loading-logo">L</div>
+          <div class="loading-spinner"></div>
+          <p class="loading-text">Lotty</p>
+        </div>
+      </div>
+    </Transition>
+
     <div class="layout">
       <nav class="sidebar" aria-label="Main navigation">
         <div class="sidebar-logo" aria-label="Lotty">
@@ -672,5 +690,94 @@ onMounted(() => {
   .layout-main {
     padding: var(--gap-lg);
   }
+}
+
+/* ---- Loading Screen ---- */
+.loading-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-surface);
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap-lg);
+}
+
+.loading-logo {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  font-weight: var(--weight-bold);
+  color: var(--color-white);
+  box-shadow: 0 8px 24px rgba(108, 92, 231, 0.3);
+  animation: loading-pulse 2s ease-in-out infinite;
+}
+
+@keyframes loading-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 8px 24px rgba(108, 92, 231, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 12px 32px rgba(108, 92, 231, 0.4);
+  }
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: var(--radius-full);
+  animation: loading-spin 0.8s linear infinite;
+}
+
+@keyframes loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-text {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  letter-spacing: 2px;
+  animation: loading-fade-in 0.5s ease-out;
+}
+
+@keyframes loading-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.loading-fade-enter-active,
+.loading-fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.loading-fade-enter-from,
+.loading-fade-leave-to {
+  opacity: 0;
 }
 </style>
