@@ -123,7 +123,7 @@ const years = computed(() => {
   color: var(--text-primary);
   font-size: var(--text-sm);
   padding: 8px var(--gap-sm);
-  min-height: 44px;
+  min-height: var(--nav-link-height);
 }
 
 .archive-list {
@@ -176,12 +176,6 @@ const years = computed(() => {
   font-size: var(--text-sm);
 }
 
-@media (min-width: 480px) {
-  .archive-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
 .archive-grid > div {
   display: flex;
   flex-direction: column;
@@ -203,5 +197,12 @@ const years = computed(() => {
 .pagination-page {
   font-size: var(--text-sm);
   color: var(--text-secondary);
+}
+
+/* ── Responsive Breakpoints (Mobile-First) ── */
+@media (min-width: 480px) {
+  .archive-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 </style>

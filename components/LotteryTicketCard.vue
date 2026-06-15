@@ -93,11 +93,6 @@ const DISCLAIMER = computed(() => t("ticket.disclaimer"));
   gap: var(--gap-sm);
 }
 
-.ticket-icon {
-  font-size: var(--text-xl);
-  line-height: 1;
-}
-
 .ticket-title {
   font-size: var(--text-lg);
   font-weight: var(--weight-bold);

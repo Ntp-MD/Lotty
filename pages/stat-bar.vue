@@ -103,66 +103,61 @@ const positions = computed(() => {
 </script>
 
 <template>
-  <div class="page-content">
+  <div class="stat-bar">
     <FilterBar />
 
     <!-- 2-digit Section -->
-    <h1 class="section-title">{{ t('breakdown.title2d') }}</h1>
+    <h1 class="stat-bar__title">{{ t('breakdown.title2d') }}</h1>
     <LoadingSkeleton v-if="pending2digit" variant="chart" />
     <ErrorCard v-else-if="error2digit" message="โหลดข้อมูลไม่สำเร็จ" :on-retry="refresh2digit" />
     <EmptyState v-else-if="!ranking2digit.length" reason="no_data_in_range" :scope="filter.scope" />
-    <div v-else class="card">
-      <div class="breakdown-row">
-        <DigitBarChart
-          :position="1"
-          :freq="tensByDigit"
-          :hot_digit="tensHotDigit"
-          :cold_digit="tensColdDigit"
-        />
-        <DigitBarChart
-          :position="2"
-          :freq="unitsByDigit"
-          :hot_digit="unitsHotDigit"
-          :cold_digit="unitsColdDigit"
-        />
-      </div>
+    <div v-else class="stat-bar__row">
+      <DigitBarChart
+        :position="1"
+        :freq="tensByDigit"
+        :hot_digit="tensHotDigit"
+        :cold_digit="tensColdDigit"
+      />
+      <DigitBarChart
+        :position="2"
+        :freq="unitsByDigit"
+        :hot_digit="unitsHotDigit"
+        :cold_digit="unitsColdDigit"
+      />
     </div>
 
     <!-- 3-digit Section -->
-    <h1 class="section-title">{{ t('breakdown.title3d') }}</h1>
+    <h1 class="stat-bar__title">{{ t('breakdown.title3d') }}</h1>
     <LoadingSkeleton v-if="pending3digit" variant="chart" />
     <ErrorCard v-else-if="error3digit" message="โหลดข้อมูลไม่สำเร็จ" :on-retry="refresh3digit" />
     <EmptyState v-else-if="!ranking3digit.length" reason="no_data_in_range" :scope="filter.scope" />
-    <div v-else class="card">
-      <div class="breakdown-row">
-        <DigitBarChart
-          :position="1"
-          :freq="posFreq0"
-          :hot_digit="pos0HotDigit"
-          :cold_digit="pos0ColdDigit"
-        />
-        <DigitBarChart
-          :position="2"
-          :freq="posFreq1"
-          :hot_digit="pos1HotDigit"
-          :cold_digit="pos1ColdDigit"
-        />
-        <DigitBarChart
-          :position="3"
-          :freq="posFreq2"
-          :hot_digit="pos2HotDigit"
-          :cold_digit="pos2ColdDigit"
-        />
-      </div>
+    <div v-else class="stat-bar__row">
+      <DigitBarChart
+        :position="1"
+        :freq="posFreq0"
+        :hot_digit="pos0HotDigit"
+        :cold_digit="pos0ColdDigit"
+      />
+      <DigitBarChart
+        :position="2"
+        :freq="posFreq1"
+        :hot_digit="pos1HotDigit"
+        :cold_digit="pos1ColdDigit"
+      />
+      <DigitBarChart
+        :position="3"
+        :freq="posFreq2"
+        :hot_digit="pos2HotDigit"
+        :cold_digit="pos2ColdDigit"
+      />
     </div>
 
     <!-- 6-digit Section -->
-    <h1 class="section-title">{{ t('breakdown.title6d') }}</h1>
+    <h1 class="stat-bar__title">{{ t('breakdown.title6d') }}</h1>
     <LoadingSkeleton v-if="digitsPending" variant="chart" />
     <ErrorCard v-else-if="digitsError" message="โหลดข้อมูลไม่สำเร็จ" :on-retry="refreshDigits" />
     <EmptyState v-else-if="!positions.length" reason="no_data_in_range" :scope="filter.scope" />
-    <div v-else class="card">
-      <div class="digits-grid">
+    <div v-else class="stat-bar__grid">
         <DigitBarChart
           v-for="pos in positions"
           :key="pos.position"
@@ -171,15 +166,61 @@ const positions = computed(() => {
           :hot_digit="pos.hot_digit"
           :cold_digit="pos.cold_digit"
         />
-      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+.stat-bar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+  height: 100%;
+  min-height: 0;
+}
+
+.stat-bar__title {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+  text-transform: none;
+  letter-spacing: -0.5px;
+  margin-bottom: var(--gap-xs);
+}
+
+.stat-bar__row {
+  display: flex;
+  gap: var(--gap-md);
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.stat-bar__row > * {
+  flex: 1 1 100%;
+  min-width: 0;
+}
+
+.stat-bar__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gap-sm);
+  flex: 1;
+}
+
+/* ── Responsive Breakpoints (Mobile-First) ── */
 @media (min-width: 768px) {
-  .breakdown-row > * {
+  .stat-bar__row > * {
     flex: 1 1 calc(50% - var(--gap-md));
+  }
+
+  .stat-bar__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .stat-bar__grid {
+    grid-template-columns: repeat(6, 1fr);
   }
 }
 </style>

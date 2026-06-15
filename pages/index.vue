@@ -132,8 +132,6 @@ const nextDrawDays = computed(() => {
     <FilterBar />
 
     <section v-if="latestDraw?.data" class="hero">
-      <div class="hero-glow hero-glow-warm"></div>
-      <div class="hero-glow hero-glow-cool"></div>
       <div class="hero-top">
         <div class="hero-heading">
           <span class="hero-eyebrow">{{ t('results.latest') }}</span>
@@ -223,7 +221,7 @@ const nextDrawDays = computed(() => {
                 </div>
               </div>
 
-              <div class="tool-divider"></div>
+              <div class="divider-v"></div>
 
               <div class="tool-block">
                 <h3 class="tool-title">{{ t('lookup.title') }}</h3>
@@ -234,9 +232,9 @@ const nextDrawDays = computed(() => {
                     type="text"
                     inputmode="numeric"
                     pattern="[0-9]*"
-                    placeholder="{{ t('lookup.placeholder') }}"
+                    :placeholder="t('lookup.placeholder')"
                     maxlength="3"
-                    aria-label="{{ t('lookup.aria') }}"
+                    :aria-label="t('lookup.aria')"
                     @keydown.enter="doLookup"
                     @input="validateNumericInput"
                   />
@@ -271,7 +269,7 @@ const nextDrawDays = computed(() => {
               </div>
             </div>
 
-            <div class="tool-divider-horizontal"></div>
+            <hr class="divider-dashed" />
 
             <div class="tool-block combo-block">
               <details class="combo-collapse">
@@ -308,7 +306,7 @@ const nextDrawDays = computed(() => {
       </div>
 
       <h2 class="section-title section-title-sub">{{ t('breakdown.title6d') }}</h2>
-      <div class="card">
+
         <LoadingSkeleton v-if="digitsPending" variant="chart" />
         <ErrorCard v-else-if="digitsError" message="โหลดข้อมูลไม่สำเร็จ" :on-retry="refreshDigits" />
         <EmptyState v-else-if="!positions.length" reason="no_data_in_range" :scope="filter.scope" />
@@ -321,7 +319,7 @@ const nextDrawDays = computed(() => {
             :hot_digit="pos.hot_digit"
             :cold_digit="pos.cold_digit"
           />
-        </div>
+       
       </div>
     </template>
   </div>
@@ -349,53 +347,6 @@ const nextDrawDays = computed(() => {
   color: var(--text-primary);
 }
 
-.hero-glow {
-  position: absolute;
-  width: 320px;
-  height: 320px;
-  border-radius: var(--radius-full);
-  filter: blur(80px);
-  opacity: 0.55;
-  pointer-events: none;
-  animation: hero-glow-float 9s ease-in-out infinite alternate;
-}
-
-@media (max-width: 480px) {
-  .hero-glow {
-    width: 200px;
-    height: 200px;
-  }
-  .hero-glow-warm {
-    top: -80px;
-    right: -40px;
-  }
-  .hero-glow-cool {
-    bottom: -100px;
-    left: -60px;
-  }
-}
-
-.hero-glow-warm {
-  background: var(--bg-blur-warm);
-  top: -140px;
-  right: -80px;
-}
-
-.hero-glow-cool {
-  background: var(--bg-blur-cool);
-  bottom: -160px;
-  left: -100px;
-  animation-delay: -4s;
-}
-
-@keyframes hero-glow-float {
-  from {
-    transform: translate(0, 0) scale(1);
-  }
-  to {
-    transform: translate(30px, 24px) scale(1.15);
-  }
-}
 
 .hero-top {
   position: relative;
@@ -404,15 +355,6 @@ const nextDrawDays = computed(() => {
   justify-content: space-between;
   gap: var(--gap-md);
   flex-wrap: wrap;
-}
-
-@media (max-width: 480px) {
-  .hero-top {
-    flex-direction: column;
-  }
-  .hero-countdown {
-    align-items: flex-start;
-  }
 }
 
 .hero-heading {
@@ -472,8 +414,8 @@ const nextDrawDays = computed(() => {
 
 .hero-digits {
   display: flex;
-  gap: var(--gap-sm);
-  flex-wrap: wrap;
+  gap: var(--gap-xs);
+  flex-wrap: nowrap;
   justify-content: center;
 }
 
@@ -540,13 +482,6 @@ const nextDrawDays = computed(() => {
   color: var(--accent);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .hero-glow,
-  .hero-digit {
-    animation: none;
-  }
-}
-
 .combo-collapse {
   list-style: none;
   display: flex;
@@ -602,23 +537,11 @@ const nextDrawDays = computed(() => {
   gap: var(--gap-md);
 }
 
-@media (min-width: 768px) {
-  .tools-row {
-    flex-direction: row;
-  }
-}
-
 .tool-block {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: var(--gap-sm);
-}
-
-@media (min-width: 1024px) {
-  .tool-block {
-    height: 100%;
-  }
 }
 
 .combo-block {
@@ -632,22 +555,8 @@ const nextDrawDays = computed(() => {
   margin: 0 0 var(--gap-xs) 0;
 }
 
-.tool-divider {
+.divider-v {
   display: none;
-}
-
-@media (min-width: 768px) {
-  .tool-divider {
-    display: block;
-    width: 1px;
-    background: var(--border);
-  }
-}
-
-.tool-divider-horizontal {
-  width: 100%;
-  height: 1px;
-  background: var(--border);
 }
 
 .quickpick-actions {
@@ -664,12 +573,6 @@ const nextDrawDays = computed(() => {
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--gap-sm);
-}
-
-@media (min-width: 480px) {
-  .quickpick-numbers {
-    grid-template-columns: repeat(3, 1fr);
-  }
 }
 
 .quickpick-col {
@@ -702,10 +605,6 @@ const nextDrawDays = computed(() => {
   align-items: center;
   flex-wrap: wrap;
 }
-.search-input {
-  flex: 1;
-}
-
 .lookup-number {
   font-size: var(--text-xl);
 }
@@ -715,12 +614,6 @@ const nextDrawDays = computed(() => {
   gap: var(--gap-sm);
   font-size: var(--text-sm);
 }
-
-@media (min-width: 480px) {
-  .lookup-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-}
 .lookup-grid > div {
   display: flex;
   flex-direction: column;
@@ -729,10 +622,6 @@ const nextDrawDays = computed(() => {
 .lookup-key {
   font-size: var(--text-xs);
   color: var(--text-secondary);
-}
-
-.digits-grid {
-  height: 100%;
 }
 
 .combo-hint {
@@ -765,8 +654,8 @@ const nextDrawDays = computed(() => {
 }
 
 .combo-digit-btn {
-  min-width: 44px;
-  min-height: 44px;
+  min-width: var(--nav-link-height);
+  min-height: var(--nav-link-height);
   padding: 8px;
   border-radius: var(--radius-sm);
   background: var(--bg-raised);
@@ -802,5 +691,61 @@ const nextDrawDays = computed(() => {
 .combo-result-val {
   color: var(--accent-gold);
   font-size: var(--text-xl);
+}
+
+/* ── Responsive Breakpoints (Mobile-First) ── */
+@media (max-width: 480px) {
+  .hero-top {
+    flex-direction: column;
+  }
+  .hero-countdown {
+    align-items: flex-start;
+  }
+  .hero-digits {
+    gap: var(--gap-xs);
+  }
+  .combo-digits {
+    gap: 2px;
+  }
+  .combo-digit-btn {
+    min-width: 28px;
+    min-height: 28px;
+    font-size: var(--text-xs);
+  }
+}
+
+@media (min-width: 480px) {
+  .quickpick-numbers {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .lookup-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .combo-digits {
+    gap: var(--gap-xs);
+  }
+}
+
+@media (min-width: 768px) {
+  .tools-row {
+    flex-direction: row;
+  }
+  .divider-v {
+    display: block;
+    width: 1px;
+    background: var(--border);
+  }
+}
+
+@media (min-width: 1024px) {
+  .tool-block {
+    height: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-digit {
+    animation: none;
+  }
 }
 </style>

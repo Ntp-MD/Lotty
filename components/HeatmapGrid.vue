@@ -9,6 +9,13 @@ interface Props {
 const props = defineProps<Props>();
 const emit = defineEmits<{ select: [number: string] }>();
 
+const activeTooltip = ref<string | null>(null);
+
+function onCellClick(num: string) {
+  activeTooltip.value = activeTooltip.value === num ? null : num;
+  emit('select', num);
+}
+
 const cells = computed(() => {
   const map = new Map(props.data.map((d) => [d.number, d]));
   return Array.from({ length: 100 }, (_, i) => {
@@ -53,11 +60,14 @@ function onKeydown(e: KeyboardEvent, idx: number) {
         :aria-label="`Number ${cells[(row - 1) * 10 + (col - 1)].number} appeared ${cells[(row - 1) * 10 + (col - 1)].count} times`"
         :aria-selected="selected === cells[(row - 1) * 10 + (col - 1)].number"
         :tabindex="row === 1 && col === 1 ? 0 : -1"
-        @click="emit('select', cells[(row - 1) * 10 + (col - 1)].number)"
+        @click="onCellClick(cells[(row - 1) * 10 + (col - 1)].number)"
         @keydown="onKeydown($event, (row - 1) * 10 + (col - 1))"
       >
         <span class="heatmap-num">{{ cells[(row - 1) * 10 + (col - 1)].number }}</span>
-        <span class="heatmap-tooltip" role="tooltip">
+        <span
+          class="heatmap-tooltip"
+          :class="{ 'heatmap-tooltip-active': activeTooltip === cells[(row - 1) * 10 + (col - 1)].number }"
+        >
           Appeared {{ cells[(row - 1) * 10 + (col - 1)].count }} times<br />
           Latest: {{ cells[(row - 1) * 10 + (col - 1)].last_draw || "—" }}
         </span>
@@ -72,7 +82,8 @@ function onKeydown(e: KeyboardEvent, idx: number) {
   flex-direction: column;
   gap: clamp(2px, 0.5vw, 4px);
   width: 100%;
-  overflow: hidden;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .heatmap-row {
@@ -143,7 +154,8 @@ function onKeydown(e: KeyboardEvent, idx: number) {
 }
 
 .heatmap-cell:hover .heatmap-tooltip,
-.heatmap-cell:focus-visible .heatmap-tooltip {
+.heatmap-cell:focus-visible .heatmap-tooltip,
+.heatmap-tooltip-active {
   display: block;
 }
 </style>

@@ -1,5 +1,10 @@
 export default defineNuxtConfig({
-	devtools: { enabled: true },
+	devtools: { enabled: process.env.NODE_ENV === 'development' },
+
+	devServer: {
+		host: '0.0.0.0',
+		port: 3000
+	},
 
 	modules: ["@nuxtjs/supabase"],
 
@@ -24,6 +29,12 @@ export default defineNuxtConfig({
 				{ name: "description", content: "Advanced lottery analytics platform with real-time data insights" },
 			],
 			link: [
+				{ rel: "preconnect", href: "https://cdn.jsdelivr.net" },
+				{
+					rel: "preload",
+					as: "style",
+					href: "https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@7/fonts/LINESeedSansTH/LINESeedSansTH.css",
+				},
 				{
 					rel: "stylesheet",
 					href: "https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@7/fonts/LINESeedSansTH/LINESeedSansTH.css",
@@ -31,8 +42,19 @@ export default defineNuxtConfig({
 				{ rel: "preconnect", href: "https://fonts.googleapis.com" },
 				{ rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: "" },
 				{
+					rel: "preload",
+					as: "style",
+					href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap",
+				},
+				{
 					rel: "stylesheet",
 					href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap",
+				},
+				{
+					rel: "preload",
+					as: "fetch",
+					href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap",
+					crossorigin: "",
 				},
 			],
 		},
@@ -53,6 +75,11 @@ export default defineNuxtConfig({
 	},
 
 	routeRules: {
+		"/": { isr: true },
+		"/2digit": { isr: true },
+		"/3digit": { isr: true },
+		"/stat-bar": { isr: true },
+		"/archive": { isr: true },
 		"/api/stats/**": {
 			cache: { maxAge: 3600 },
 			cors: true,
@@ -62,6 +89,7 @@ export default defineNuxtConfig({
 			cors: true,
 		},
 		"/api/latest-draw": {
+			cache: { maxAge: 300 },
 			cors: true,
 		},
 		"/api/cron/**": {
@@ -84,6 +112,12 @@ export default defineNuxtConfig({
 
 	typescript: {
 		strict: true,
+	},
+
+	vite: {
+		build: {
+			cssMinify: 'lightningcss',
+		},
 	},
 
 	compatibilityDate: "2024-07-30",

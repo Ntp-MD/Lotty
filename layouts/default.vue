@@ -1,19 +1,14 @@
 <script setup lang="ts">
-import type { StatsResponse } from "~/types";
 import { useLanguage } from "~/composables/useLanguage";
-
-interface LatestDrawResponse {
-  data: {
-    draw_date: string;
-    first: string;
-    last2: string;
-    last3f: string;
-    last3b: string;
-  } | null;
-}
+import { usePanelStats } from "~/composables/usePanelStats";
+import { useDarkMode } from "~/composables/useDarkMode";
+import { useLuckyNumbers } from "~/composables/useLuckyNumbers";
 
 const route = useRoute();
 const { locale, t, toggleLocale, initLocale } = useLanguage();
+const { isDark, toggleDarkMode, initDarkMode } = useDarkMode();
+const { luckyNumbers, generateLuckyNumbers } = useLuckyNumbers();
+const { latestDraw, latestGaps, getGapClass, mostFrequent2d, mostFrequent3b, mostFrequent3f, topDigits } = await usePanelStats();
 
 const navItems = computed(() => [
   { path: "/", label: t("nav.recommend"), icon: "🎯" },
@@ -34,86 +29,12 @@ const currentPage = computed(() => {
   return titles[route.path] ?? { title: "Lotty", sub: "" };
 });
 
-// Fetch stats for gap display
-const { data: stats2d } = await useFetch<StatsResponse>("/api/stats/2digit", {
-  query: { scope: "all", type: "last2" }
-});
-
-const { data: stats3b } = await useFetch<StatsResponse>("/api/stats/3digit", {
-  query: { scope: "all", type: "last3b" }
-});
-
-const { data: stats3f } = await useFetch<StatsResponse>("/api/stats/3digit", {
-  query: { scope: "all", type: "last3f" }
-});
-
-// Fetch latest draw for Quick Stats
-const { data: latestDraw } = await useFetch<LatestDrawResponse>("/api/latest-draw");
-
-// Helper to get gap for a specific number
-const getGapForNumber = (number: string, stats: any) => {
-  if (!stats?.data?.ranking) return 0;
-  const found = stats.data.ranking.find((r: any) => r.number === number);
-  return found?.gap ?? 0;
-};
-
-// Helper to get gap class
-const getGapClass = (gap: number) => {
-  if (gap >= 10) return "gap-hot";
-  if (gap >= 5) return "gap-warm";
-  return "gap-normal";
-};
-
-// Computed gaps for latest draw
-const latestGaps = computed(() => {
-  if (!latestDraw.value?.data) return null;
-  return {
-    last2: getGapForNumber(latestDraw.value.data.last2, stats2d.value),
-    last3b: getGapForNumber(latestDraw.value.data.last3b, stats3b.value),
-    last3f: getGapForNumber(latestDraw.value.data.last3f, stats3f.value),
-  };
-});
-
-// Generate random lucky numbers
-const luckyNumbers = ref<string[]>([]);
-
-const generateLuckyNumbers = () => {
-  const nums: string[] = [];
-  for (let i = 0; i < 3; i++) {
-    nums.push(Math.floor(Math.random() * 100).toString().padStart(2, '0'));
-  }
-  luckyNumbers.value = nums;
-};
-
-// Loading state
 const isLoading = ref(true);
-
-// Generate on mount
-const isDark = ref(false);
-
-const toggleDarkMode = () => {
-  isDark.value = !isDark.value;
-  if (isDark.value) {
-    document.documentElement.classList.add("dark");
-    localStorage.setItem("theme", "dark");
-  } else {
-    document.documentElement.classList.remove("dark");
-    localStorage.setItem("theme", "light");
-  }
-};
 
 onMounted(() => {
   generateLuckyNumbers();
   initLocale();
-  const savedTheme = localStorage.getItem("theme");
-  if (savedTheme === "dark") {
-    isDark.value = true;
-    document.documentElement.classList.add("dark");
-  } else {
-    isDark.value = false;
-    document.documentElement.classList.remove("dark");
-  }
-  // Hide loading screen after a short delay for smooth transition
+  initDarkMode();
   setTimeout(() => {
     isLoading.value = false;
   }, 800);
@@ -122,19 +43,18 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="layout-shell">
-    <!-- Loading Screen -->
-    <Transition name="loading-fade">
-      <div v-if="isLoading" class="loading-screen" aria-live="polite">
-        <div class="loading-content">
-          <div class="loading-logo">L</div>
-          <div class="loading-spinner"></div>
-          <p class="loading-text">Lotty</p>
-        </div>
+  <!-- Loading Screen -->
+  <Transition name="loading-fade">
+    <div v-if="isLoading" class="loading-screen" aria-live="polite">
+      <div class="loading-content">
+        <div class="loading-logo">L</div>
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Lotty</p>
       </div>
-    </Transition>
+    </div>
+  </Transition>
 
-    <div class="layout">
+  <div class="layout">
       <nav class="sidebar" aria-label="Main navigation">
         <div class="sidebar-logo" aria-label="Lotty">
           <span class="sidebar-logo-icon">L</span>
@@ -153,6 +73,9 @@ onMounted(() => {
             </NuxtLink>
           </li>
         </ul>
+        <div class="sidebar-footer">
+          <span class="sidebar-footer-text">Lotty v1.0 • © 2025</span>
+        </div>
       </nav>
 
       <div class="layout-body">
@@ -162,15 +85,12 @@ onMounted(() => {
             <p class="topbar-page-sub">{{ currentPage.sub }}</p>
           </div>
           <div class="topbar-right">
-            <button @click="toggleLocale" class="btn-lang-toggle" :aria-label="locale === 'en' ? 'เปลี่ยนเป็นภาษาไทย' : 'Switch to English'">
+            <button @click="toggleLocale" class="btn-icon-toggle btn-lang-toggle" :aria-label="locale === 'en' ? 'เปลี่ยนเป็นภาษาไทย' : 'Switch to English'">
               {{ locale === 'en' ? 'TH' : 'EN' }}
             </button>
-            <button @click="toggleDarkMode" class="btn-theme-toggle" :aria-label="isDark ? 'Switch to light mode' : 'Toggle dark mode'">
+            <button @click="toggleDarkMode" class="btn-icon-toggle btn-theme-toggle" :aria-label="isDark ? 'Switch to light mode' : 'Toggle dark mode'">
               {{ isDark ? '🌙' : '☀️' }}
             </button>
-            <span class="topbar-badge">
-              <span class="topbar-badge-text">Lotty</span>
-            </span>
           </div>
         </header>
 
@@ -219,6 +139,53 @@ onMounted(() => {
           </div>
         </section>
 
+        <!-- Most Frequent All Time -->
+        <section class="panel-section">
+          <div class="panel-section-header">
+            <h2 class="panel-section-title">Most Frequent (All Time)</h2>
+          </div>
+          <div class="panel-stat-list">
+            <div class="panel-stat-card">
+              <div class="panel-stat-icon panel-stat-icon--primary">2</div>
+              <div class="panel-stat-info">
+                <span class="panel-stat-value">{{ mostFrequent2d?.number ?? '—' }}</span>
+                <span class="panel-stat-label">2 Digit</span>
+              </div>
+              <span v-if="mostFrequent2d" class="num-mono panel-stat-meta">{{ mostFrequent2d.count }}x</span>
+            </div>
+            <div class="panel-stat-card">
+              <div class="panel-stat-icon panel-stat-icon--gold">3</div>
+              <div class="panel-stat-info">
+                <span class="panel-stat-value">{{ mostFrequent3b?.number ?? '—' }}</span>
+                <span class="panel-stat-label">3 Digit Top</span>
+              </div>
+              <span v-if="mostFrequent3b" class="num-mono panel-stat-meta">{{ mostFrequent3b.count }}x</span>
+            </div>
+            <div class="panel-stat-card">
+              <div class="panel-stat-icon panel-stat-icon--info">3</div>
+              <div class="panel-stat-info">
+                <span class="panel-stat-value">{{ mostFrequent3f?.number ?? '—' }}</span>
+                <span class="panel-stat-label">3 Digit Bottom</span>
+              </div>
+              <span v-if="mostFrequent3f" class="num-mono panel-stat-meta">{{ mostFrequent3f.count }}x</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Top 10 Digits -->
+        <section class="panel-section">
+          <div class="panel-section-header">
+            <h2 class="panel-section-title">Top 10 Digits (0-9)</h2>
+          </div>
+          <div class="panel-digits-grid">
+            <div v-for="(item, i) in topDigits" :key="item.digit" class="panel-digit-item">
+              <span class="panel-digit-rank">{{ i + 1 }}</span>
+              <span class="panel-digit-value num-display">{{ item.digit }}</span>
+              <span class="panel-digit-count num-mono">{{ item.count }}x</span>
+            </div>
+          </div>
+        </section>
+
         <!-- Lucky Numbers -->
         <section class="panel-section">
           <div class="panel-section-header">
@@ -229,11 +196,6 @@ onMounted(() => {
             <span v-for="num in luckyNumbers" :key="num" class="panel-lucky-badge">{{ num }}</span>
           </div>
         </section>
-
-        <!-- Footer -->
-        <div class="panel-footer">
-          <span class="panel-footer-text">Lotty v1.0 • © 2025</span>
-        </div>
       </aside>
 
       <nav class="nav-mobile" aria-label="Mobile navigation">
@@ -250,20 +212,11 @@ onMounted(() => {
           <span class="nav-mobile-label">{{ item.label }}</span>
         </NuxtLink>
       </nav>
-    </div>
   </div>
 </template>
 
 <style scoped>
-/* ---- Shell — gradient blur background behind rounded container ---- */
-.layout-shell {
-  min-height: 100dvh;
-  display: flex;
-  align-items: stretch;
-  justify-content: center;
-}
-
-/* ---- Root container — rounded white card ---- */
+/* ---- Root container — app layout ---- */
 .layout {
   display: flex;
   width: 100%;
@@ -285,6 +238,7 @@ onMounted(() => {
   flex-direction: column;
   overflow: hidden;
   min-width: 0;
+	background: var(--bg-raised);
 }
 
 /* ---- Topbar ---- */
@@ -324,83 +278,39 @@ onMounted(() => {
   gap: var(--gap-sm);
 }
 
-.btn-lang-toggle {
+.btn-icon-toggle {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: var(--stat-icon-size);
+  height: var(--stat-icon-size);
   border-radius: var(--radius-full);
   background: var(--bg-raised);
   border: 1px solid var(--border);
   cursor: pointer;
-  font-size: var(--text-xs);
-  font-weight: var(--weight-bold);
-  color: var(--text-secondary);
   transition:
     background var(--transition-fast),
     border-color var(--transition-fast),
     transform var(--transition-fast);
 }
 
-.btn-lang-toggle:hover {
+.btn-icon-toggle:hover {
   background: var(--bg-hover);
   border-color: var(--accent);
   transform: scale(1.05);
 }
 
-.btn-theme-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-full);
-  background: var(--bg-raised);
-  border: 1px solid var(--border);
-  cursor: pointer;
-  font-size: var(--text-md);
-  transition:
-    background var(--transition-fast),
-    border-color var(--transition-fast),
-    transform var(--transition-fast);
-}
-
-.btn-theme-toggle:hover {
-  background: var(--bg-hover);
-  border-color: var(--accent);
-  transform: scale(1.05);
-}
-
-.topbar-badge {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: var(--text-xs);
-  font-weight: var(--weight-medium);
-  color: var(--accent);
-  background: var(--accent-light);
-  padding: var(--gap-xs) var(--gap-md);
-  border-radius: var(--radius-full);
-}
-
-.topbar-badge-text {
-  white-space: nowrap;
-}
-
-@media (max-width: 480px) {
-  .topbar-badge-text {
-    display: none;
-  }
-}
+.btn-lang-toggle { font-size: var(--text-xs); font-weight: var(--weight-bold); color: var(--text-secondary); }
+.btn-theme-toggle { font-size: var(--text-md); }
 
 /* ---- Main content ---- */
 .layout-main {
   flex: 1;
   overflow-y: auto;
-  padding: clamp(12px, 3vw, var(--gap-lg));
+	overflow-x: hidden;
+  padding: var(--gap-lg) var(--gap-lg) var(--gap-xl);
   scroll-behavior: smooth;
-  background: var(--bg-raised);
+
 }
 
 /* ---- Mobile bottom nav ---- */
@@ -416,7 +326,6 @@ onMounted(() => {
   display: flex;
   align-items: stretch;
   z-index: 100;
-  padding: var(--gap-xs) 0;
 }
 
 .nav-mobile-item {
@@ -447,249 +356,298 @@ onMounted(() => {
 }
 
 /* ---- Desktop ---- */
+.sidebar {
+  display: none;
+  flex-direction: column;
+  align-items: stretch;
+  flex-shrink: 0;
+  width: var(--sidebar-width);
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border);
+  padding: var(--gap-md) var(--gap-md);
+  gap: var(--gap-lg);
+}
+
+.sidebar-logo {
+  width: var(--logo-size);
+  height: var(--logo-size);
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(108, 92, 231, 0.35);
+}
+
+.sidebar-logo-icon {
+  font-size: var(--text-md);
+  color: var(--color-white);
+  line-height: 1;
+  font-weight: var(--weight-bold);
+}
+
+.sidebar-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
+  width: 100%;
+  list-style: none;
+}
+
+.sidebar-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--gap-sm);
+  padding: var(--gap-sm) var(--gap-md);
+  height: var(--nav-link-height);
+  border-radius: var(--radius-sm);
+  color: var(--sidebar-text);
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.sidebar-icon {
+  font-size: var(--text-lg);
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.sidebar-label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: inherit;
+}
+
+.sidebar-link:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.sidebar-link-active {
+  background: var(--sidebar-active-bg);
+  color: var(--sidebar-active);
+}
+
+.sidebar-link-active::before {
+  content: "";
+  position: absolute;
+  left: calc(var(--gap-md) * -1);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 24px;
+  border-radius: var(--radius-full);
+  background: var(--accent);
+}
+
+/* ---- Right Panel ---- */
+.panel {
+  display: none;
+  flex-direction: column;
+  flex-shrink: 0;
+  width: var(--panel-width);
+  background: var(--bg-surface);
+  border-left: 1px solid var(--border);
+  padding: var(--gap-lg) var(--gap-md);
+  gap: var(--gap-lg);
+  overflow-y: auto;
+}
+
+.panel-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
+.panel-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.panel-section-title {
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+}
+
+.panel-section-link {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  transition: color var(--transition-fast);
+}
+
+.panel-section-link:hover {
+  color: var(--accent);
+}
+
+/* ---- Stat cards (ListItemRow pattern) ---- */
+.panel-stat-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+}
+
+.panel-stat-card {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--gap-sm) var(--gap-md);
+}
+
+.panel-stat-icon {
+  width: var(--stat-icon-size);
+  height: var(--stat-icon-size);
+  border-radius: var(--radius-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  flex-shrink: 0;
+}
+
+.panel-stat-icon--primary {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+.panel-stat-icon--gold {
+  background: var(--accent-gold-light);
+  color: var(--accent-gold);
+}
+
+.panel-stat-icon--info {
+  background: var(--accent-info-light);
+  color: var(--accent-info);
+}
+
+.panel-stat-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.panel-stat-value {
+  font-family: var(--font-mono);
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+  letter-spacing: 1px;
+}
+
+.panel-stat-label {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.panel-stat-meta {
+  font-size: var(--text-xs);
+  color: var(--accent);
+  font-weight: var(--weight-medium);
+}
+
+/* ---- Top 10 Digits grid ---- */
+.panel-digits-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--gap-xs);
+}
+
+.panel-digit-item {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-xs);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--gap-xs) var(--gap-sm);
+}
+
+.panel-digit-rank {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  font-weight: var(--weight-medium);
+  min-width: var(--gap-md);
+}
+
+.panel-digit-value {
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  color: var(--accent);
+  flex: 1;
+}
+
+.panel-digit-count {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+/* ---- Lucky numbers (Members grid pattern) ---- */
+.panel-lucky-grid {
+  display: flex;
+  gap: var(--gap-sm);
+  flex-wrap: wrap;
+}
+
+.panel-lucky-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--lucky-badge-size);
+  height: var(--lucky-badge-size);
+  background: var(--accent-light);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  border-radius: var(--radius-full);
+}
+
+/* ---- Sidebar Footer ---- */
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: var(--gap-md);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+}
+
+.sidebar-footer-text {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+/* ── Responsive Breakpoints (Mobile-First) ── */
+@media (max-width: 767px) {
+  .layout-body {
+    height: calc(100% - var(--nav-height-mobile));
+  }
+}
+
 @media (min-width: 1024px) {
-
-
-  /* ---- Sidebar with labels (~220px) ---- */
   .sidebar {
     display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    flex-shrink: 0;
-    width: var(--sidebar-width);
-    background: var(--bg-sidebar);
-    border-right: 1px solid var(--border);
-    padding: var(--gap-md) var(--gap-md);
-    gap: var(--gap-lg);
   }
-
-  .sidebar-logo {
-    width: var(--logo-size);
-    height: var(--logo-size);
-    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
-    border-radius: var(--radius-full);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    box-shadow: 0 4px 10px rgba(108, 92, 231, 0.35);
-  }
-
-  .sidebar-logo-icon {
-    font-size: var(--text-md);
-    color: var(--color-white);
-    line-height: 1;
-    font-weight: var(--weight-bold);
-  }
-
-  .sidebar-list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap-xs);
-    width: 100%;
-    list-style: none;
-  }
-
-  .sidebar-link {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: var(--gap-sm);
-    padding: var(--gap-sm) var(--gap-md);
-    height: var(--nav-link-height);
-    border-radius: var(--radius-sm);
-    color: var(--sidebar-text);
-    transition:
-      background var(--transition-fast),
-      color var(--transition-fast);
-  }
-
-  .sidebar-icon {
-    font-size: var(--text-lg);
-    line-height: 1;
-    flex-shrink: 0;
-  }
-
-  .sidebar-label {
-    font-size: var(--text-sm);
-    font-weight: var(--weight-medium);
-    color: inherit;
-  }
-
-  .sidebar-link:hover {
-    background: var(--bg-hover);
-    color: var(--text-primary);
-  }
-
-  .sidebar-link-active {
-    background: var(--sidebar-active-bg);
-    color: var(--sidebar-active);
-  }
-
-  .sidebar-link-active::before {
-    content: "";
-    position: absolute;
-    left: calc(var(--gap-md) * -1);
-    top: 50%;
-    transform: translateY(-50%);
-    width: 3px;
-    height: 24px;
-    border-radius: var(--radius-full);
-    background: var(--accent);
-  }
-
-  /* ---- Right Panel ---- */
   .panel {
     display: flex;
-    flex-direction: column;
-    flex-shrink: 0;
-    width: var(--panel-width);
-    background: var(--bg-surface);
-    border-left: 1px solid var(--border);
-    padding: var(--gap-lg) var(--gap-md);
-    gap: var(--gap-lg);
-    overflow-y: auto;
   }
-
-  .panel-section {
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap-md);
-  }
-
-  .panel-section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .panel-section-title {
-    font-family: var(--font-display);
-    font-size: var(--text-md);
-    font-weight: var(--weight-semibold);
-    color: var(--text-primary);
-  }
-
-  .panel-section-link {
-    font-size: var(--text-xs);
-    font-weight: var(--weight-medium);
-    color: var(--text-muted);
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    transition: color var(--transition-fast);
-  }
-
-  .panel-section-link:hover {
-    color: var(--accent);
-  }
-
-  /* ---- Stat cards (ListItemRow pattern) ---- */
-  .panel-stat-list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap-sm);
-  }
-
-  .panel-stat-card {
-    display: flex;
-    align-items: center;
-    gap: var(--gap-sm);
-    background: var(--bg-surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: var(--gap-sm) var(--gap-md);
-  }
-
-  .panel-stat-icon {
-    width: var(--stat-icon-size);
-    height: var(--stat-icon-size);
-    border-radius: var(--radius-xs);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: var(--text-sm);
-    font-weight: var(--weight-bold);
-    flex-shrink: 0;
-  }
-
-  .panel-stat-icon--primary {
-    background: var(--accent-light);
-    color: var(--accent);
-  }
-
-  .panel-stat-icon--gold {
-    background: var(--accent-gold-light);
-    color: var(--accent-gold);
-  }
-
-  .panel-stat-icon--info {
-    background: var(--accent-info-light);
-    color: var(--accent-info);
-  }
-
-  .panel-stat-info {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-  }
-
-  .panel-stat-value {
-    font-family: var(--font-mono);
-    font-size: var(--text-md);
-    font-weight: var(--weight-bold);
-    color: var(--text-primary);
-    letter-spacing: 1px;
-  }
-
-  .panel-stat-label {
-    font-size: var(--text-xs);
-    color: var(--text-muted);
-  }
-
-  /* ---- Lucky numbers (Members grid pattern) ---- */
-  .panel-lucky-grid {
-    display: flex;
-    gap: var(--gap-sm);
-    flex-wrap: wrap;
-  }
-
-  .panel-lucky-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: var(--lucky-badge-size);
-    height: var(--lucky-badge-size);
-    background: var(--accent-light);
-    color: var(--accent);
-    font-family: var(--font-mono);
-    font-size: var(--text-sm);
-    font-weight: var(--weight-bold);
-    border-radius: var(--radius-full);
-  }
-
-  /* ---- Panel Footer ---- */
-  .panel-footer {
-    margin-top: auto;
-    padding-top: var(--gap-md);
-    border-top: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-  }
-
-  .panel-footer-text {
-    font-size: var(--text-xs);
-    color: var(--text-muted);
-  }
-
   .nav-mobile {
     display: none;
   }
 
-  .layout-main {
-    padding: var(--gap-lg);
-  }
 }
 
 /* ---- Loading Screen ---- */
@@ -711,14 +669,14 @@ onMounted(() => {
 }
 
 .loading-logo {
-  width: 80px;
-  height: 80px;
+  width: var(--loading-logo-size);
+  height: var(--loading-logo-size);
   background: linear-gradient(135deg, var(--accent), var(--accent-hover));
   border-radius: var(--radius-full);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 36px;
+  font-size: var(--stat-icon-size);
   font-weight: var(--weight-bold);
   color: var(--color-white);
   box-shadow: 0 8px 24px rgba(108, 92, 231, 0.3);
@@ -737,8 +695,8 @@ onMounted(() => {
 }
 
 .loading-spinner {
-  width: 40px;
-  height: 40px;
+  width: var(--logo-size);
+  height: var(--logo-size);
   border: 3px solid var(--border);
   border-top-color: var(--accent);
   border-radius: var(--radius-full);

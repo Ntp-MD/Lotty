@@ -132,7 +132,11 @@ const translations: Record<string, { en: string; th: string }> = {
 
   // ErrorCard
   "error.retry": { en: "Retry", th: "ลองใหม่" },
-  "error.load_failed": { en: "Failed to load data", th: "โหลดข้อมูลไม่สำเร็จ" }
+  "error.load_failed": { en: "Failed to load data", th: "โหลดข้อมูลไม่สำเร็จ" },
+
+  // Error Page
+  "error.notFound": { en: "Page not found", th: "ไม่พบหน้าที่ต้องการ" },
+  "error.backHome": { en: "Back to Home", th: "กลับหน้าหลัก" }
 };
 
 export function useLanguage() {

@@ -66,21 +66,19 @@ const unitsColdDigit = computed(() => Object.entries(unitsByDigit.value).sort((a
 
         <div class="card-content">
           <h1 class="section-title">{{ t('breakdown.digitBreakdown') }}</h1>
-          <div class="card">
-            <div class="breakdown-row">
-              <DigitBarChart
-                :position="1"
-                :freq="tensByDigit"
-                :hot_digit="tensHotDigit"
-                :cold_digit="tensColdDigit"
-              />
-              <DigitBarChart
-                :position="2"
-                :freq="unitsByDigit"
-                :hot_digit="unitsHotDigit"
-                :cold_digit="unitsColdDigit"
-              />
-            </div>
+          <div class="breakdown-row">
+            <DigitBarChart
+              :position="1"
+              :freq="tensByDigit"
+              :hot_digit="tensHotDigit"
+              :cold_digit="tensColdDigit"
+            />
+            <DigitBarChart
+              :position="2"
+              :freq="unitsByDigit"
+              :hot_digit="unitsHotDigit"
+              :cold_digit="unitsColdDigit"
+            />
           </div>
         </div>
       </div>

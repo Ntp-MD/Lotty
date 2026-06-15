@@ -63,7 +63,6 @@ export function nextDrawDate(): string {
 	const year = thaiTime.getFullYear();
 	const month = thaiTime.getMonth();
 	const day = thaiTime.getDate();
-	if (day < 1) return new Date(year, month, 1).toISOString().slice(0, 10);
 	if (day < 16) return new Date(year, month, 16).toISOString().slice(0, 10);
 	return new Date(year, month + 1, 1).toISOString().slice(0, 10);
 }

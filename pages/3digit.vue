@@ -104,27 +104,25 @@ const pos2ColdDigit = computed(() => Object.entries(posFreq2.value).sort((a, b) 
 
         <div class="card-content">
           <h1 class="section-title">{{ t('breakdown.digitBreakdown') }}</h1>
-          <div class="card">
-            <div class="breakdown-row">
-              <DigitBarChart
-                :position="1"
-                :freq="posFreq0"
-                :hot_digit="pos0HotDigit"
-                :cold_digit="pos0ColdDigit"
-              />
-              <DigitBarChart
-                :position="2"
-                :freq="posFreq1"
-                :hot_digit="pos1HotDigit"
-                :cold_digit="pos1ColdDigit"
-              />
-              <DigitBarChart
-                :position="3"
-                :freq="posFreq2"
-                :hot_digit="pos2HotDigit"
-                :cold_digit="pos2ColdDigit"
-              />
-            </div>
+          <div class="breakdown-row">
+            <DigitBarChart
+              :position="1"
+              :freq="posFreq0"
+              :hot_digit="pos0HotDigit"
+              :cold_digit="pos0ColdDigit"
+            />
+            <DigitBarChart
+              :position="2"
+              :freq="posFreq1"
+              :hot_digit="pos1HotDigit"
+              :cold_digit="pos1ColdDigit"
+            />
+            <DigitBarChart
+              :position="3"
+              :freq="posFreq2"
+              :hot_digit="pos2HotDigit"
+              :cold_digit="pos2ColdDigit"
+            />
           </div>
         </div>
       </div>
@@ -136,9 +134,9 @@ const pos2ColdDigit = computed(() => Object.entries(posFreq2.value).sort((a, b) 
             v-model="searchQuery"
             class="search-input focus-ring"
             type="text"
-            placeholder="{{ t('search.placeholder') }}"
+            :placeholder="t('search.placeholder')"
             maxlength="3"
-            aria-label="{{ t('search.aria') }}"
+            :aria-label="t('search.aria')"
           />
         </div>
         <EmptyState v-if="!sorted.length" reason="no_search_result" />
@@ -187,18 +185,6 @@ const pos2ColdDigit = computed(() => Object.entries(posFreq2.value).sort((a, b) 
   flex: 1;
 }
 
-@media (min-width: 768px) {
-  .podium-list {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 768px) {
-  .breakdown-row > * {
-    flex: 1 1 calc(33.333% - var(--gap-md));
-  }
-}
-
 .search-wrap {
   margin: var(--gap-sm) 0;
 }
@@ -233,6 +219,15 @@ const pos2ColdDigit = computed(() => Object.entries(posFreq2.value).sort((a, b) 
   text-align: left;
 }
 
+.row-hot td:first-child {
+  color: var(--accent-danger);
+}
+
+.row-cold td:first-child {
+  color: var(--accent-green);
+}
+
+/* ── Responsive Breakpoints (Mobile-First) ── */
 @media (min-width: 480px) {
   .freq-table th,
   .freq-table td {
@@ -240,11 +235,12 @@ const pos2ColdDigit = computed(() => Object.entries(posFreq2.value).sort((a, b) 
   }
 }
 
-.row-hot td:first-child {
-  color: var(--accent-danger);
-}
-
-.row-cold td:first-child {
-  color: var(--accent-green);
+@media (min-width: 768px) {
+  .podium-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .breakdown-row > * {
+    flex: 1 1 calc(33.333% - var(--gap-md));
+  }
 }
 </style>

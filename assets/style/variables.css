@@ -55,6 +55,7 @@
 	--nav-link-height: 44px;
 	--stat-icon-size: 36px;
 	--lucky-badge-size: 44px;
+	--loading-logo-size: 80px;
 
 	--border: #f0f0f5;
 	--border-strong: #d8d8e4;
@@ -96,7 +97,7 @@
 	--gap-xs: 4px;
 	--gap-sm: 8px;
 	--gap-md: 16px;
-	--gap-lg: 24px;
+	--gap-lg: 20px;
 	--gap-xl: 32px;
 
 	/* ----------------------------------------------------------

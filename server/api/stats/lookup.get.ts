@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
 			gap: row.gap,
 			rank,
 			total: allCounts.length,
-			label: row.count >= computePercentile(allCounts, 90) ? "hot" : row.count <= computePercentile(allCounts, 10) ? "cold" : "normal",
+			label: row.count >= computePercentile(allCounts, 90) ? "Frequent" : row.count <= computePercentile(allCounts, 10) ? "Never" : "Normal",
 			history: row.history ?? [],
 		},
 		cached_at: new Date().toISOString(),

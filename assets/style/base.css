@@ -12,6 +12,7 @@
 html {
 	font-size: var(--text-md);
 	-webkit-text-size-adjust: 100%;
+	overflow-x: hidden;
 }
 
 body {
@@ -103,12 +104,6 @@ h3.section-title {
 	gap: var(--gap-md);
 }
 
-@media (min-width: 960px) {
-	.card-group {
-		flex-direction: row;
-	}
-}
-
 .card-content {
 	flex: 1;
 	display: flex;
@@ -116,16 +111,8 @@ h3.section-title {
 }
 
 /* Grid helpers */
-.page-grid {
-	display: grid;
+.page-grid-2 {
 	grid-template-columns: 1fr;
-	gap: var(--gap-md);
-}
-
-@media (min-width: 768px) {
-	.page-grid-2 {
-		grid-template-columns: repeat(2, 1fr);
-	}
 }
 
 /* Page content shell */
@@ -153,14 +140,23 @@ h3.section-title {
 /* Digits grid */
 .digits-grid {
 	display: grid;
-	grid-template-columns: repeat(2, 1fr);
+	grid-template-columns: 1fr;
 	gap: var(--gap-sm);
 	flex: 1;
 }
 
+/* ── Responsive Breakpoints (Mobile-First) ── */
 @media (min-width: 768px) {
+	.card-group {
+		flex-direction: row;
+	}
+
+	.page-grid-2 {
+		grid-template-columns: repeat(2, 1fr);
+	}
+
 	.digits-grid {
-		grid-template-columns: repeat(3, 1fr);
+		grid-template-columns: repeat(2, 1fr);
 	}
 }
 

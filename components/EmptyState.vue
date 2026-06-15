@@ -13,10 +13,16 @@ const message = computed(() => {
   if (props.reason === "no_search_result") return t("empty.no_search_result");
   return props.scope ? t("empty.no_data_in_range", { scope: props.scope }) : t("empty.no_data");
 });
+
+const icon = computed(() => {
+  if (props.reason === "no_search_result") return "🔍";
+  return "📭";
+});
 </script>
 
 <template>
   <div class="empty card" role="status">
+    <div class="empty-icon">{{ icon }}</div>
     <p class="empty-msg">{{ message }}</p>
   </div>
 </template>
@@ -26,10 +32,33 @@ const message = computed(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--gap-sm);
+  gap: var(--gap-md);
   text-align: center;
-  padding: var(--gap-lg);
+  padding: var(--gap-xl) var(--gap-lg);
+  min-height: 200px;
+  justify-content: center;
 }
 
-.empty-msg { font-size: var(--text-sm); color: var(--text-secondary); }
+.empty-icon {
+  font-size: 48px;
+  line-height: 1;
+  opacity: 0.5;
+  animation: empty-bounce 2s ease-in-out infinite;
+}
+
+@keyframes empty-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.empty-msg {
+  font-size: var(--text-md);
+  color: var(--text-secondary);
+  max-width: 300px;
+  line-height: var(--leading-normal);
+}
 </style>

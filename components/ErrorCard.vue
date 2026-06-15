@@ -26,11 +26,11 @@ const { t } = useLanguage();
   text-align: center;
   padding: var(--gap-lg);
   border-color: var(--accent-danger);
-  background: var(--accent-danger);
+  background: color-mix(in srgb, var(--accent-danger) 12%, var(--bg-surface));
 }
 
 .error-msg {
   font-size: var(--text-sm);
-  color: var(--color-white);
+  color: var(--accent-danger);
 }
 </style>

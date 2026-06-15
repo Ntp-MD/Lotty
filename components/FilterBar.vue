@@ -51,6 +51,7 @@ const days = computed<{ value: DrawDay; label: string }[]>(() => [
         <select
           id="filter-month"
           class="filter-select focus-ring"
+          :class="{ 'has-value': filter.month !== null }"
           :value="filter.month"
           @change="setMonth(($event.target as HTMLSelectElement).value ? Number(($event.target as HTMLSelectElement).value) : null)"
         >
@@ -63,6 +64,7 @@ const days = computed<{ value: DrawDay; label: string }[]>(() => [
         <select
           id="filter-day"
           class="filter-select focus-ring"
+          :class="{ 'has-value': filter.day !== 'all' }"
           :value="filter.day"
           @change="setDay(($event.target as HTMLSelectElement).value as DrawDay)"
         >
@@ -142,12 +144,19 @@ const days = computed<{ value: DrawDay; label: string }[]>(() => [
   font-size: var(--text-xs);
   padding: var(--gap-xs) var(--gap-sm);
   cursor: pointer;
-  transition: border-color var(--transition-fast);
+  transition: border-color var(--transition-fast), background var(--transition-fast);
 }
 
 .filter-select:focus {
   outline: none;
   border-color: var(--accent);
+}
+
+.filter-select.has-value {
+  background: var(--accent-light);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: var(--weight-medium);
 }
 
 .btn-toggle-advanced {
