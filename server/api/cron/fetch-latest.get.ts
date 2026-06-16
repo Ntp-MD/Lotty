@@ -15,21 +15,30 @@ export default defineEventHandler(async (event) => {
 
 	let gloData;
 	try {
-		gloData = await $fetch<{
-			status: { code: string };
-			response: { date: string; prizes: { first: { number: string }; last2: { number: string }; last3f: { number: string }; last3b: { number: string } } };
-		}>(GLO_API, { method: "POST", timeout: 10000 });
+		gloData = await $fetch<any>(GLO_API, { method: "POST", timeout: 10000 });
 	} catch (error) {
 		logger.error("GLO API fetch failed", { error: String(error) });
 		throw createError({ statusCode: 503, message: "GLO API unavailable" });
 	}
 
-	if (gloData?.status?.code !== "000") {
+	const isSuccess = 
+		gloData?.status === true || 
+		gloData?.status?.code === "000" || 
+		gloData?.statusCode === 200 || 
+		gloData?.statusCode === "200";
+
+	if (!isSuccess) {
+		logger.warn("GLO API returned unsuccessful status", { status: gloData?.status, statusCode: gloData?.statusCode });
 		return { status: "not_ready", draw_date: null };
 	}
 
-	const prizes = gloData.response.prizes;
-	const drawDate = gloData.response.date;
+	const prizes = gloData.response?.prizes as any;
+	const drawDate = (gloData.response?.date || "") as string;
+
+	if (!prizes || !drawDate) {
+		logger.info("GLO API results not ready yet (prizes or draw date missing)");
+		return { status: "not_ready", draw_date: null };
+	}
 
 	const db = getSupabaseAdmin();
 

@@ -21,13 +21,24 @@ const advisor = computed(() => data.value?.data);
 
 const quickPick = ref<{ last2: string; last3b: string; last3f: string } | null>(null);
 const quickPickLoading = ref(false);
+const statsCache = ref<Record<string, { stats2: StatsResponse; stats3b: StatsResponse; stats3f: StatsResponse }>>({});
 
 async function generateQuickPick() {
   quickPickLoading.value = true;
   try {
-    const stats2 = await $fetch<StatsResponse>("/api/stats/2digit", { query: { scope: filter.scope, type: "last2" } });
-    const stats3b = await $fetch<StatsResponse>("/api/stats/3digit", { query: { scope: filter.scope, type: "last3b" } });
-    const stats3f = await $fetch<StatsResponse>("/api/stats/3digit", { query: { scope: filter.scope, type: "last3f" } });
+    const scope = filter.scope;
+    let stats2: StatsResponse, stats3b: StatsResponse, stats3f: StatsResponse;
+
+    if (statsCache.value[scope]) {
+      ({ stats2, stats3b, stats3f } = statsCache.value[scope]);
+    } else {
+      [stats2, stats3b, stats3f] = await Promise.all([
+        $fetch<StatsResponse>("/api/stats/2digit", { query: { scope, type: "last2" } }),
+        $fetch<StatsResponse>("/api/stats/3digit", { query: { scope, type: "last3b" } }),
+        $fetch<StatsResponse>("/api/stats/3digit", { query: { scope, type: "last3f" } }),
+      ]);
+      statsCache.value[scope] = { stats2, stats3b, stats3f };
+    }
 
     function weightedRandom(ranking: typeof stats2.data.ranking) {
       const weights = ranking.map((r) => r.gap + 1);
@@ -54,7 +65,7 @@ const lookupQuery = ref("");
 const lookupResult = ref<null | { number: string; count: number; last_draw: string; gap: number; rank: number; total: number; label: string }>(null);
 const lookupPending = ref(false);
 
-const { data: latestDraw, pending: latestDrawPending } = await useFetch("/api/latest-draw");
+const { data: latestDraw, pending: latestDrawPending, refresh: refreshLatestDraw } = await useFetch("/api/latest-draw");
 
 // 6-digit stats
 const digitsAsyncKey = computed(() => `digits-${filter.scope}`);
@@ -136,6 +147,62 @@ const isDrawDay = computed(() => {
   return day === 1 || day === 16;
 });
 
+function getThaiDateString() {
+  const now = new Date();
+  const thaiTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Bangkok" }));
+  const y = thaiTime.getFullYear();
+  const m = String(thaiTime.getMonth() + 1).padStart(2, '0');
+  const d = String(thaiTime.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+let pollingInterval: ReturnType<typeof setInterval> | null = null;
+
+function startPollingIfNeeded() {
+  if (!isDrawDay.value) return;
+
+  const now = new Date();
+  const thaiTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Bangkok" }));
+  const currentMinutes = thaiTime.getHours() * 60 + thaiTime.getMinutes();
+
+  // Draw announcement is at ~15:58 - 16:05
+  // Start polling from 15:50 to 16:30 Thailand time
+  const startPollingMinutes = 15 * 60 + 50; // 15:50
+  const stopPollingMinutes = 16 * 60 + 30;  // 16:30
+
+  const todayStr = getThaiDateString();
+
+  if (latestDraw.value?.data?.draw_date === todayStr) {
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+      pollingInterval = null;
+    }
+    return;
+  }
+
+  if (currentMinutes >= startPollingMinutes && currentMinutes <= stopPollingMinutes) {
+    if (!pollingInterval) {
+      pollingInterval = setInterval(async () => {
+        await refreshLatestDraw();
+        if (latestDraw.value?.data?.draw_date === getThaiDateString()) {
+          // New draw is found! Refresh all stats on the page dynamically
+          refresh();
+          refreshDigits();
+          if (pollingInterval) {
+            clearInterval(pollingInterval);
+            pollingInterval = null;
+          }
+        }
+      }, 15000); // Poll every 15 seconds
+    }
+  } else {
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+      pollingInterval = null;
+    }
+  }
+}
+
 function updateCountdown() {
   const now = new Date();
   const thaiTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Bangkok" }));
@@ -159,7 +226,11 @@ function updateCountdown() {
       minutes: Math.floor((diff % 3600000) / 60000),
       seconds: Math.floor((diff % 60000) / 1000),
     };
+  } else {
+    countdown.value = { hours: 0, minutes: 0, seconds: 0 };
   }
+
+  startPollingIfNeeded();
 }
 
 let countdownInterval: ReturnType<typeof setInterval> | null = null;
@@ -171,6 +242,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   if (countdownInterval) clearInterval(countdownInterval);
+  if (pollingInterval) clearInterval(pollingInterval);
 });
 </script>
 
