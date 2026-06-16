@@ -6,7 +6,23 @@
   "crons": [
     {
       "path": "/api/cron/fetch-latest",
-      "schedule": "30 7 1,16 * *"
+      "schedule": "30 0 1,16 * *",
+      "description": "Early morning check 07:30 Thailand (00:30 UTC) on draw days"
+    },
+    {
+      "path": "/api/cron/fetch-latest",
+      "schedule": "58-59 8 1,16 * *",
+      "description": "Every 1 minute at 15:58-15:59 Thailand (08:58-08:59 UTC) on draw days"
+    },
+    {
+      "path": "/api/cron/fetch-latest",
+      "schedule": "0-5 9 1,16 * *",
+      "description": "Every 1 minute at 16:00-16:05 Thailand (09:00-09:05 UTC) on draw days"
+    },
+    {
+      "path": "/api/cron/fetch-latest",
+      "schedule": "0 10 1,16 * *",
+      "description": "Final check 17:00 Thailand (10:00 UTC) on draw days"
     }
   ]
 }
