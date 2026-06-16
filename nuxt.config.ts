@@ -84,7 +84,7 @@ export default defineNuxtConfig({
 			cors: true,
 		},
 		"/api/latest-draw": {
-			cache: { maxAge: 60 },
+			cache: { maxAge: 10 },
 			cors: true,
 		},
 		"/api/cron/**": {

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { RankingItem } from "~/types";
+import { NEVER_GAP } from "~/utils/lottery";
 
 interface Props {
   item: RankingItem;
@@ -37,7 +38,7 @@ defineProps<Props>();
     <div class="podium-right">
       <span v-if="item.label === 'Frequent'" class="badge-gold">Frequent</span>
       <span v-else-if="item.gap > 0" class="podium-gap-label">
-        {{ item.gap === 999 ? "Never" : `${item.gap} draws` }}
+        {{ item.gap === NEVER_GAP ? "Never" : `${item.gap} draws` }}
       </span>
     </div>
   </div>

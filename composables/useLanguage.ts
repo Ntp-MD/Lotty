@@ -1,6 +1,4 @@
-import { ref, computed } from "vue";
-
-const locale = ref<"en" | "th">("th");
+import { computed } from "vue";
 
 const translations: Record<string, { en: string; th: string }> = {
   // Navigation
@@ -143,6 +141,8 @@ const translations: Record<string, { en: string; th: string }> = {
 };
 
 export function useLanguage() {
+  const locale = useState<"en" | "th">("locale", () => "th");
+
   const t = (key: string, params: Record<string, string | number> = {}): string => {
     const translation = translations[key];
     if (!translation) return key;
@@ -155,13 +155,13 @@ export function useLanguage() {
 
   const toggleLocale = () => {
     locale.value = locale.value === "en" ? "th" : "en";
-    if (process.client) {
+    if (import.meta.client) {
       localStorage.setItem("locale", locale.value);
     }
   };
 
   const initLocale = () => {
-    if (process.client) {
+    if (import.meta.client) {
       const saved = localStorage.getItem("locale") as "en" | "th" | null;
       if (saved) {
         locale.value = saved;

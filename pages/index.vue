@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import type { AdvisorResponse, StatsResponse, DigitsResponse, DigitPosition } from "~/types";
+import type { AdvisorResponse, StatsResponse, DigitsResponse, DigitPosition, LatestDrawResponse } from "~/types";
 import { formatDate } from "~/composables/useDate";
 import { useLanguage } from "~/composables/useLanguage";
+import { formatGapLabel } from "~/utils/lottery";
 import { onMounted, onUnmounted, ref, computed, watch } from "vue";
 
 useHead({ title: "Recommended Numbers — Lotty" });
@@ -11,7 +12,7 @@ const { t } = useLanguage();
 
 // Hoist ALL data refs first (before any awaits)
 const advisorData = ref<AdvisorResponse | null>(null);
-const latestDrawData = ref<any>(null);
+const latestDrawData = ref<LatestDrawResponse | null>(null);
 const digitsStatsData = ref<DigitsResponse | null>(null);
 
 // Hoist ALL computed properties first (before any awaits)
@@ -151,7 +152,7 @@ const { data: homeFetchedData, pending, error, refresh } = await useAsyncData(
   async () => {
     const [adv, latest, digits] = await Promise.all([
       $fetch<AdvisorResponse>("/api/advisor", { query: { scope: filter.value.scope } }),
-      $fetch<any>("/api/latest-draw"),
+      $fetch<LatestDrawResponse>("/api/latest-draw"),
       $fetch<DigitsResponse>("/api/stats/digits", { query: { scope: filter.value.scope } }),
     ]);
     return { advisor: adv, latestDraw: latest, digitsData: digits };
@@ -161,13 +162,13 @@ const { data: homeFetchedData, pending, error, refresh } = await useAsyncData(
 
 // Populate our hoisted refs
 advisorData.value = (homeFetchedData.value?.advisor ?? null) as AdvisorResponse | null;
-latestDrawData.value = (homeFetchedData.value?.latestDraw ?? null) as any;
+latestDrawData.value = (homeFetchedData.value?.latestDraw ?? null) as LatestDrawResponse | null;
 digitsStatsData.value = (homeFetchedData.value?.digitsData ?? null) as DigitsResponse | null;
 
 watch(homeFetchedData, (newVal) => {
   if (newVal) {
     advisorData.value = (newVal.advisor ?? null) as AdvisorResponse | null;
-    latestDrawData.value = (newVal.latestDraw ?? null) as any;
+    latestDrawData.value = (newVal.latestDraw ?? null) as LatestDrawResponse | null;
     digitsStatsData.value = (newVal.digitsData ?? null) as DigitsResponse | null;
   }
 });
@@ -407,7 +408,7 @@ onUnmounted(() => {
                     </div>
                     <div>
                       <span class="lookup-key">{{ t('lookup.gap') }}</span
-                      ><span class="num-mono">{{ lookupResult.gap === 999 ? t('lookup.never') : `${lookupResult.gap} ${t('lookup.draws')}` }}</span>
+                      ><span class="num-mono">{{ formatGapLabel(lookupResult.gap, t('lookup.draws'), t('lookup.never')) }}</span>
                     </div>
                   </div>
                 </div>

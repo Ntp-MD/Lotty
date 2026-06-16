@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { formatDate } from "~/composables/useDate";
 import { useLanguage } from "~/composables/useLanguage";
+import { getGapClass, formatGapLabel } from "~/utils/lottery";
 
 interface Suggestion {
   number: string;
@@ -19,11 +20,7 @@ defineProps<Props>();
 
 const { t } = useLanguage();
 
-function getGapClass(gap: number) {
-  if (gap >= 10) return "gap-hot";
-  if (gap >= 5) return "gap-warm";
-  return "gap-normal";
-}
+const gapLabel = (gap: number) => formatGapLabel(gap, t("ticket.draws"), t("ticket.never"));
 
 const DISCLAIMER = computed(() => t("ticket.disclaimer"));
 </script>
@@ -44,21 +41,21 @@ const DISCLAIMER = computed(() => t("ticket.disclaimer"));
         <span class="ticket-col-label">{{ t('results.last2') }}</span>
         <span class="ticket-number num-display">{{ suggestions.last2.number }}</span>
         <span class="ticket-gap num-mono" :class="getGapClass(suggestions.last2.gap)" v-if="suggestions.last2.gap > 0">
-          {{ t('ticket.gap', { g: suggestions.last2.gap === 999 ? t('ticket.never') : `${suggestions.last2.gap} ${t('ticket.draws')}` }) }}
+          {{ t('ticket.gap', { g: gapLabel(suggestions.last2.gap) }) }}
         </span>
       </div>
       <div class="ticket-col">
         <span class="ticket-col-label">{{ t('results.last3b') }}</span>
         <span class="ticket-number num-display">{{ suggestions.last3b.number }}</span>
         <span class="ticket-gap num-mono" :class="getGapClass(suggestions.last3b.gap)" v-if="suggestions.last3b.gap > 0">
-          {{ t('ticket.gap', { g: suggestions.last3b.gap === 999 ? t('ticket.never') : `${suggestions.last3b.gap} ${t('ticket.draws')}` }) }}
+          {{ t('ticket.gap', { g: gapLabel(suggestions.last3b.gap) }) }}
         </span>
       </div>
       <div class="ticket-col">
         <span class="ticket-col-label">{{ t('results.last3f') }}</span>
         <span class="ticket-number num-display">{{ suggestions.last3f.number }}</span>
         <span class="ticket-gap num-mono" :class="getGapClass(suggestions.last3f.gap)" v-if="suggestions.last3f.gap > 0">
-          {{ t('ticket.gap', { g: suggestions.last3f.gap === 999 ? t('ticket.never') : `${suggestions.last3f.gap} ${t('ticket.draws')}` }) }}
+          {{ t('ticket.gap', { g: gapLabel(suggestions.last3f.gap) }) }}
         </span>
       </div>
     </div>

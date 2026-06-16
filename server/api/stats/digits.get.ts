@@ -1,6 +1,8 @@
 import { getSupabaseAdmin } from "~/server/utils/supabase";
+import { readStatsCache, writeStatsCache } from "~/server/utils/cache";
 import { validateScope } from "~/server/utils/validation";
-import type { Database } from "~/types/supabase";
+
+type DigitRow = { position: number };
 
 export default defineEventHandler(async (event) => {
 	const query = getQuery(event);
@@ -13,28 +15,16 @@ export default defineEventHandler(async (event) => {
 
 	const db = getSupabaseAdmin();
 
-	const { data: cached } = await db
-		.from("stats_cache")
-		.select("data_json, computed_at")
-		.eq("stat_type", "digits_all")
-		.eq("scope", scope)
-		.maybeSingle();
-
+	const cached = await readStatsCache<DigitRow[]>(db, "digits_all", scope);
 	if (cached) {
-		const cachedData = cached.data_json as Array<{ position: number }>;
-		const result = pos ? cachedData.filter((d) => d.position === pos) : cachedData;
-		return { data: result, cached_at: cached.computed_at };
+		const result = pos ? cached.data.filter((d) => d.position === pos) : cached.data;
+		return { data: result, cached_at: cached.computedAt };
 	}
 
 	const { data: rows, error } = await db.rpc("get_digit_stats", { p_scope: scope });
 	if (error) throw createError({ statusCode: 500, message: error.message });
 
-	await db.from("stats_cache").upsert({
-		stat_type: "digits_all",
-		scope,
-		data_json: rows as unknown as Database["public"]["Tables"]["stats_cache"]["Insert"]["data_json"],
-		computed_at: new Date().toISOString(),
-	});
+	await writeStatsCache(db, "digits_all", scope, rows);
 
 	const result = pos ? (rows ?? []).filter((d) => d.position === pos) : rows;
 	return { data: result ?? [], cached_at: new Date().toISOString() };

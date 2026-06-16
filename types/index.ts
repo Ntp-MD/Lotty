@@ -41,6 +41,18 @@ export interface DigitsResponse {
 	cached_at: string;
 }
 
+export interface LatestDraw {
+	draw_date: string;
+	first: string;
+	last2: string;
+	last3f: string;
+	last3b: string;
+}
+
+export interface LatestDrawResponse {
+	data: LatestDraw | null;
+}
+
 export interface LookupResult {
 	number: string;
 	count: number;

@@ -1,15 +1,5 @@
-import type { StatsResponse } from "~/types";
+import type { StatsResponse, LatestDrawResponse } from "~/types";
 import { computed } from "vue";
-
-interface LatestDrawResponse {
-  data: {
-    draw_date: string;
-    first: string;
-    last2: string;
-    last3f: string;
-    last3b: string;
-  } | null;
-}
 
 interface PanelPayload {
   stats2d: StatsResponse;
@@ -29,12 +19,6 @@ export const usePanelStats = async () => {
     if (!stats?.data?.ranking) return 0;
     const found = stats.data.ranking.find((r) => r.number === number);
     return found?.gap ?? 0;
-  };
-
-  const getGapClass = (gap: number) => {
-    if (gap >= 10) return "gap-hot";
-    if (gap >= 5) return "gap-warm";
-    return "gap-normal";
   };
 
   const latestGaps = computed(() => {
@@ -87,5 +71,5 @@ export const usePanelStats = async () => {
     if (newVal) panelRaw.value = newVal;
   });
 
-  return { latestDraw, latestGaps, getGapClass, mostFrequent2d, mostFrequent3b, mostFrequent3f, topDigits };
+  return { latestDraw, latestGaps, mostFrequent2d, mostFrequent3b, mostFrequent3f, topDigits };
 };

@@ -3,12 +3,13 @@ import { useLanguage } from "~/composables/useLanguage";
 import { usePanelStats } from "~/composables/usePanelStats";
 import { useDarkMode } from "~/composables/useDarkMode";
 import { useLuckyNumbers } from "~/composables/useLuckyNumbers";
+import { getGapClass, NEVER_GAP } from "~/utils/lottery";
 
 const route = useRoute();
 const { locale, t, toggleLocale, initLocale } = useLanguage();
 const { isDark, toggleDarkMode, initDarkMode } = useDarkMode();
 const { luckyNumbers, generateLuckyNumbers } = useLuckyNumbers();
-const { latestDraw, latestGaps, getGapClass, mostFrequent2d, mostFrequent3b, mostFrequent3f, topDigits } = await usePanelStats();
+const { latestDraw, latestGaps, mostFrequent2d, mostFrequent3b, mostFrequent3f, topDigits } = await usePanelStats();
 
 const navItems = computed(() => [
   { path: "/", label: t("nav.recommend"), icon: "🎯" },
@@ -113,7 +114,7 @@ onMounted(() => {
                 <span class="panel-stat-label">2 Digit</span>
               </div>
               <span v-if="latestGaps && latestGaps.last2 > 0" class="ticket-gap num-mono" :class="getGapClass(latestGaps.last2)">
-                {{ latestGaps.last2 === 999 ? "Never" : `${latestGaps.last2} draws` }}
+                {{ latestGaps.last2 === NEVER_GAP ? "Never" : `${latestGaps.last2} draws` }}
               </span>
             </div>
             <div class="panel-stat-card">
@@ -123,7 +124,7 @@ onMounted(() => {
                 <span class="panel-stat-label">3 Digit Top</span>
               </div>
               <span v-if="latestGaps && latestGaps.last3b > 0" class="ticket-gap num-mono" :class="getGapClass(latestGaps.last3b)">
-                {{ latestGaps.last3b === 999 ? "Never" : `${latestGaps.last3b} draws` }}
+                {{ latestGaps.last3b === NEVER_GAP ? "Never" : `${latestGaps.last3b} draws` }}
               </span>
             </div>
             <div class="panel-stat-card">
@@ -133,7 +134,7 @@ onMounted(() => {
                 <span class="panel-stat-label">3 Digit Bottom</span>
               </div>
               <span v-if="latestGaps && latestGaps.last3f > 0" class="ticket-gap num-mono" :class="getGapClass(latestGaps.last3f)">
-                {{ latestGaps.last3f === 999 ? "Never" : `${latestGaps.last3f} draws` }}
+                {{ latestGaps.last3f === NEVER_GAP ? "Never" : `${latestGaps.last3f} draws` }}
               </span>
             </div>
           </div>

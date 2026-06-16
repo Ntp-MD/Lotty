@@ -1,7 +1,7 @@
 import { getSupabaseAdmin } from "~/server/utils/supabase";
 import { nextDrawDate } from "~/server/utils/stats";
+import { readStatsCache, writeStatsCache } from "~/server/utils/cache";
 import { validateScope } from "~/server/utils/validation";
-import type { Database } from "~/types/supabase";
 
 export default defineEventHandler(async (event) => {
 	const query = getQuery(event);
@@ -9,20 +9,18 @@ export default defineEventHandler(async (event) => {
 
 	const db = getSupabaseAdmin();
 
-	const { data: cached } = await db
-		.from("stats_cache")
-		.select("data_json, computed_at")
-		.eq("stat_type", "advisor")
-		.eq("scope", scope)
-		.maybeSingle();
+	const cached = await readStatsCache(db, "advisor", scope);
+	if (cached) return { data: cached.data, cached_at: cached.computedAt };
 
-	if (cached) return { data: cached.data_json, cached_at: cached.computed_at };
+	const [r2, r3b, r3f] = await Promise.all([
+		db.rpc("get_2digit_stats", { p_col: "last2", p_scope: scope, p_month: null, p_day: null }),
+		db.rpc("get_3digit_stats", { p_col: "last3b", p_scope: scope, p_month: null }),
+		db.rpc("get_3digit_stats", { p_col: "last3f", p_scope: scope, p_month: null }),
+	]);
 
-	const { data: rows2, error: e2 } = await db.rpc("get_2digit_stats", { p_col: "last2", p_scope: scope, p_month: null, p_day: null });
-	const { data: rows3b, error: e3b } = await db.rpc("get_3digit_stats", { p_col: "last3b", p_scope: scope, p_month: null });
-	const { data: rows3f, error: e3f } = await db.rpc("get_3digit_stats", { p_col: "last3f", p_scope: scope, p_month: null });
-
-	if (e2 || e3b || e3f) throw createError({ statusCode: 500, message: "Failed to compute advisor" });
+	if (r2.error || r3b.error || r3f.error) {
+		throw createError({ statusCode: 500, message: "Failed to compute advisor" });
+	}
 
 	function topByGap(rows: { number: string; gap: number; avg_gap?: number }[]) {
 		const sorted = [...(rows ?? [])].sort((a, b) => b.gap - a.gap);
@@ -32,16 +30,11 @@ export default defineEventHandler(async (event) => {
 
 	const result = {
 		draw_date_next: nextDrawDate(),
-		suggestions: { last2: topByGap(rows2 ?? []), last3b: topByGap(rows3b ?? []), last3f: topByGap(rows3f ?? []) },
+		suggestions: { last2: topByGap(r2.data ?? []), last3b: topByGap(r3b.data ?? []), last3f: topByGap(r3f.data ?? []) },
 		rationale: `Recommended numbers are those with the longest gap in the ${scope} period (longest time without appearing compared to average)`,
 	};
 
-	await db.from("stats_cache").upsert({
-		stat_type: "advisor",
-		scope,
-		data_json: result as unknown as Database["public"]["Tables"]["stats_cache"]["Insert"]["data_json"],
-		computed_at: new Date().toISOString()
-	});
+	await writeStatsCache(db, "advisor", scope, result);
 
 	return { data: result, cached_at: new Date().toISOString() };
 });

@@ -1,8 +1,8 @@
 import { getSupabaseAdmin } from "~/server/utils/supabase";
-import { assignLabels, computePercentile } from "~/server/utils/stats";
+import { assignLabels, computePercentile, HOT_PERCENTILE, COLD_PERCENTILE } from "~/server/utils/stats";
+import { readStatsCache, writeStatsCache } from "~/server/utils/cache";
 import { validateScope } from "~/server/utils/validation";
 import { validateMonth, validateDay } from "~/server/utils/validation-helpers";
-import type { Database } from "~/types/supabase";
 
 export default defineEventHandler(async (event) => {
 	const query = getQuery(event);
@@ -15,19 +15,14 @@ export default defineEventHandler(async (event) => {
 		throw createError({ statusCode: 400, message: "Invalid type. Must be 'last2' or 'first2'" });
 	}
 
-	const cacheKey = `2digit_${type}:${scope}${month ? `_m${month}` : ""}${day ? `_d${day}` : ""}`;
+	const statType = `2digit_${type}`;
+	const scopeKey = `${scope}${month ? `_m${month}` : ""}${day ? `_d${day}` : ""}`;
 
 	const db = getSupabaseAdmin();
 
-	const { data: cached } = await db
-		.from("stats_cache")
-		.select("data_json, computed_at")
-		.eq("stat_type", `2digit_${type}`)
-		.eq("scope", `${scope}${month ? `_m${month}` : ""}${day ? `_d${day}` : ""}`)
-		.maybeSingle();
-
+	const cached = await readStatsCache(db, statType, scopeKey);
 	if (cached) {
-		return { data: cached.data_json, cached_at: cached.computed_at };
+		return { data: cached.data, cached_at: cached.computedAt };
 	}
 
 	const col = type === "first2" ? "first" : "last2";
@@ -52,18 +47,14 @@ export default defineEventHandler(async (event) => {
 	}));
 
 	const counts = items.map((i) => i.count);
-	const hotThreshold = computePercentile(counts, 90);
-	const coldThreshold = computePercentile(counts, 10);
-	const ranking = assignLabels(items);
+	const result = {
+		ranking: assignLabels(items),
+		total_draws: rows?.length ?? 0,
+		hot_threshold: computePercentile(counts, HOT_PERCENTILE),
+		cold_threshold: computePercentile(counts, COLD_PERCENTILE),
+	};
 
-	const result = { ranking, total_draws: rows?.length ?? 0, hot_threshold: hotThreshold, cold_threshold: coldThreshold };
-
-	await db.from("stats_cache").upsert({
-		stat_type: `2digit_${type}`,
-		scope: cacheKey.split(":")[1],
-		data_json: result as unknown as Database["public"]["Tables"]["stats_cache"]["Insert"]["data_json"],
-		computed_at: new Date().toISOString(),
-	});
+	await writeStatsCache(db, statType, scopeKey, result);
 
 	return { data: result, cached_at: new Date().toISOString() };
 });

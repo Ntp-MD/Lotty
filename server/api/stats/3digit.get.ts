@@ -1,8 +1,8 @@
 import { getSupabaseAdmin } from "~/server/utils/supabase";
-import { assignLabels, computePercentile } from "~/server/utils/stats";
+import { assignLabels, computePercentile, HOT_PERCENTILE, COLD_PERCENTILE } from "~/server/utils/stats";
+import { readStatsCache, writeStatsCache } from "~/server/utils/cache";
 import { validateScope } from "~/server/utils/validation";
 import { validateMonth } from "~/server/utils/validation-helpers";
-import type { Database } from "~/types/supabase";
 
 export default defineEventHandler(async (event) => {
 	const query = getQuery(event);
@@ -15,16 +15,11 @@ export default defineEventHandler(async (event) => {
 	}
 
 	const db = getSupabaseAdmin();
+	const statType = `3digit_${type}`;
 	const scopeKey = `${scope}${month ? `_m${month}` : ""}`;
 
-	const { data: cached } = await db
-		.from("stats_cache")
-		.select("data_json, computed_at")
-		.eq("stat_type", `3digit_${type}`)
-		.eq("scope", scopeKey)
-		.maybeSingle();
-
-	if (cached) return { data: cached.data_json, cached_at: cached.computed_at };
+	const cached = await readStatsCache(db, statType, scopeKey);
+	if (cached) return { data: cached.data, cached_at: cached.computedAt };
 
 	const { data: rows, error } = await db.rpc("get_3digit_stats", {
 		p_col: type,
@@ -42,16 +37,11 @@ export default defineEventHandler(async (event) => {
 	const result = {
 		ranking: assignLabels(items),
 		total_draws: rows?.length ?? 0,
-		hot_threshold: computePercentile(counts, 90),
-		cold_threshold: computePercentile(counts, 10),
+		hot_threshold: computePercentile(counts, HOT_PERCENTILE),
+		cold_threshold: computePercentile(counts, COLD_PERCENTILE),
 	};
 
-	await db.from("stats_cache").upsert({
-		stat_type: `3digit_${type}`,
-		scope: scopeKey,
-		data_json: result as unknown as Database["public"]["Tables"]["stats_cache"]["Insert"]["data_json"],
-		computed_at: new Date().toISOString()
-	});
+	await writeStatsCache(db, statType, scopeKey, result);
 
 	return { data: result, cached_at: new Date().toISOString() };
 });
