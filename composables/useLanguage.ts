@@ -34,6 +34,9 @@ const translations: Record<string, { en: string; th: string }> = {
   "hero.nextDraw": { en: "Next draw in", th: "งวดถัดไปอีก" },
   "hero.days": { en: "days", th: "วัน" },
   "hero.today": { en: "Draw day!", th: "วันนี้ออกรางวัล!" },
+  "hero.hours": { en: "h", th: "ชม" },
+  "hero.minutes": { en: "m", th: "นาที" },
+  "hero.seconds": { en: "s", th: "วินาที" },
 
   // Quick Pick
   "quickpick.title": { en: "Quick Pick", th: "สุ่มเลข" },

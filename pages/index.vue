@@ -2,6 +2,7 @@
 import type { AdvisorResponse, StatsResponse, DigitsResponse, DigitPosition } from "~/types";
 import { formatDate } from "~/composables/useDate";
 import { useLanguage } from "~/composables/useLanguage";
+import { onMounted, onUnmounted } from "vue";
 
 useHead({ title: "Recommended Numbers — Lotty" });
 
@@ -114,16 +115,62 @@ function copyQuickPick() {
 
 const nextDrawDays = computed(() => {
   const now = new Date();
-  const next = new Date(now);
-  if (now.getDate() < 16) {
+  const thaiTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Bangkok" }));
+  const next = new Date(thaiTime);
+  if (thaiTime.getDate() < 16) {
     next.setDate(16);
   } else {
-    next.setMonth(now.getMonth() + 1, 1);
+    next.setMonth(thaiTime.getMonth() + 1, 1);
   }
   next.setHours(0, 0, 0, 0);
-  const today = new Date(now);
+  const today = new Date(thaiTime);
   today.setHours(0, 0, 0, 0);
   return Math.round((next.getTime() - today.getTime()) / 86400000);
+});
+
+const countdown = ref({ hours: 0, minutes: 0, seconds: 0 });
+const isDrawDay = computed(() => {
+  const now = new Date();
+  const thaiTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Bangkok" }));
+  const day = thaiTime.getDate();
+  return day === 1 || day === 16;
+});
+
+function updateCountdown() {
+  const now = new Date();
+  const thaiTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Bangkok" }));
+  const nextDraw = new Date(thaiTime);
+  
+  if (thaiTime.getDate() < 16) {
+    nextDraw.setDate(16);
+  } else if (thaiTime.getDate() === 16 && thaiTime.getHours() < 16) {
+    nextDraw.setDate(16);
+  } else if (thaiTime.getDate() === 16 && thaiTime.getHours() >= 16) {
+    nextDraw.setMonth(thaiTime.getMonth() + 1, 1);
+  } else {
+    nextDraw.setMonth(thaiTime.getMonth() + 1, 1);
+  }
+  nextDraw.setHours(16, 0, 0, 0);
+  
+  const diff = nextDraw.getTime() - thaiTime.getTime();
+  if (diff > 0) {
+    countdown.value = {
+      hours: Math.floor(diff / 3600000),
+      minutes: Math.floor((diff % 3600000) / 60000),
+      seconds: Math.floor((diff % 60000) / 1000),
+    };
+  }
+}
+
+let countdownInterval: ReturnType<typeof setInterval> | null = null;
+
+onMounted(() => {
+  updateCountdown();
+  countdownInterval = setInterval(updateCountdown, 1000);
+});
+
+onUnmounted(() => {
+  if (countdownInterval) clearInterval(countdownInterval);
 });
 </script>
 
@@ -138,8 +185,13 @@ const nextDrawDays = computed(() => {
           <span class="hero-date">{{ formatDate(latestDraw.data.draw_date) }}</span>
         </div>
         <div class="hero-countdown">
-          <span class="hero-countdown-label">{{ nextDrawDays === 0 ? t('hero.today') : t('hero.nextDraw') }}</span>
-          <span v-if="nextDrawDays > 0" class="hero-countdown-value">{{ nextDrawDays }} {{ t('hero.days') }}</span>
+          <span class="hero-countdown-label">{{ isDrawDay ? t('hero.today') : t('hero.nextDraw') }}</span>
+          <span v-if="!isDrawDay && nextDrawDays > 0" class="hero-countdown-value">{{ nextDrawDays }} {{ t('hero.days') }}</span>
+          <div v-else-if="isDrawDay" class="hero-countdown-timer">
+            <span class="timer-unit">{{ String(countdown.hours).padStart(2, '0') }}{{ t('hero.hours') }}</span>:
+            <span class="timer-unit">{{ String(countdown.minutes).padStart(2, '0') }}{{ t('hero.minutes') }}</span>:
+            <span class="timer-unit">{{ String(countdown.seconds).padStart(2, '0') }}{{ t('hero.seconds') }}</span>
+          </div>
         </div>
       </div>
       <div class="hero-first">
@@ -394,6 +446,23 @@ const nextDrawDays = computed(() => {
   font-size: var(--text-md);
   font-weight: var(--weight-bold);
   color: var(--accent-gold);
+}
+
+.hero-countdown-timer {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-family: var(--font-mono);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  color: var(--accent-gold);
+}
+
+.timer-unit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2ch;
 }
 
 .hero-first {
