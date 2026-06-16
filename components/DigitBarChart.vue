@@ -59,11 +59,6 @@ const maxCount = computed(() => Math.max(...digits.value.map((d) => d.count), 1)
   gap: var(--gap-sm);
 }
 
-@media (min-width: 768px) {
-  .digit-chart {
-    height: 100%;
-  }
-}
 
 .digit-chart-header {
   display: flex;

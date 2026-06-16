@@ -75,11 +75,6 @@ export default defineNuxtConfig({
 	},
 
 	routeRules: {
-		"/": { isr: true },
-		"/2digit": { isr: true },
-		"/3digit": { isr: true },
-		"/stat-bar": { isr: true },
-		"/archive": { isr: true },
 		"/api/stats/**": {
 			cache: { maxAge: 3600 },
 			cors: true,

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { StatsResponse, RankingItem } from "~/types";
 import { useLanguage } from "~/composables/useLanguage";
+import { ref, computed, watch } from "vue";
 
 useHead({ title: "3 Digit — Lotty" });
 
@@ -12,26 +13,12 @@ const prizeType = ref("last3b");
 const currentPage = ref(1);
 const itemsPerPage = 100;
 
-const asyncKey = computed(() => `3digit-${filter.scope}-${prizeType.value}-${filter.month ?? ""}-${filter.day}`);
+// Hoist data ref first (before any awaits)
+const rawData = ref<StatsResponse | null>(null);
 
-const { data, pending, error, refresh } = await useAsyncData(
-  asyncKey,
-  () => $fetch<StatsResponse>("/api/stats/3digit", { query: { ...queryParams.value, type: prizeType.value } }),
-  { watch: [asyncKey] },
-);
-
-const ranking = computed<RankingItem[]>(() => data.value?.data.ranking ?? []);
+// Hoist ALL computed before any await
+const ranking = computed<RankingItem[]>(() => rawData.value?.data.ranking ?? []);
 const top10 = computed(() => [...ranking.value].sort((a, b) => b.count - a.count).slice(0, 10));
-
-let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-
-watch(searchQuery, (newVal) => {
-  if (debounceTimer) clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(() => {
-    debouncedSearch.value = newVal;
-    currentPage.value = 1;
-  }, 300);
-});
 
 const filtered = computed(() => {
   const q = debouncedSearch.value.trim();
@@ -42,10 +29,6 @@ const filtered = computed(() => {
 const sorted = computed(() => [...filtered.value].sort((a, b) => b.count - a.count));
 const displayedItems = computed(() => sorted.value.slice(0, currentPage.value * itemsPerPage));
 const hasMore = computed(() => sorted.value.length > currentPage.value * itemsPerPage);
-
-function loadMore() {
-  currentPage.value++;
-}
 
 const posFreq0 = computed(() => {
   const freq: Record<string, number> = {};
@@ -82,6 +65,37 @@ const pos1ColdDigit = computed(() => Object.entries(posFreq1.value).sort((a, b) 
 
 const pos2HotDigit = computed(() => Object.entries(posFreq2.value).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '0');
 const pos2ColdDigit = computed(() => Object.entries(posFreq2.value).sort((a, b) => a[1] - b[1])[0]?.[0] ?? '0');
+
+// Move watch and helpers before the await
+let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+watch(searchQuery, (newVal) => {
+  if (debounceTimer) clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    debouncedSearch.value = newVal;
+    currentPage.value = 1;
+  }, 300);
+});
+
+function loadMore() {
+  currentPage.value++;
+}
+
+// Computed async key (declared before await)
+const asyncKey = computed(() => `3digit-${filter.value.scope}-${prizeType.value}-${filter.value.month ?? ""}-${filter.value.day}`);
+
+// Single await at the bottom of setup
+const { data, pending, error, refresh } = await useAsyncData(
+  asyncKey.value,
+  () => $fetch<StatsResponse>("/api/stats/3digit", { query: { ...queryParams.value, type: prizeType.value } }),
+  { watch: [asyncKey] }
+);
+
+// Populate hoisted ref
+rawData.value = data.value;
+
+watch(data, (newVal) => {
+  if (newVal) rawData.value = newVal;
+});
 </script>
 
 <template>

@@ -1,22 +1,22 @@
 import type { FilterState, Scope, DrawDay } from "~/types";
 
-const filter = reactive<FilterState>({
-	scope: "3y",
-	month: null,
-	day: "all",
-});
-
 export function useFilter() {
+	const filter = useState<FilterState>("filter", () => ({
+		scope: "3y",
+		month: null,
+		day: "all",
+	}));
+
 	function setScope(scope: Scope) {
-		filter.scope = scope;
+		filter.value.scope = scope;
 	}
 
 	function setMonth(month: number | null) {
-		filter.month = month;
+		filter.value.month = month;
 	}
 
 	function setDay(day: DrawDay) {
-		filter.day = day;
+		filter.value.day = day;
 	}
 
 	const scopeLabel = computed(() => {
@@ -27,13 +27,13 @@ export function useFilter() {
 			"10y": "10 Years",
 			all: "All",
 		};
-		return map[filter.scope];
+		return map[filter.value.scope];
 	});
 
 	const queryParams = computed(() => ({
-		scope: filter.scope,
-		...(filter.month ? { month: filter.month } : {}),
-		...(filter.day !== "all" ? { day: filter.day } : {}),
+		scope: filter.value.scope,
+		...(filter.value.month ? { month: filter.value.month } : {}),
+		...(filter.value.day !== "all" ? { day: filter.value.day } : {}),
 	}));
 
 	return { filter: readonly(filter), setScope, setMonth, setDay, scopeLabel, queryParams };

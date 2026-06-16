@@ -47,10 +47,10 @@ export default defineEventHandler(async (event) => {
 
 	const { error } = await db.from("draws").insert({
 		draw_date: drawDate,
-		first: prizes.first.number,
-		last2: prizes.last2.number,
-		last3f: prizes.last3f.number,
-		last3b: prizes.last3b.number,
+		first: prizes.first?.number ?? "",
+		last2: prizes.last2?.number ?? "",
+		last3f: prizes.last3f?.number ?? "",
+		last3b: prizes.last3b?.number ?? "",
 		second: [],
 		third: [],
 		fourth: [],

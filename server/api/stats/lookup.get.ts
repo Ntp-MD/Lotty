@@ -32,9 +32,10 @@ export default defineEventHandler(async (event) => {
 	const row = rows?.[0];
 	if (!row) return { data: null, cached_at: new Date().toISOString() };
 
-	const { data: allRows } = await db.rpc(number.length === 2 ? "get_2digit_stats" : "get_3digit_stats", {
-		p_col: col, p_scope: scope, p_month: null, p_day: null,
-	});
+	const is2digit = number.length === 2;
+	const { data: allRows } = is2digit
+		? await db.rpc("get_2digit_stats", { p_col: col, p_scope: scope, p_month: null, p_day: null })
+		: await db.rpc("get_3digit_stats", { p_col: col, p_scope: scope, p_month: null });
 
 	const allCounts = (allRows ?? []).map((r) => r.count);
 	const sorted = [...allCounts].sort((a, b) => b - a);

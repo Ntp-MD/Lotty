@@ -14,7 +14,14 @@ export default defineEventHandler((event) => {
     return;
   }
   
-  const ip = getHeader(event, "x-forwarded-for") || getHeader(event, "x-real-ip") || "unknown";
+  const ip = getHeader(event, "x-forwarded-for") || getHeader(event, "x-real-ip");
+
+  // Server-internal SSR $fetch calls carry no client IP header. Skip them so
+  // they don't all share an "unknown" bucket and trip the limit under load.
+  if (!ip) {
+    return;
+  }
+
   const key = `${ip}:${path}`;
   const now = Date.now();
   

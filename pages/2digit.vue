@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { StatsResponse, RankingItem } from "~/types";
 import { useLanguage } from "~/composables/useLanguage";
+import { ref, computed, watch } from "vue";
 
 useHead({ title: "2 Digit — Lotty" });
 
@@ -9,15 +10,11 @@ const { t } = useLanguage();
 const selected = ref<string | null>(null);
 const prizeType = ref("last2");
 
-const asyncKey = computed(() => `2digit-${filter.scope}-${prizeType.value}-${filter.month ?? ""}-${filter.day}`);
+// Hoist data ref first (before any awaits)
+const rawData = ref<StatsResponse | null>(null);
 
-const { data, pending, error, refresh } = await useAsyncData(
-  asyncKey,
-  () => $fetch<StatsResponse>("/api/stats/2digit", { query: { ...queryParams.value, type: prizeType.value } }),
-  { watch: [asyncKey] },
-);
-
-const ranking = computed<RankingItem[]>(() => data.value?.data.ranking ?? []);
+// Hoist ALL computed before any await
+const ranking = computed<RankingItem[]>(() => rawData.value?.data.ranking ?? []);
 const top10 = computed(() => [...ranking.value].sort((a, b) => b.count - a.count).slice(0, 10));
 
 const tensByDigit = computed(() => {
@@ -43,6 +40,23 @@ const unitsByDigit = computed(() => {
 
 const unitsHotDigit = computed(() => Object.entries(unitsByDigit.value).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '0');
 const unitsColdDigit = computed(() => Object.entries(unitsByDigit.value).sort((a, b) => a[1] - b[1])[0]?.[0] ?? '0');
+
+// Computed async key (declared before await)
+const asyncKey = computed(() => `2digit-${filter.value.scope}-${prizeType.value}-${filter.value.month ?? ""}-${filter.value.day}`);
+
+// Single await at the bottom of setup
+const { data, pending, error, refresh } = await useAsyncData(
+  asyncKey.value,
+  () => $fetch<StatsResponse>("/api/stats/2digit", { query: { ...queryParams.value, type: prizeType.value } }),
+  { watch: [asyncKey] }
+);
+
+// Populate hoisted ref
+rawData.value = data.value;
+
+watch(data, (newVal) => {
+  if (newVal) rawData.value = newVal;
+});
 </script>
 
 <template>

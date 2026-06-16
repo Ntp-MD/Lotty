@@ -2,22 +2,45 @@
 import type { AdvisorResponse, StatsResponse, DigitsResponse, DigitPosition } from "~/types";
 import { formatDate } from "~/composables/useDate";
 import { useLanguage } from "~/composables/useLanguage";
-import { onMounted, onUnmounted } from "vue";
+import { onMounted, onUnmounted, ref, computed, watch } from "vue";
 
 useHead({ title: "Recommended Numbers — Lotty" });
 
 const { filter, scopeLabel } = useFilter();
 const { t } = useLanguage();
 
-const asyncKey = computed(() => `advisor-${filter.scope}`);
+// Hoist ALL data refs first (before any awaits)
+const advisorData = ref<AdvisorResponse | null>(null);
+const latestDrawData = ref<any>(null);
+const digitsStatsData = ref<DigitsResponse | null>(null);
 
-const { data, pending, error, refresh } = await useAsyncData(
-  asyncKey,
-  () => $fetch<AdvisorResponse>("/api/advisor", { query: { scope: filter.scope } }),
-  { watch: [asyncKey] },
-);
+// Hoist ALL computed properties first (before any awaits)
+const advisor = computed(() => advisorData.value?.data);
+const latestDraw = computed(() => latestDrawData.value);
+const positions = computed<DigitPosition[]>(() => digitsStatsData.value?.data ?? []);
 
-const advisor = computed(() => data.value?.data);
+const locks = ref<Record<number, string>>({});
+
+function toggleLock(pos: number, digit: string) {
+  const current = locks.value[pos];
+  locks.value = { ...locks.value, [pos]: current === digit ? "" : digit };
+}
+
+const comboFreq = computed(() => {
+  const lockedPositions = Object.entries(locks.value).filter(([, d]) => d !== "");
+  if (!lockedPositions.length) return null;
+
+  let combined = 100;
+  lockedPositions.forEach(([posStr, digit]) => {
+    const posData = positions.value.find((p) => p.position === Number(posStr));
+    if (posData) {
+      const total = Object.values(posData.freq).reduce((a, b) => a + b, 0);
+      const digitFreq = posData.freq[digit] ?? 0;
+      combined = Math.round(((combined * (digitFreq / Math.max(total, 1))) / 100) * 100);
+    }
+  });
+  return combined;
+});
 
 const quickPick = ref<{ last2: string; last3b: string; last3f: string } | null>(null);
 const quickPickLoading = ref(false);
@@ -26,7 +49,7 @@ const statsCache = ref<Record<string, { stats2: StatsResponse; stats3b: StatsRes
 async function generateQuickPick() {
   quickPickLoading.value = true;
   try {
-    const scope = filter.scope;
+    const scope = filter.value.scope;
     let stats2: StatsResponse, stats3b: StatsResponse, stats3f: StatsResponse;
 
     if (statsCache.value[scope]) {
@@ -65,47 +88,12 @@ const lookupQuery = ref("");
 const lookupResult = ref<null | { number: string; count: number; last_draw: string; gap: number; rank: number; total: number; label: string }>(null);
 const lookupPending = ref(false);
 
-const { data: latestDraw, pending: latestDrawPending, refresh: refreshLatestDraw } = await useFetch("/api/latest-draw");
-
-// 6-digit stats
-const digitsAsyncKey = computed(() => `digits-${filter.scope}`);
-const { data: digitsData, pending: digitsPending, error: digitsError, refresh: refreshDigits } = await useAsyncData(
-  digitsAsyncKey,
-  () => $fetch<DigitsResponse>("/api/stats/digits", { query: { scope: filter.scope } }),
-  { watch: [digitsAsyncKey] },
-);
-
-const positions = computed<DigitPosition[]>(() => digitsData.value?.data ?? []);
-
-const locks = ref<Record<number, string>>({});
-
-function toggleLock(pos: number, digit: string) {
-  const current = locks.value[pos];
-  locks.value = { ...locks.value, [pos]: current === digit ? "" : digit };
-}
-
-const comboFreq = computed(() => {
-  const lockedPositions = Object.entries(locks.value).filter(([, d]) => d !== "");
-  if (!lockedPositions.length) return null;
-
-  let combined = 100;
-  lockedPositions.forEach(([posStr, digit]) => {
-    const posData = positions.value.find((p) => p.position === Number(posStr));
-    if (posData) {
-      const total = Object.values(posData.freq).reduce((a, b) => a + b, 0);
-      const digitFreq = posData.freq[digit] ?? 0;
-      combined = Math.round(((combined * (digitFreq / Math.max(total, 1))) / 100) * 100);
-    }
-  });
-  return combined;
-});
-
 async function doLookup() {
   const q = lookupQuery.value.trim();
   if (q.length < 2 || q.length > 3) return;
   lookupPending.value = true;
   try {
-    const res = await $fetch<{ data: typeof lookupResult.value }>("/api/stats/lookup", { query: { number: q, scope: filter.scope } });
+    const res = await $fetch<{ data: typeof lookupResult.value }>("/api/stats/lookup", { query: { number: q, scope: filter.value.scope } });
     lookupResult.value = res.data;
   } finally {
     lookupPending.value = false;
@@ -156,6 +144,41 @@ function getThaiDateString() {
   return `${y}-${m}-${d}`;
 }
 
+// Run unified async fetch last (top-level await at the very bottom of setup)
+const asyncKeyHome = computed(() => `home-${filter.value.scope}`);
+const { data: homeFetchedData, pending, error, refresh } = await useAsyncData(
+  asyncKeyHome.value,
+  async () => {
+    const [adv, latest, digits] = await Promise.all([
+      $fetch<AdvisorResponse>("/api/advisor", { query: { scope: filter.value.scope } }),
+      $fetch<any>("/api/latest-draw"),
+      $fetch<DigitsResponse>("/api/stats/digits", { query: { scope: filter.value.scope } }),
+    ]);
+    return { advisor: adv, latestDraw: latest, digitsData: digits };
+  },
+  { watch: [asyncKeyHome] }
+);
+
+// Populate our hoisted refs
+advisorData.value = (homeFetchedData.value?.advisor ?? null) as AdvisorResponse | null;
+latestDrawData.value = (homeFetchedData.value?.latestDraw ?? null) as any;
+digitsStatsData.value = (homeFetchedData.value?.digitsData ?? null) as DigitsResponse | null;
+
+watch(homeFetchedData, (newVal) => {
+  if (newVal) {
+    advisorData.value = (newVal.advisor ?? null) as AdvisorResponse | null;
+    latestDrawData.value = (newVal.latestDraw ?? null) as any;
+    digitsStatsData.value = (newVal.digitsData ?? null) as DigitsResponse | null;
+  }
+});
+
+const latestDrawPending = pending;
+const digitsPending = pending;
+const digitsError = error;
+
+const refreshLatestDraw = refresh;
+const refreshDigits = refresh;
+
 let pollingInterval: ReturnType<typeof setInterval> | null = null;
 
 function startPollingIfNeeded() {
@@ -187,7 +210,6 @@ function startPollingIfNeeded() {
         if (latestDraw.value?.data?.draw_date === getThaiDateString()) {
           // New draw is found! Refresh all stats on the page dynamically
           refresh();
-          refreshDigits();
           if (pollingInterval) {
             clearInterval(pollingInterval);
             pollingInterval = null;
@@ -273,7 +295,7 @@ onUnmounted(() => {
             v-for="(d, i) in latestDraw.data.first.split('')"
             :key="i"
             class="hero-digit num-display"
-            :style="{ animationDelay: `${i * 90}ms` }"
+            :style="{ animationDelay: `${Number(i) * 90}ms` }"
           >{{ d }}</span>
         </div>
       </div>

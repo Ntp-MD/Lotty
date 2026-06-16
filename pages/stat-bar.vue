@@ -1,19 +1,20 @@
 <script setup lang="ts">
 import type { StatsResponse, RankingItem, DigitsResponse, DigitPosition } from "~/types";
 import { useLanguage } from "~/composables/useLanguage";
+import { ref, computed, watch } from "vue";
 
 useHead({ title: "Stat Bar — Lotty" });
 
 const { filter, queryParams } = useFilter();
 const { t } = useLanguage();
 
-// 2-digit data
-const asyncKey2digit = computed(() => `2digit-${filter.scope}-${filter.month ?? ""}-${filter.day}`);
-const { data: data2digit, pending: pending2digit, error: error2digit, refresh: refresh2digit } = await useAsyncData(
-  asyncKey2digit,
-  () => $fetch<StatsResponse>("/api/stats/2digit", { query: { ...queryParams.value, type: "last2" } }),
-  { watch: [asyncKey2digit] },
-);
+// Hoist data ref first (before any awaits)
+const statBarData = ref<{ data2digit: StatsResponse; data3digit: StatsResponse; digitsData: DigitsResponse } | null>(null);
+
+// Hoist ALL computed properties first (before any awaits)
+const data2digit = computed(() => statBarData.value?.data2digit);
+const data3digit = computed(() => statBarData.value?.data3digit);
+const digitsData = computed(() => statBarData.value?.digitsData);
 
 const ranking2digit = computed<RankingItem[]>(() => data2digit.value?.data.ranking ?? []);
 
@@ -40,14 +41,6 @@ const unitsByDigit = computed(() => {
 
 const unitsHotDigit = computed(() => Object.entries(unitsByDigit.value).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '0');
 const unitsColdDigit = computed(() => Object.entries(unitsByDigit.value).sort((a, b) => a[1] - b[1])[0]?.[0] ?? '0');
-
-// 3-digit data
-const asyncKey3digit = computed(() => `3digit-${filter.scope}-${filter.month ?? ""}-${filter.day}`);
-const { data: data3digit, pending: pending3digit, error: error3digit, refresh: refresh3digit } = await useAsyncData(
-  asyncKey3digit,
-  () => $fetch<StatsResponse>("/api/stats/3digit", { query: { ...queryParams.value, type: "last3b" } }),
-  { watch: [asyncKey3digit] },
-);
 
 const ranking3digit = computed<RankingItem[]>(() => data3digit.value?.data.ranking ?? []);
 
@@ -87,19 +80,47 @@ const pos1ColdDigit = computed(() => Object.entries(posFreq1.value).sort((a, b) 
 const pos2HotDigit = computed(() => Object.entries(posFreq2.value).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '0');
 const pos2ColdDigit = computed(() => Object.entries(posFreq2.value).sort((a, b) => a[1] - b[1])[0]?.[0] ?? '0');
 
-// 6-digit data
-const asyncKeyDigits = computed(() => `digits-${filter.scope}`);
-const { data: digitsData, pending: digitsPending, error: digitsError, refresh: refreshDigits } = await useAsyncData(
-  asyncKeyDigits,
-  () => $fetch("/api/stats/digits", { query: { ...queryParams.value } }),
-  { watch: [asyncKeyDigits] },
-);
-
 const positions = computed(() => {
   const data = digitsData.value?.data;
   if (!data || !Array.isArray(data)) return [];
   return data as Array<{ position: number; freq: Record<string, number>; hot_digit: string; cold_digit: string }>;
 });
+
+// Run async fetch last (top-level await at the very bottom of setup)
+const asyncKeyStatBar = computed(() => `statbar-${filter.value.scope}-${filter.value.month ?? ""}-${filter.value.day}`);
+const { data, pending, error, refresh } = await useAsyncData(
+  asyncKeyStatBar.value,
+  async () => {
+    const [d2, d3, d6] = await Promise.all([
+      $fetch<StatsResponse>("/api/stats/2digit", { query: { ...queryParams.value, type: "last2" } }),
+      $fetch<StatsResponse>("/api/stats/3digit", { query: { ...queryParams.value, type: "last3b" } }),
+      $fetch<DigitsResponse>("/api/stats/digits", { query: { ...queryParams.value } }),
+    ]);
+    return { data2digit: d2, data3digit: d3, digitsData: d6 };
+  },
+  { watch: [asyncKeyStatBar] }
+);
+
+// Populate our hoisted ref
+statBarData.value = data.value;
+
+watch(data, (newVal) => {
+  if (newVal) {
+    statBarData.value = newVal;
+  }
+});
+
+const pending2digit = pending;
+const pending3digit = pending;
+const digitsPending = pending;
+
+const error2digit = error;
+const error3digit = error;
+const digitsError = error;
+
+const refresh2digit = refresh;
+const refresh3digit = refresh;
+const refreshDigits = refresh;
 </script>
 
 <template>

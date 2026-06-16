@@ -13,10 +13,18 @@ const filterYear = ref<number | null>(null);
 const filterMonth = ref<number | null>(null);
 const expanded = ref<number | null>(null);
 
+// Hoist before await — useSupabaseClient needs Nuxt instance
+const client = useSupabaseClient();
+
+// Hoist before await
+const years = computed(() => {
+  const current = new Date().getFullYear();
+  return Array.from({ length: 10 }, (_, i) => current - i);
+});
+
 const { data, pending, error } = await useAsyncData(
   "archive",
   async () => {
-    const client = useSupabaseClient();
     let query = client.from("draws").select("*").order("draw_date", { ascending: false });
     if (filterYear.value)
       query = query.filter("draw_date", "gte", `${filterYear.value}-01-01`).filter("draw_date", "lte", `${filterYear.value}-12-31`);
@@ -33,11 +41,6 @@ const { data, pending, error } = await useAsyncData(
   },
   { watch: [page, filterYear, filterMonth] },
 );
-
-const years = computed(() => {
-  const current = new Date().getFullYear();
-  return Array.from({ length: 10 }, (_, i) => current - i);
-});
 </script>
 
 <template>
