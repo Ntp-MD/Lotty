@@ -7,3 +7,4 @@ draws_import.sql
 *.log
 
 .vercel
+.output
