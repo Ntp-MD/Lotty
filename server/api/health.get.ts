@@ -1,13 +1,17 @@
 import { getSupabaseAdmin } from "~/server/utils/supabase";
 import { lastExpectedDrawDate } from "~/server/utils/stats";
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(async (event) => {
   const db = getSupabaseAdmin();
 
   try {
     const { data, error } = await db.from("draws").select("id").limit(1);
 
     if (error) {
+      // Return 503 so external monitors that key on HTTP status (Vercel,
+      // UptimeRobot, Pingdom, …) actually alert on the failure instead of
+      // treating an unhealthy 200 as success.
+      setResponseStatus(event, 503);
       return {
         status: "unhealthy",
         database: "error",
@@ -15,6 +19,8 @@ export default defineEventHandler(async () => {
         error: error.message,
       };
     }
+
+    void data;
 
     const { data: latestDraw } = await db
       .from("draws")
@@ -24,7 +30,7 @@ export default defineEventHandler(async () => {
       .maybeSingle();
 
     const expectedDate = lastExpectedDrawDate();
-    const isUpToDate = latestDraw && latestDraw.draw_date >= expectedDate;
+    const isUpToDate = !!latestDraw && latestDraw.draw_date >= expectedDate;
 
     return {
       status: "healthy",
@@ -37,6 +43,7 @@ export default defineEventHandler(async () => {
       },
     };
   } catch (error) {
+    setResponseStatus(event, 503);
     return {
       status: "unhealthy",
       database: "disconnected",

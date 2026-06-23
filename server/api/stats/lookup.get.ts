@@ -37,19 +37,38 @@ export default defineEventHandler(async (event) => {
 		? await db.rpc("get_2digit_stats", { p_col: col, p_scope: scope, p_month: null, p_day: null })
 		: await db.rpc("get_3digit_stats", { p_col: col, p_scope: scope, p_month: null });
 
-	const allCounts = (allRows ?? []).map((r) => r.count);
-	const sorted = [...allCounts].sort((a, b) => b - a);
-	const rank = sorted.indexOf(row.count) + 1;
+	// Rank only against numbers that have ACTUALLY appeared in the period.
+	// `allRows` contains every possible 2/3-digit combination (LEFT JOIN with
+	// generate_series), so using its length as the denominator inflates rank
+	// totals to 100/1000 even when only a handful of numbers were drawn.
+	const observedCounts = (allRows ?? []).map((r) => Number(r.count)).filter((c) => c > 0);
+	const myCount = Number(row.count);
+	// Handle ties: every number tied with `myCount` shares the same rank,
+	// equal to (count_of_items_strictly_greater + 1). Numbers that never
+	// appeared (count = 0) are placed at the end (rank = observed + 1).
+	const rank = myCount > 0
+		? observedCounts.filter((c) => c > myCount).length + 1
+		: observedCounts.length + 1;
+
+	const hot = computePercentile(observedCounts, 90);
+	const cold = computePercentile(observedCounts, 10);
+	const label = myCount === 0
+		? "Never"
+		: myCount >= hot
+			? "Frequent"
+			: myCount <= cold
+				? "Never"
+				: "Normal";
 
 	return {
 		data: {
 			number,
-			count: row.count,
+			count: myCount,
 			last_draw: row.last_draw,
 			gap: row.gap,
 			rank,
-			total: allCounts.length,
-			label: row.count >= computePercentile(allCounts, 90) ? "Frequent" : row.count <= computePercentile(allCounts, 10) ? "Never" : "Normal",
+			total: observedCounts.length,
+			label,
 			history: row.history ?? [],
 		},
 		cached_at: new Date().toISOString(),

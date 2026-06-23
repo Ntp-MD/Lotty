@@ -1,5 +1,5 @@
 import { getSupabaseAdmin } from "~/server/utils/supabase";
-import { assignLabels, computePercentile, HOT_PERCENTILE, COLD_PERCENTILE } from "~/server/utils/stats";
+import { assignLabels, thresholdsFromCounts } from "~/server/utils/stats";
 import { readStatsCache, writeStatsCache } from "~/server/utils/cache";
 import { validateScope } from "~/server/utils/validation";
 import { validateMonth } from "~/server/utils/validation-helpers";
@@ -33,12 +33,15 @@ export default defineEventHandler(async (event) => {
 		number: r.number, count: r.count, last_draw: r.last_draw, gap: r.gap, pct: r.pct,
 	}));
 
-	const counts = items.map((i) => i.count);
+	const counts = items.map((i) => Number(i.count));
+	const { hot, cold } = thresholdsFromCounts(counts);
 	const result = {
 		ranking: assignLabels(items),
-		total_draws: rows?.length ?? 0,
-		hot_threshold: computePercentile(counts, HOT_PERCENTILE),
-		cold_threshold: computePercentile(counts, COLD_PERCENTILE),
+		// rows.length is always 1000 (every three-digit number from `all_nums`).
+		// The real draw count is the sum of observed counts.
+		total_draws: counts.reduce((s, c) => s + c, 0),
+		hot_threshold: hot,
+		cold_threshold: cold,
 	};
 
 	await writeStatsCache(db, statType, scopeKey, result);

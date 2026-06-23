@@ -83,9 +83,10 @@ function loadMore() {
 // Computed async key (declared before await)
 const asyncKey = computed(() => `3digit-${filter.value.scope}-${prizeType.value}-${filter.value.month ?? ""}-${filter.value.day}`);
 
-// Single await at the bottom of setup
+// Single await at the bottom of setup. Pass the key as a getter (see notes
+// in pages/2digit.vue) so Nuxt rekeys the payload store on filter changes.
 const { data, pending, error, refresh } = await useAsyncData(
-  asyncKey.value,
+  () => asyncKey.value,
   () => $fetch<StatsResponse>("/api/stats/3digit", { query: { ...queryParams.value, type: prizeType.value } }),
   { watch: [asyncKey] }
 );

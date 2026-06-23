@@ -30,11 +30,15 @@ const { data, pending, error } = await useAsyncData(
       query = query.filter("draw_date", "gte", `${filterYear.value}-01-01`).filter("draw_date", "lte", `${filterYear.value}-12-31`);
     if (filterMonth.value) {
       const y = filterYear.value ?? new Date().getFullYear();
-      const m = String(filterMonth.value).padStart(2, "0");
-      const mNext = String(filterMonth.value + 1).padStart(2, "0");
+      // Use Date.UTC to compute the half-open [start, nextMonthStart) range so
+      // year/month rollover (Dec -> Jan, month 13 -> "13") cannot produce an
+      // invalid date string for any future edit.
+      const startDate = new Date(Date.UTC(y, filterMonth.value - 1, 1));
+      const endDate = new Date(Date.UTC(y, filterMonth.value, 1));
+      const iso = (d: Date) => d.toISOString().slice(0, 10);
       query = query
-        .filter("draw_date", "gte", `${y}-${m}-01`)
-        .filter("draw_date", "lt", filterMonth.value < 12 ? `${y}-${mNext}-01` : `${y + 1}-01-01`);
+        .filter("draw_date", "gte", iso(startDate))
+        .filter("draw_date", "lt", iso(endDate));
     }
     const { data: rows } = await query.range((page.value - 1) * perPage, page.value * perPage - 1);
     return rows as DrawRecord[];

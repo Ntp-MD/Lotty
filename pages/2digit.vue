@@ -44,9 +44,12 @@ const unitsColdDigit = computed(() => Object.entries(unitsByDigit.value).sort((a
 // Computed async key (declared before await)
 const asyncKey = computed(() => `2digit-${filter.value.scope}-${prizeType.value}-${filter.value.month ?? ""}-${filter.value.day}`);
 
-// Single await at the bottom of setup
+// Single await at the bottom of setup. Pass the key as a getter so Nuxt
+// rekeys its payload store when the filter changes — passing `.value` would
+// freeze the first snapshot and let two tabs with different filters clobber
+// each other's payload cache.
 const { data, pending, error, refresh } = await useAsyncData(
-  asyncKey.value,
+  () => asyncKey.value,
   () => $fetch<StatsResponse>("/api/stats/2digit", { query: { ...queryParams.value, type: prizeType.value } }),
   { watch: [asyncKey] }
 );

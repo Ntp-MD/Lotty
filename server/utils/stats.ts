@@ -6,27 +6,47 @@ export const COLD_PERCENTILE = 10;
 export function computePercentile(values: number[], p: number): number {
 	if (!values.length) return 0;
 	const sorted = [...values].sort((a, b) => a - b);
-	const idx = Math.floor((p / 100) * sorted.length);
-	return sorted[Math.min(idx, sorted.length - 1)];
+	// Nearest-rank method: N = ceil(p/100 * len), then 0-indexed = N - 1
+	const idx = Math.min(Math.ceil((p / 100) * sorted.length) - 1, sorted.length - 1);
+	return sorted[Math.max(idx, 0)];
+}
+
+/**
+ * Build hot/cold thresholds from numbers that have ACTUALLY appeared at least
+ * once. The RPCs LEFT JOIN against `generate_series(0..99)` / `0..999`, so the
+ * raw ranking includes hundreds of zero-count rows. Feeding those zeros into
+ * the percentile calculation drags both thresholds toward 0 and mislabels
+ * everything as "Frequent" or "Never".
+ */
+export function thresholdsFromCounts(counts: number[]): { hot: number; cold: number } {
+	const observed = counts.filter((c) => c > 0);
+	if (!observed.length) return { hot: 0, cold: 0 };
+	return {
+		hot: computePercentile(observed, HOT_PERCENTILE),
+		cold: computePercentile(observed, COLD_PERCENTILE),
+	};
 }
 
 export function assignLabels(
 	items: Array<{ number: string; count: number; last_draw: string | null; gap: number; pct: number }>,
 ): RankingItem[] {
-	const counts = items.map((i) => i.count);
-	const hotThreshold = computePercentile(counts, HOT_PERCENTILE);
-	const coldThreshold = computePercentile(counts, COLD_PERCENTILE);
+	const { hot, cold } = thresholdsFromCounts(items.map((i) => i.count));
 	return items.map((i) => ({
 		number: i.number,
 		count: i.count,
 		last_draw: i.last_draw ?? "",
 		gap: i.gap,
 		pct: i.pct,
-		label: (i.count >= hotThreshold
-			? "Frequent"
-			: i.count <= coldThreshold
-				? "Never"
-				: "Normal") as NumberLabel,
+		// A number that has never appeared in scope is always "Never" regardless
+		// of how the percentile lands; otherwise compare against the observed
+		// distribution.
+		label: (i.count === 0
+			? "Never"
+			: i.count >= hot
+				? "Frequent"
+				: i.count <= cold
+					? "Never"
+					: "Normal") as NumberLabel,
 	}));
 }
 
@@ -41,32 +61,33 @@ export function scopeToYears(scope: string): number | null {
 	return map[scope] ?? 5;
 }
 
-export function buildDateFilter(scope: string, month?: number, day?: string): string {
-	const parts: string[] = [];
-	const years = scopeToYears(scope);
-	if (years !== null) {
-		const from = new Date();
-		from.setFullYear(from.getFullYear() - years);
-		parts.push(`draw_date >= '${from.toISOString().slice(0, 10)}'`);
-	}
-	if (month) {
-		parts.push(`EXTRACT(MONTH FROM draw_date) = ${month}`);
-	}
-	if (day === "1") {
-		parts.push(`EXTRACT(DAY FROM draw_date) = 1`);
-	} else if (day === "16") {
-		parts.push(`EXTRACT(DAY FROM draw_date) = 16`);
-	}
-	return parts.join(" AND ");
+const DRAW_ANNOUNCE_HOUR = 16;
+const THAI_OFFSET_MS = 7 * 60 * 60 * 1000;
+
+/**
+ * Current Thai (UTC+7) wall-clock components, computed without relying on
+ * runtime ICU/timezone data (which is missing on some serverless platforms).
+ */
+function thaiNow(): { year: number; month: number; day: number; hour: number } {
+	const dt = new Date(Date.now() + THAI_OFFSET_MS);
+	return {
+		year: dt.getUTCFullYear(),
+		month: dt.getUTCMonth(),
+		day: dt.getUTCDate(),
+		hour: dt.getUTCHours(),
+	};
 }
 
-const DRAW_ANNOUNCE_HOUR = 16;
-
-function toYmd(dt: Date): string {
-	const y = dt.getFullYear();
-	const m = String(dt.getMonth() + 1).padStart(2, "0");
-	const d = String(dt.getDate()).padStart(2, "0");
-	return `${y}-${m}-${d}`;
+/**
+ * Build a YYYY-MM-DD string from explicit components, normalising out-of-range
+ * month values (e.g. month=-1 -> December previous year) via UTC construction.
+ */
+function ymd(year: number, month: number, day: number): string {
+	const d = new Date(Date.UTC(year, month, day));
+	const y = d.getUTCFullYear();
+	const m = String(d.getUTCMonth() + 1).padStart(2, "0");
+	const dd = String(d.getUTCDate()).padStart(2, "0");
+	return `${y}-${m}-${dd}`;
 }
 
 /**
@@ -74,26 +95,16 @@ function toYmd(dt: Date): string {
  * been announced as of now. Used to detect when the stored latest draw is stale.
  */
 export function lastExpectedDrawDate(): string {
-	const now = new Date();
-	const thai = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Bangkok" }));
-	const year = thai.getFullYear();
-	const month = thai.getMonth();
-	const day = thai.getDate();
-	const hour = thai.getHours();
-
+	const { year, month, day, hour } = thaiNow();
 	const announced = (drawDay: number) => day > drawDay || (day === drawDay && hour >= DRAW_ANNOUNCE_HOUR);
 
-	if (announced(16)) return toYmd(new Date(year, month, 16));
-	if (announced(1)) return toYmd(new Date(year, month, 1));
-	return toYmd(new Date(year, month - 1, 16));
+	if (announced(16)) return ymd(year, month, 16);
+	if (announced(1)) return ymd(year, month, 1);
+	return ymd(year, month - 1, 16);
 }
 
 export function nextDrawDate(): string {
-	const now = new Date();
-	const thaiTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Bangkok" }));
-	const year = thaiTime.getFullYear();
-	const month = thaiTime.getMonth();
-	const day = thaiTime.getDate();
-	if (day < 16) return new Date(year, month, 16).toISOString().slice(0, 10);
-	return new Date(year, month + 1, 1).toISOString().slice(0, 10);
+	const { year, month, day, hour } = thaiNow();
+	if (day < 16 || (day === 16 && hour < 16)) return ymd(year, month, 16);
+	return ymd(year, month + 1, 1);
 }

@@ -7,10 +7,15 @@ type DigitRow = { position: number };
 export default defineEventHandler(async (event) => {
 	const query = getQuery(event);
 	const scope = validateScope((query.scope as string) ?? "5y");
-	const pos = query.pos ? Number(query.pos) : undefined;
+	const pos = query.pos !== undefined && query.pos !== null && query.pos !== ""
+		? Number(query.pos)
+		: undefined;
 
-	if (pos !== undefined && (pos < 1 || pos > 6)) {
-		throw createError({ statusCode: 400, message: "Invalid position. Must be 1-6" });
+	// Reject non-numeric / out-of-range positions. `Number("abc")` is NaN and
+	// any comparison with NaN is false, so the original `(pos < 1 || pos > 6)`
+	// check silently accepted invalid input.
+	if (pos !== undefined && (!Number.isInteger(pos) || pos < 1 || pos > 6)) {
+		throw createError({ statusCode: 400, message: "Invalid position. Must be an integer between 1 and 6" });
 	}
 
 	const db = getSupabaseAdmin();

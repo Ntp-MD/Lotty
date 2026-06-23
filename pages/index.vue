@@ -27,20 +27,25 @@ function toggleLock(pos: number, digit: string) {
   locks.value = { ...locks.value, [pos]: current === digit ? "" : digit };
 }
 
+// Approximate joint frequency of the locked digit pattern, treating each
+// position as statistically independent. This is a heuristic estimator, not an
+// exact historical frequency (lottery digits within the same draw are NOT
+// strictly independent). Returned as a percentage with 2-decimal precision so
+// multi-position locks don't collapse to 0 due to integer rounding.
 const comboFreq = computed(() => {
   const lockedPositions = Object.entries(locks.value).filter(([, d]) => d !== "");
   if (!lockedPositions.length) return null;
 
-  let combined = 100;
-  lockedPositions.forEach(([posStr, digit]) => {
+  let probability = 1;
+  for (const [posStr, digit] of lockedPositions) {
     const posData = positions.value.find((p) => p.position === Number(posStr));
-    if (posData) {
-      const total = Object.values(posData.freq).reduce((a, b) => a + b, 0);
-      const digitFreq = posData.freq[digit] ?? 0;
-      combined = Math.round(((combined * (digitFreq / Math.max(total, 1))) / 100) * 100);
-    }
-  });
-  return combined;
+    if (!posData) continue;
+    const total = Object.values(posData.freq).reduce((a, b) => a + b, 0);
+    if (total === 0) return 0;
+    const digitFreq = posData.freq[digit] ?? 0;
+    probability *= digitFreq / total;
+  }
+  return Math.round(probability * 10000) / 100;
 });
 
 const quickPick = ref<{ last2: string; last3b: string; last3f: string } | null>(null);
@@ -107,48 +112,96 @@ function validateNumericInput(e: Event) {
   lookupQuery.value = input.value;
 }
 
-function copyQuickPick() {
+const copyState = ref<"idle" | "ok" | "error">("idle");
+
+async function copyQuickPick() {
   if (!quickPick.value) return;
   const text = `2 Digit: ${quickPick.value.last2}\n3 Digit Bottom: ${quickPick.value.last3b}\n3 Digit Front: ${quickPick.value.last3f}`;
-  navigator.clipboard.writeText(text);
+  try {
+    if (!navigator?.clipboard?.writeText) throw new Error("Clipboard API unavailable");
+    await navigator.clipboard.writeText(text);
+    copyState.value = "ok";
+  } catch (err) {
+    // Browsers reject writeText() outside secure contexts or when the user
+    // denies permission. Swallow the rejection so it does not surface as an
+    // unhandled-promise console error and surface a soft failure state.
+    console.warn("clipboard copy failed", err);
+    copyState.value = "error";
+  } finally {
+    setTimeout(() => {
+      copyState.value = "idle";
+    }, 1500);
+  }
+}
+
+// All client-side time math runs against a reactive `nowMs` ref that the
+// 1Hz countdown interval keeps refreshed. This is critical for two reasons:
+//   1. `computed` only re-evaluates when reactive deps change — reading
+//      `new Date()` directly would cache the first value and `isDrawDay`
+//      would never flip when the clock crosses midnight or 16:00.
+//   2. `new Date(d.toLocaleString("en-US", { timeZone }))` reparses a
+//      localised string as LOCAL time, producing a Date whose fields are
+//      offset by (clientTZ - Bangkok). We mirror the server's manual
+//      offset approach instead, which is locale-independent.
+const THAI_OFFSET_MS = 7 * 60 * 60 * 1000;
+const nowMs = ref(Date.now());
+
+function thaiParts(ts: number) {
+  const d = new Date(ts + THAI_OFFSET_MS);
+  return {
+    year: d.getUTCFullYear(),
+    month: d.getUTCMonth(),
+    day: d.getUTCDate(),
+    hour: d.getUTCHours(),
+    minute: d.getUTCMinutes(),
+    second: d.getUTCSeconds(),
+  };
+}
+
+// The next-draw INSTANT, in UTC ms. Draws are announced at 16:00 Thai time
+// (= 09:00 UTC) on the 1st and 16th of each month.
+function nextDrawInstant(ts: number): number {
+  const { year, month, day, hour } = thaiParts(ts);
+  let nextYear = year;
+  let nextMonth = month;
+  let nextDay: number;
+  if (day < 16 || (day === 16 && hour < 16)) {
+    nextDay = 16;
+  } else if (day === 16 && hour >= 16) {
+    nextMonth = month + 1;
+    nextDay = 1;
+  } else {
+    nextMonth = month + 1;
+    nextDay = 1;
+  }
+  // 16:00 Thai = (16 - 7) = 09:00 UTC.
+  return Date.UTC(nextYear, nextMonth, nextDay, 16 - 7, 0, 0, 0);
 }
 
 const nextDrawDays = computed(() => {
-  const now = new Date();
-  const thaiTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Bangkok" }));
-  const next = new Date(thaiTime);
-  if (thaiTime.getDate() < 16) {
-    next.setDate(16);
-  } else {
-    next.setMonth(thaiTime.getMonth() + 1, 1);
-  }
-  next.setHours(0, 0, 0, 0);
-  const today = new Date(thaiTime);
-  today.setHours(0, 0, 0, 0);
-  return Math.round((next.getTime() - today.getTime()) / 86400000);
+  const today = thaiParts(nowMs.value);
+  const todayUtc = Date.UTC(today.year, today.month, today.day);
+  const next = thaiParts(nextDrawInstant(nowMs.value));
+  const nextDayUtc = Date.UTC(next.year, next.month, next.day);
+  return Math.round((nextDayUtc - todayUtc) / 86400000);
 });
 
 const countdown = ref({ hours: 0, minutes: 0, seconds: 0 });
+
 const isDrawDay = computed(() => {
-  const now = new Date();
-  const thaiTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Bangkok" }));
-  const day = thaiTime.getDate();
+  const { day } = thaiParts(nowMs.value);
   return day === 1 || day === 16;
 });
 
 function getThaiDateString() {
-  const now = new Date();
-  const thaiTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Bangkok" }));
-  const y = thaiTime.getFullYear();
-  const m = String(thaiTime.getMonth() + 1).padStart(2, '0');
-  const d = String(thaiTime.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
+  const { year, month, day } = thaiParts(nowMs.value);
+  return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
 
 // Run unified async fetch last (top-level await at the very bottom of setup)
 const asyncKeyHome = computed(() => `home-${filter.value.scope}`);
 const { data: homeFetchedData, pending, error, refresh } = await useAsyncData(
-  asyncKeyHome.value,
+  () => asyncKeyHome.value,
   async () => {
     const [adv, latest, digits] = await Promise.all([
       $fetch<AdvisorResponse>("/api/advisor", { query: { scope: filter.value.scope } }),
@@ -185,14 +238,12 @@ let pollingInterval: ReturnType<typeof setInterval> | null = null;
 function startPollingIfNeeded() {
   if (!isDrawDay.value) return;
 
-  const now = new Date();
-  const thaiTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Bangkok" }));
-  const currentMinutes = thaiTime.getHours() * 60 + thaiTime.getMinutes();
+  const { hour, minute } = thaiParts(nowMs.value);
+  const currentMinutes = hour * 60 + minute;
 
-  // Draw announcement is at ~15:58 - 16:05
-  // Start polling from 15:50 to 16:30 Thailand time
-  const startPollingMinutes = 15 * 60 + 50; // 15:50
-  const stopPollingMinutes = 16 * 60 + 30;  // 16:30
+  // Draw announcement is at ~15:58 - 16:05; poll from 15:50 to 16:30 Thai.
+  const startPollingMinutes = 15 * 60 + 50;
+  const stopPollingMinutes = 16 * 60 + 30;
 
   const todayStr = getThaiDateString();
 
@@ -227,22 +278,11 @@ function startPollingIfNeeded() {
 }
 
 function updateCountdown() {
-  const now = new Date();
-  const thaiTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Bangkok" }));
-  const nextDraw = new Date(thaiTime);
-  
-  if (thaiTime.getDate() < 16) {
-    nextDraw.setDate(16);
-  } else if (thaiTime.getDate() === 16 && thaiTime.getHours() < 16) {
-    nextDraw.setDate(16);
-  } else if (thaiTime.getDate() === 16 && thaiTime.getHours() >= 16) {
-    nextDraw.setMonth(thaiTime.getMonth() + 1, 1);
-  } else {
-    nextDraw.setMonth(thaiTime.getMonth() + 1, 1);
-  }
-  nextDraw.setHours(16, 0, 0, 0);
-  
-  const diff = nextDraw.getTime() - thaiTime.getTime();
+  // Refresh the reactive clock first so every downstream computed sees the
+  // new instant in the same tick.
+  nowMs.value = Date.now();
+
+  const diff = nextDrawInstant(nowMs.value) - nowMs.value;
   if (diff > 0) {
     countdown.value = {
       hours: Math.floor(diff / 3600000),
@@ -362,8 +402,10 @@ onUnmounted(() => {
                       <span class="num-display quickpick-num">{{ quickPick.last3f }}</span>
                     </div>
                   </div>
-                  <button class="btn btn-sm btn-ghost" @click="copyQuickPick">
-                    {{ t('quickpick.copy') }}
+                  <button class="btn btn-sm btn-ghost" @click="copyQuickPick" :disabled="copyState !== 'idle'">
+                    <template v-if="copyState === 'ok'">✓</template>
+                    <template v-else-if="copyState === 'error'">✕</template>
+                    <template v-else>{{ t('quickpick.copy') }}</template>
                   </button>
                 </div>
               </div>

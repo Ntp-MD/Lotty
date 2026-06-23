@@ -98,7 +98,7 @@ export default defineNuxtConfig({
 	},
 
 	runtimeConfig: {
-		cronSecret: process.env.CRON_SECRET ?? "",
+		cronSecret: process.env.CRON_SECRET,
 		public: {
 			supabaseUrl: process.env.SUPABASE_URL ?? "",
 			supabaseKey: process.env.SUPABASE_ANON_KEY ?? "",
